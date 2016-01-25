@@ -193,7 +193,7 @@ class BenchmarkEditForm(forms.ModelForm):
         
         super(BenchmarkEditForm, self).__init__(*args, **kwargs)
 
-        for f in ['fps_min','fps_avg', 'fps_std', 'fps_max','fps_median', 'fps_1st_percentile','fps_3rd_percentile','length_seconds']:
+        for f in ['fps_min','fps_avg', 'fps_std', 'fps_max','fps_median', 'fps_1st_quartile','fps_3rd_quartile','length_seconds']:
             self.fields[f].widget.attrs['readonly'] = True
 
         # TODO: specify field order here
