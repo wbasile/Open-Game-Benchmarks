@@ -106,7 +106,7 @@ DATABASES['default']['CONN_MAX_AGE'] = 500
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # Allow all host headers
-ALLOWED_HOSTS = ['*','linuxgamebenchmarksdb.herokuapp.com']
+ALLOWED_HOSTS = ['linuxgamebenchmarksdb.herokuapp.com','www.lgbdb.org','lgbdb.org']
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.7/howto/static-files/
