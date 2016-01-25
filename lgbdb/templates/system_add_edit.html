@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% load bootstrap3 %}
+
+
+{% block content %}
+
+<p><h2>{{ title }}</h2>
+<b>*</b> = mandatory fields
+</p>
+<br>
+
+<div class="row">
+    <div class="col-md-6">
+        
+        <form method="POST" action="" >
+        
+        
+        {% csrf_token %}
+        
+        
+
+        {% for field in form %}
+        <tr>
+<!--
+            {% if  field.name == "descriptive_name"  %}
+            <br><p>Required fields:</p>
+            {% endif %}
+            
+
+            {% if  field.name == "desktop_environment"  %}
+            <br><p>Optional fields:</p>
+            {% endif %}
+
+            
+-->
+<!--
+            <td>{{ field.label_tag }}</td>
+-->
+            <td>{% bootstrap_field field %}</td>
+            <br>
+        </tr>
+        {% endfor %}
+        
+        <br>
+        
+        
+<!--
+        {% bootstrap_form form %}
+-->
+        <!--
+        {{ form.as_p }}
+        -->
+        
+        <input type="submit" value="Save" class="btn btn-primary"/>
+            
+        
+        </form>
+    </div>
+</div>
+<br>
+<p>{{ message }}</p>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% load bootstrap3 %}
+
+<!--
+the filter form
+-->
+<form action="#" method="get" class="form">
+    <div class="row">
+        <div class="col-md-3">
+            {% bootstrap_field filter.form.game %}
+        </div>
+        <div class="col-md-3">
+            {% bootstrap_field filter.form.cpu_model %}
+        </div>
+        <div class="col-md-3">
+            {% bootstrap_field filter.form.gpu_model %}
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-3">
+            {% bootstrap_field filter.form.resolution %}
+        </div>
+        <div class="col-md-3">
+            {% bootstrap_field filter.form.driver %}
+        </div>
+        
+    </div>
+    
+    <div class="row">
+        <div class="col-md-3">
+            <input type="submit" value="Search" class="btn btn-success"/>
+        </div>
+    </div>
+    
+</form>
+

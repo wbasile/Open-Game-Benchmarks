@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Delete System</h1>
+
+<p>Are you sure you want to delete the system <b>{{ system }}?</b></p>
+<table>
+<tr>
+<td><form action="{% url "system-delete" pk=system.id %}" method="POST">
+    {% csrf_token %}
+
+    <input type="submit" value="Yes, delete." class="btn btn-danger" />
+    
+</form>
+
+</td>
+
+<td>&nbsp;<td>
+
+<td><form action="{% url "profile" %}">
+    <input type="submit" value="No, cancel" class="btn btn-info">
+</form>
+
+</td>
+</tr>
+</table>
+<br>
+
+
+
+<br>
+
+
+
+
+<div class="row">
+    <div class="col-md-6">
+        <table class="table table-striped">
+            <tbody>
+                <tr>
+                    <th>Name</th><td>{{ system.descriptive_name }}</td>
+                </tr>
+                <tr>
+                    <th>CPU</th><td>{{ system.cpu_model }}</td>
+                </tr>
+                <tr>
+                    <th>GPU</th><td>{{ system.gpu_model }}</td>
+                </tr>
+                <tr>
+                    <th>Driver</th><td>{{ system.driver }}</td>
+                </tr>
+                <tr>
+                    <th>Resolution</th><td>{{ system.resolution }}</td>
+                </tr>
+                <tr>
+                    <th>Linux distro</th><td>{{ system.linux_distribution }}</td>
+                </tr>
+                <tr>
+                    <th>Kernel</th><td>{{ system.kernel }}</td>
+                </tr>
+                <tr>
+                    <th>Desktop Environment</th><td>{{ system.desktop_environment }}</td>
+                </tr>
+                <tr>
+                    <th>Window Manager</th><td>{{ system.window_manager }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+
+
+{% endblock %}

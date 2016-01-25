@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!--
+{{ object }}
+-->
+
+<h3><p>Benchmark detail</p></h3>
+
+
+<div class="row">
+    <div class="col-md-6">
+        <table class="table table-striped">
+            <tbody>
+                <tr>
+                    <th>Game</th><td>{{ object.game }}</td>
+                </tr>
+                <tr>
+                    <th>Settings</th><td>{{ object.game_quality_preset }}</td>
+                </tr>
+                <tr>
+                    <th>Resolution</th><td>{{ object.resolution }}</td>
+                </tr>
+                <tr>
+                    <th>FPS Average</th><td>{{ object.fps_avg }}</td>
+                </tr>
+                <tr>
+                    <th>FPS standard dev.</th><td>{{ object.fps_std }}</td>
+                </tr>
+                <tr>
+                    <th>FPS Minimum</th><td>{{ object.fps_min }}</td>
+                </tr>
+                <tr>
+                    <th>FPS 1st quartile</th><td>{{ object.fps_1st_quartile }}</td>
+                </tr>
+                <tr>
+                    <th>FPS 2nd quartile (Median)</th><td>{{ object.fps_median }}</td>
+                </tr>
+                <tr>
+                    <th>FPS 3rd quartile</th><td>{{ object.fps_3rd_quartile }}</td>
+                </tr>
+                <tr>
+                    <th>FPS Maximum</th><td>{{ object.fps_max }}</td>
+                </tr>
+                <tr>
+                    <th>Benchmark length (seconds)</th><td>{{ object.length_seconds }}</td>
+                </tr>
+                <tr>
+                    <th>CPU</th><td>{{ object.cpu_model }}</td>
+                </tr>
+                <tr>
+                    <th>GPU</th><td>{{ object.gpu_model }}</td>
+                </tr>
+                <tr>
+                    <th>Driver</th><td>{{ object.driver }}</td>
+                </tr>
+                <tr>
+                    <th>Resolution</th><td>{{ object.resolution }}</td>
+                </tr>
+                <tr>
+                    <th>Linux distro</th><td>{{ object.linux_distribution }}</td>
+                </tr>
+                <tr>
+                    <th>Kernel</th><td>{{ object.kernel }}</td>
+                </tr>
+                <tr>
+                    <th>Desktop Environment</th><td>{{ object.desktop_environment }}</td>
+                </tr>
+                <tr>
+                    <th>Window Manager</th><td>{{ object.window_manager }}</td>
+                </tr>
+                <tr>
+                    <th>Uploaded by</th><td>{{ object.user }}</td>
+                </tr>
+                <tr>
+                    <th>Upload date</th><td>{{ object.upload_date }}</td>
+                </tr>
+                <tr>
+                    <th>Notes</th><td>{{ object.additional_notes }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+
+
+{% endblock %}

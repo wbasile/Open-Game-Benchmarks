@@ -1,0 +1,1 @@
+web: gunicorn linux_game_benchmarks_database.wsgi --log-file -

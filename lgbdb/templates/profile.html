@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+<h1>User profile: {{user}}</h1>
+<br>
+
+<h3><p>Systems:</p></h3>
+<br>
+<form action="/system_add">
+    <input type="submit" value="Add new system" class="btn btn-success">
+</form>
+
+<div class="row">
+    <div class="col-md-12">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>CPU</th>
+                    <th>GPU</th>
+                    <th>Driver</th>
+                    <th>Resolution</th>
+                    <th>Linux distro</th>
+                    <th>Kernel</th>
+                    <th>Desktop Environment</th>
+                    <th>Window Manager</th>
+                </tr>
+            </thead>
+                
+            <tbody>
+                {% for system in uss %}
+                <tr>
+                    <td>{{ system.descriptive_name }}</td>
+                    <td>{{ system.cpu_model }}</td>
+                    <td>{{ system.gpu_model }}</td>
+                    <td>{{ system.driver }}</td>
+                    <td>{{ system.resolution }}</td>
+                    <td>{{ system.linux_distribution }}</td>
+                    <td>{{ system.kernel }}</td>
+                    <td>{{ system.desktop_environment }}</td>
+                    <td>{{ system.window_manager }}</td>
+                    <td>
+                        <form action="/system_edit/{{ system.id }}">
+                            <input type="submit" value="Edit" class="btn btn-sm btn-info">
+                        </form>
+                    </td>
+                    <td>
+                        <form action="/system_delete/{{ system.id }}">
+                            <input type="submit" value="Delete" class="btn btn-sm btn-danger">
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+
+<!--
+Allow the addition of new benchmarks only if the user has at least one system
+-->
+<h3><p>Benchmarks:</p></h3>
+{% if uss %}
+<br>
+<form action="/benchmark_add">
+    <input type="submit" value="Add new benchmark" class="btn btn-success">
+</form>
+{% endif %}
+
+
+<div class="row">
+    <div class="col-md-12">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Game</th>
+                    <th>Notes</th>
+                    <th>Settings</th>
+                    <th>Resolution</th>
+                    <th>FPS average</th>
+                    <th>FPS min</th>
+                </tr>
+            </thead>
+                
+            <tbody>
+                {% for benchmark in usb %}
+                <tr>
+                    <td>{{ benchmark.game }}</td>
+                    <td>{{ benchmark.additional_notes }}</td>
+                    <td>{{ benchmark.game_quality_preset }}</td>
+                    <td>{{ benchmark.resolution }}</td>
+                    <td>{{ benchmark.fps_avg }}</td>
+                    <td>{{ benchmark.fps_min }}</td>
+                    <td>
+                        <form action="/benchmark_edit/{{ benchmark.id }}">
+                            <input type="submit" value="Edit" class="btn btn-sm btn-info">
+                        </form>
+                    </td>
+<!--
+                    <td>
+                        <form action="/edit_benchmark/{{ benchmark.id }}">
+                            <input type="submit" value="Edit" class="btn btn-info">
+                        </form>
+                    </td>
+-->
+                    <td>
+                        <form action="/benchmark_delete/{{ benchmark.id }}">
+                            <input type="submit" value="Delete" class="btn btn-sm btn-danger">
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!--
+<br>
+<form action="/add_system">
+    <input type="submit" value="Add new system" class="btn btn-success">
+</form>
+-->
+
+
+
+
+                        
+{% endblock %}
+
+
+
+
+
