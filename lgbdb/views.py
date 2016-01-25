@@ -86,7 +86,7 @@ def home(request):
     else:
         most_popular_game = None
         
-    if Benchmark.objects.count() >= 5:
+    if Benchmark.objects.count() > 0:
         recent_benchmarks = Benchmark.objects.all().order_by('upload_date')[0:5]
     else:
         recent_benchmarks = []
