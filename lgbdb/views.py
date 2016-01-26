@@ -219,7 +219,7 @@ class BenchmarkTable(tables.Table):
 
     def render_benchmark_detail(self, record):
         
-        button_html = '<a href="/benchmark_detail/' +str(record.id)+ '" class="btn btn-sm btn-warning">View</a>'
+        button_html = '<a href="/benchmark_detail/' +str(record.id)+ '" class="btn btn-sm btn-warning">Detail</a>'
                         
         return mark_safe(button_html)
         
