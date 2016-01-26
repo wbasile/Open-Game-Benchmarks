@@ -67,7 +67,7 @@ class Benchmark(models.Model):
     gpu_model = models.CharField(max_length=50,choices=GPU_CHOICES,blank=True)
     resolution = models.CharField(max_length=50,choices=RESOLUTION_CHOICES,blank=True)
     driver = models.CharField(max_length=50,choices=DRIVER_CHOICES,blank=True)
-    operative_system = models.CharField(max_length=50,choices=OS_CHOICES,blank=True)
+    operative_system = models.CharField(max_length=80,choices=OS_CHOICES,blank=True)
      
     #~ linux_distribution = models.CharField(max_length=50,blank=True)
     #~ desktop_environment = models.CharField(max_length=50,blank=True)
