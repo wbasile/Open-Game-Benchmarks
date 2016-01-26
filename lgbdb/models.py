@@ -95,6 +95,9 @@ class Benchmark(models.Model):
     
     # user cannot input those directly, rather, they are calculated as soon as the frames file is uploaded
     game = models.ForeignKey(Game, on_delete=models.CASCADE)
+    
+    fps_data = models.CommaSeparatedIntegerField(max_length=300,default = "")
+    
     fps_min = models.IntegerField(default = 0.0)
     fps_max = models.IntegerField(default = 0.0)
     fps_avg = models.IntegerField(default = 0.0)

@@ -5,10 +5,7 @@ admin.autodiscover()
 import lgbdb.views
 
 
-urlpatterns = patterns('',
-    # Examples:
-    # url(r'^$', 'linux_game_benchmarks_database.views.home', name='home'),
-    # url(r'^blog/', include('blog.urls')),
+urlpatterns = [
 
     url(r'^admin/', include(admin.site.urls)),
     
@@ -32,5 +29,4 @@ urlpatterns = patterns('',
     
     url(r'^game_list/$', lgbdb.views.GameListView.as_view(), name='game-list'),
     
-    
-)
+]

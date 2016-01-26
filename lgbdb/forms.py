@@ -121,8 +121,10 @@ class BenchmarkAddForm(forms.ModelForm):
                 timecounter = 0
                 framecount = 0
                 
-        
-        
+                
+        # limit the fps to 300, i.e. 5 minutes
+        if len(fps) > 300:
+            fps = fps[0:300]
 
         # from fps calculate all sort of statistical measures
         fps_min = min(fps)
@@ -146,6 +148,9 @@ class BenchmarkAddForm(forms.ModelForm):
         
         
         # updated the returned dictionary
+        
+        self.instance.fps_data = ",".join([str(x) for x in fps])
+        
         self.instance.fps_avg =  fps_avg
         self.instance.fps_min =  fps_min
         self.instance.fps_max =  fps_max
@@ -184,7 +189,7 @@ class BenchmarkEditForm(forms.ModelForm):
     class Meta:
         model = Benchmark        
         #~ fields = '__all__'
-        exclude = ['game','user','frames_file']
+        exclude = ['game','user','frames_file','fps_data']
         widgets = {'additional_notes': forms.Textarea(attrs={'cols': 80, 'rows': 10})}
 
 
