@@ -38,8 +38,8 @@ INSTALLED_APPS = (
     'registration',
     'django_tables2',
     'django_filters',
-    'chartit',
     'bootstrap3',
+    'graphos',
     'lgbdb',
 )
 

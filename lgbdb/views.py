@@ -12,53 +12,17 @@ from django.core.urlresolvers import reverse
 from django import forms
 
 
-
 import django_tables2 as tables
 from django_tables2   import RequestConfig
 from django.utils.safestring import mark_safe
 from django.utils.html import escape
 
- 
-from chartit import DataPool, Chart
+
 import django_filters
 
-
-
-class BenchmarkTable(tables.Table):
-    class Meta:
-        model = Benchmark
-        #~ attrs = {"class": "paleblue"}
-        #~ exclude = ("id", "frames_file", "long_description", "desktop_environment", "kernel", "window_manager", "upload_date", "change_date")
-        fields = ("game", "game_quality_preset", "additional_notes","cpu_model", "gpu_model", "driver", "resolution","fps_avg", "fps_min", "user")
-    
-    
-    # for the Game column, have the game title link to the steam store page
-    def render_game(self, value):
-        
-        # https://steamcdn-a.akamaihd.net/steam/apps/30/capsule_sm_120.jpg
-        img_url = "https://steamcdn-a.akamaihd.net/steam/apps/"+str(value.steam_appid)+"/capsule_sm_120.jpg"
-        return mark_safe('<a target="_blank" href="http://steamdb.info/app/' + str(value.steam_appid) + '/" >' + '<img src="%s" />' % escape(img_url) + " </a><br>"+value.title)
-        #return mark_safe(value.title)
-        #~ return mark_safe("ciccia")
-    
-    benchmark_detail = tables.Column(verbose_name="",empty_values=(), orderable=False)
-
-    def render_benchmark_detail(self, record):
-        
-        button_html = '<form action="/benchmark_detail/' +str(record.id)+ '">'
-        button_html += '\n<input type="submit" value="Detail" class="btn btn-xs btn-warning">'
-        button_html += '\n</form>'
-                        
-        print button_html
-                        
-        print mark_safe(button_html)
-        
-        return mark_safe(button_html)
-        #~ return mark_safe('<a href="/detail_benchmark/' + str(record.id) + '" >' + "Detail" + '</a>')
-        #~ return record.id
-
-
-
+from graphos.sources.simple import SimpleDataSource
+#~ from graphos.sources.model import ModelDataSource
+from graphos.renderers import gchart
 
 
 
@@ -97,7 +61,7 @@ def home(request):
         'num_benchmarks' : num_benchmarks,
         'best_benchmark' : best_fps_benchmark,
         'most_popular_game' : most_popular_game,
-        'recent_benchmarks' : recent_benchmarks,
+        'benchmarks_table' : recent_benchmarks,
     }
     
     
@@ -110,6 +74,9 @@ def about(request):
     return render(request, "about.html", {})
         
     
+    
+def GameNoBenchmark(request):
+    return render(request, "no_benchmark.html", {})
 
         
 class GameTable(tables.Table):
@@ -140,9 +107,8 @@ class GameTable(tables.Table):
         if value > 0:
             return mark_safe('<a href="/benchmark_table/?game=' + str(record.id) + '" >' + '<img src="%s" />' % escape(img_url) + " " + unicode(record.title)+"</a>")
         else:
-            return mark_safe('<img src="%s" />' % escape(img_url) + " " + unicode(record.title))
+            return mark_safe('<a href="/no_benchmark">' + '<img src="%s" />' % escape(img_url) + " " + unicode(record.title)+"</a>")
             
-        #~ return mark_safe('<a target="_blank" href="http://store.steampowered.com/app/' + str(record.steam_appid) + '/" >' + '<img src="%s" />' % escape(img_url) + " </a><br>"+unicode(record.title))
         
 
 
@@ -198,7 +164,7 @@ class BenchmarkFilter(django_filters.FilterSet):
         model = Benchmark
         
         # these fields work even if the relative fields are hidden (excluded in the table)
-        fields = ["game","cpu_model","gpu_model","resolution", "driver","linux_distribution"]
+        fields = ["game","cpu_model","gpu_model","resolution", "driver","operative_system"]
         
         # this doesn't work :(
         #~ fields = ['user_system.cpu_model']
@@ -239,17 +205,21 @@ class BenchmarkTable(tables.Table):
     # for the Game column, have the game title link to the steam store page
     def render_game(self, value):
         
-        # https://steamcdn-a.akamaihd.net/steam/apps/30/capsule_sm_120.jpg
+    
         img_url = "https://steamcdn-a.akamaihd.net/steam/apps/"+str(value.steam_appid)+"/capsule_sm_120.jpg"
-        return mark_safe('<a target="_blank" href="http://steamdb.info/app/' + str(value.steam_appid) + '/" >' + '<img src="%s" />' % escape(img_url) + " </a><br>"+value.title)
+        
+        #value = int(record.num_benchmarks)
+        
+        #~ if value > 0:
+        return mark_safe('<a href="/benchmark_table/?game=' + str(value.pk) + '" >' + '<img src="%s" /><br>' % escape(img_url) + " " + unicode(value.title)+"</a>")
+        
+    
     
     benchmark_detail = tables.Column(verbose_name="",empty_values=(), orderable=False)
 
     def render_benchmark_detail(self, record):
         
-        button_html = '<form action="/benchmark_detail/' +str(record.id)+ '">'
-        button_html += '\n<input type="submit" value="Detail" class="btn btn-xs btn-warning">'
-        button_html += '\n</form>'
+        button_html = '<a href="/benchmark_detail/' +str(record.id)+ '" class="btn btn-sm btn-warning">View</a>'
                         
         return mark_safe(button_html)
         
@@ -282,110 +252,76 @@ class BenchmarkTableView(TemplateView):
         return context
         
         
-def sort_func(t):
-    #print t
-    return -Benchmark.objects.get(id=t).fps_avg
         
-def map_func(t):
-    # TODO: here it is possible to build the label of each column based on the pk
+        
+
+# this function builds the label of each bar 
+def set_benchmark_y_label(benchmark):
     
-    b = Benchmark.objects.get(id=t)
-    if b.game_quality_preset != "n.a.":
-        y_tick_label = ", ".join([str(x) for x in [b.game, b.gpu_model, b.cpu_model, b.game_quality_preset + " preset", b.resolution ] ])
+    if benchmark.game_quality_preset != "n.a.":
+        y_tick_label = ", ".join([str(x) for x in [benchmark.game, benchmark.gpu_model, benchmark.cpu_model, benchmark.game_quality_preset + " preset", benchmark.resolution ] ])
     else:
-        y_tick_label = ", ".join([str(x) for x in [b.game, b.gpu_model, b.cpu_model, b.resolution ] ])
+        y_tick_label = ", ".join([str(x) for x in [benchmark.game, benchmark.gpu_model, benchmark.cpu_model, benchmark.resolution ] ])
         
     return str(y_tick_label)
-    
 
+    
+    
 def fps_chart_view(request):
     
     max_displayed_benchmarks = 100
-    min_graph_height = 400
     
-    # step 0: define the objects to analyze: a filtered subset of Benchmark
     f = BenchmarkFilter(request.GET, queryset=Benchmark.objects.order_by("upload_date").reverse())
     
-    # limit the length of the data to max_displayed_benchmarks
-    data_source = Benchmark.objects.filter(pk__in=[x.pk for x in f[0:min([len(f), max_displayed_benchmarks])]])
+    queryset = Benchmark.objects.filter(pk__in=[x.pk for x in f[0:min([len(f), max_displayed_benchmarks])]])
     
-
-    if len(data_source) > 0:
-        # set the vertical size of the graph based on the amount of data
-        graph_height = str(max([min_graph_height,len(data_source)*30]))
+    data =  [['', 'Average', 'Minimum']]
         
-        
-        #Step 1: Create a DataPool with the data we want to retrieve.
-        mydata = DataPool(
-               series=
-                [{'options': {
-                   'source': data_source
-                   },
-                  'terms': [
-                    'id',
-                    {'Avg FPS':'fps_avg'},
-                    {'Min FPS':'fps_min'}]}
-                 ])
+            
+    for s,q in enumerate(queryset):
+        data += [[set_benchmark_y_label(q),q.fps_avg, q.fps_min]]
     
-        #Step 2: Create the Chart object
-        cht = Chart(
-                datasource = mydata,
-                series_options =
-                         [
-                           {'options':{
-                              'type': 'bar'},
-                            'terms':{
-                              'id': [
-                                {'Avg FPS': {'pointWidth': 20, 'color':"#44ccaa"}},
-                                {'Min FPS': {'pointWidth': 5, 'color':"#cc4444"}}
-                                ]}},
-                                
-                            ],
-                        
-                        
-                chart_options =
-                    {
-                      
-                        'title': {'text': 'Frames per second'},
-                        'chart': {'height': graph_height},
- 
-                        'xAxis': {'title': {'text': ' '}},
-                        'yAxis': {'title': {'text': ' '}},
- 
-                    }, x_sortf_mapf_mts = (sort_func, map_func, False))
-    else:
-        cht = None
         
-    if len(f) == 1:
-        infotext = "1 benckmark was found"
-    else:
-        infotext = str(len(f)) + " benckmarks were found"
-        if len(f) > max_displayed_benchmarks:
-            infotext += " (Note: the graph below displays only the first " + str(max_displayed_benchmarks) + " benchmarks)"
+    data_source = SimpleDataSource(data=data)
         
+    chart = gchart.BarChart(data_source, options={'title': "Frames per second"})
         
-    #Step 3: Send the chart object to the template.
-    return render(request, "benchmark_chart.html", {'mychart': cht,'filter': f, 'infotext':infotext})
-    
+    return render(request, "benchmark_chart.html", {'filter': f, 'chart': chart})
 
 
 
-class BenchmarkDetailView(DetailView):    
-    model = Benchmark
-    template_name = 'benchmark_detail.html'
+
+
+
+def BenchmarkDetailView(request, pk=None):
     
+    benchmark = get_object_or_404(Benchmark, pk=pk)
     
+    if benchmark:
     
-    
+        data =  [['Second', 'FPS']]
+        
+        for s,f in enumerate(benchmark.fps_data.split(",")):
+            data += [[int(s),int(f)]]
+        
+        
+        data_source = SimpleDataSource(data=data)
+        
+        chart = gchart.LineChart(data_source, options={'title': "Frames per second"})
+
+
+        return render(request, "benchmark_detail.html", {'object':benchmark,'fpschart': chart})
+
+
+
     
 @login_required
 def profile(request):
 
     uss = request.user.system_set.all()
     usb = request.user.benchmark_set.order_by("upload_date").reverse()
-    
            
-    context = { "uss":uss, "usb":usb}
+    context = { "uss":uss, "benchmarks_table":usb}
     
     return render(request, 'profile.html', context)
     
@@ -458,8 +394,109 @@ def SystemAddEditView(request, pk=None):
     
 
 
+
+
+
+    
+class SystemDeleteView(DeleteView):
+    
+    def dispatch(self, *args, **kwargs):
+        
+        # verify that the object exists
+        system = get_object_or_404(System, pk=kwargs['pk'])
+        
+        # check that the user tryng to delete the system is the owner of that system 
+        # (this prevents also anonymous, non-logged-in users to delete)
+        if system.user == self.request.user:  
+            return super(SystemDeleteView, self).dispatch(*args, **kwargs)
+        else:
+            return HttpResponseForbidden("Forbidden")
+            
+    
+    model = System
+    template_name = 'system_delete.html'
+
+    def get_success_url(self):
+        return reverse('profile')
+        
+        
+        
+        
+@login_required    
+def BenchmarkEditView(request, pk=None):
+    
+    benchmark = get_object_or_404(Benchmark, pk=pk) # try to get the instance
+    if benchmark.user != request.user: # check if the instance belongs to the requesting user
+        return HttpResponseForbidden("Forbidden")
+
+
+    if request.method == 'POST':
+        
+        form = BenchmarkEditForm(request.POST, request.FILES, instance=benchmark)
+            
+        if form.is_valid():
+            
+            # ensure that the owner of this system is the current user
+            instance = form.save(commit=False)
+            instance.user = request.user
+            instance.save()
+                
+            return HttpResponseRedirect('/accounts/profile')
+
+    else:
+        form = BenchmarkEditForm(instance=benchmark)
+            
+            
+    title = 'Edit benchmark "' + str(benchmark) + '"'
+    
+    context = {"form":form , "title":title}
+    
+    template = "benchmark_edit.html"
+        
+    return render(request, template ,context)        
+            
+            
+            
+@login_required    
+def BenchmarkAddView(request):
+    
+    if request.method == 'POST':
+        
+        form = BenchmarkAddForm(request.POST, request.FILES,user=request.user)
+        
+        if form.is_valid():
+            
+            # ensure that the owner of this system is the current user
+            # this shouldn't be needed
+            instance = form.save(commit=False)
+            instance.user = request.user
+            instance.save()
+
+            return HttpResponseRedirect('/accounts/profile')
+            
+    else:
+        form = BenchmarkAddForm(user=request.user,initial={'user': request.user})
+            
+    
+    title = "Add new benchmark"
+    
+    context = {"form":form , "title":title}
+    
+    template = "benchmark_add.html"
+    
+    return render(request, template ,context)
+    
+
+    
+    
+            
+
+    
+
 @login_required    
 def BenchmarkAddEditView(request, pk=None):
+    
+    #~ has_systems = True
     
     if pk:  # this means that we are trying to edit an existing instance
         # TODO: create the 404 page
@@ -469,6 +506,12 @@ def BenchmarkAddEditView(request, pk=None):
             return HttpResponseForbidden("Forbidden")
     
     else:
+        # here the user is trying to add a new benchmark
+        # so check that he has at least on system, otherwise display a message
+        
+        #~ if request.user.system_set.count() == 0:
+            #~ has_systems = False
+            
         benchmark = None  
   
     
@@ -509,10 +552,15 @@ def BenchmarkAddEditView(request, pk=None):
     
     if benchmark:    
         title = 'Edit benchmark "' + str(benchmark) + '"'
+        add_system_button = False
     else:
         title = "Add new benchmark"
+        add_system_button = True
+        #~ if not has_systems:
+            #~ infotext = "It looks like you do not have any saved system" 
         
-        
+    
+    
     context = {"form":form , "title":title, "message":message}
     
     template = "benchmark_add_edit.html"
@@ -555,28 +603,5 @@ class BenchmarkDeleteView(DeleteView):
         
         
 
-
-    
-class SystemDeleteView(DeleteView):
-    
-    def dispatch(self, *args, **kwargs):
-        
-        # verify that the object exists
-        system = get_object_or_404(System, pk=kwargs['pk'])
-        
-        # check that the user tryng to delete the system is the owner of that system 
-        # (this prevents also anonymous, non-logged-in users to delete)
-        if system.user == self.request.user:  
-            return super(SystemDeleteView, self).dispatch(*args, **kwargs)
-        else:
-            return HttpResponseForbidden("Forbidden")
-            
-    
-    model = System
-    template_name = 'system_delete.html'
-
-    def get_success_url(self):
-        return reverse('profile')
-        
 
     

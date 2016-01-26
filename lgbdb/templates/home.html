@@ -10,36 +10,9 @@
 <h2>Welcome to the Linux Game Benchmarks DataBase</h2>
 <br>
 
-<div class="jumbotron">
-    <h2>Beta testing</h2>
-    <p>Hi everybody! This moment finally arrived: the Linux Game Benchmarks DataBase is ready to launch. This idea was born in the community, and will grow and mature with the help of the community. This site is now officially in Open Beta stage. Please let me know of any bug and issue you may encounter or features that you would like to see implemented. </p>
-</div>
+<div class="row">
 
-        
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <h3 class="panel-title">Statistics</h3>
-            </div>
-            
-            <div class="panel-body"> 
-                <p>Registered users: <b>{{ num_users }} </b></p>
-                <p>Supported Linux games on Steam: <a href="game_list"><b>{{ num_games }} </b></a></p>
-                
-                {% if most_popular_game %}
-                    <p>Most popular game: <a href="benchmark_table/?game={{ most_popular_game.pk }}"><b>{{ most_popular_game }} </b> (<b>{{most_popular_game.num_benchmarks}}</b> benchmarks )</a></p>
-                {% endif %}
-                
-                <p>Submitted game benchmarks: <a href="benchmark_table"><b>{{ num_benchmarks }} </b></a></p>
-                
-                {% if best_benchmark %}
-                    <p>Highest-fps benchmark: <a href="benchmark_detail/{{ best_benchmark.pk }}"> <b>{{ best_benchmark.game }} </b> 
-                    (average FPS = <b>{{ best_benchmark.fps_avg }} </b>)</a></p>
-                {% endif %}
-                
-                
-            </div>
-        </div>
-        
+    <div class="col-md-9">
         
         <div class="panel panel-default">
             <div class="panel-heading">
@@ -48,35 +21,60 @@
             
             <div class="panel-body">
                      
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>Game</th>
-                            <th>CPU</th>
-                            <th>GPU</th>
-                            <th>FPS average</th>
-                        </tr>
-                    </thead>
-                        
-                    <tbody>
-                        {% for benchmark in recent_benchmarks %}
-                        <tr>
-                            <td><img src="https://steamcdn-a.akamaihd.net/steam/apps/{{benchmark.game.steam_appid}}/capsule_sm_120.jpg" > {{ benchmark.game }}</td>
-                            <td>{{ benchmark.cpu_model }}</td>
-                            <td>{{ benchmark.gpu_model }}</td>
-                            <td>{{ benchmark.fps_avg }}</td>
-                            <td>
-                                <form action="/benchmark_detail/{{ benchmark.id }}">
-                                    <input type="submit" value="View" class="btn btn-sm btn-warning">
-                                </form>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                {% include 'benchmark_list_simple.html' %}
                 
             </div>
         </div>
+    </div>
+        
+        
+    <div class="col-md-3">
+
+        <div class="row">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Latest news</h3>
+                </div>
+                
+                <div class="panel-body"> 
+                    <p>Hi everybody! This moment finally arrived: the Linux Game Benchmarks DataBase is ready to launch. This idea was born in the community, and will grow and mature with the help of the community. This site is now officially in Open Beta stage. Please let me know of any bug and issue you may encounter or features that you would like to see implemented. </p>  
+                </div>
+            </div>
+        </div>        
+                
+        
+        <div class="row">
+     
+            <div class="panel panel-default">
+        
+                <div class="panel-heading">
+                    <h3 class="panel-title">Statistics</h3>
+                </div>
+                
+                <div class="panel-body"> 
+                    <p>Registered users: <b>{{ num_users }} </b></p>
+                    <p>Supported Linux games on Steam: <a href="game_list"><b>{{ num_games }} </b></a></p>
+                    
+                    {% if most_popular_game %}
+                        <p>Most popular game: <a href="benchmark_table/?game={{ most_popular_game.pk }}"><b>{{ most_popular_game }} </b> (<b>{{most_popular_game.num_benchmarks}}</b> benchmarks )</a></p>
+                    {% endif %}
+                    
+                    <p>Submitted game benchmarks: <a href="benchmark_table"><b>{{ num_benchmarks }} </b></a></p>
+                    
+                    {% if best_benchmark %}
+                        <p>Highest-fps benchmark: <a href="benchmark_detail/{{ best_benchmark.pk }}"> <b>{{ best_benchmark.game }} </b> 
+                        (average FPS = <b>{{ best_benchmark.fps_avg }} </b>)</a></p>
+                    {% endif %}
+                    
+                    
+                </div>
+            </div>
+        </div>
+        
+    </div>
+</div>
+        
+        
 
     
       

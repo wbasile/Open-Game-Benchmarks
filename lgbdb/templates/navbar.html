@@ -1,104 +1,72 @@
 <!-- Fixed navbar -->
-    <nav class="navbar navbar-inverse navbar-fixed-top">
-      <div class="container">
+<nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container">
           
         <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-          <a class="navbar-brand" href="/">Linux Game Benchmarks DB</a>
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">Linux Game Benchmarks DB</a>
         </div>
         
         <div id="navbar" class="navbar-collapse collapse">
-          <ul class="nav navbar-nav">
-            <li role="separator" class="divider"><span style="display:inline-block; width: 30px;"></span></li>
-            <li><a href="/game_list">Games</a></li>
+            <ul class="nav navbar-nav">
+                <li role="separator" class="divider"><span style="display:inline-block; width: 30px;"></span></li>
+                <li><a href="/game_list">Games</a></li>
             
-            <li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Benchmarks <span class="caret"></span></a>
-              <ul class="dropdown-menu">
-                <li><a href="/benchmark_table">Table</a></li>
-                <li><a href="/benchmark_chart">Chart</a></li>
-              </ul>
-            </li>
-            
-<!--
-            <li class="dropdown" id="menuBenchmarks">
-                <a class="dropdown-toggle" href="#" data-toggle="dropdown" id="navBenchmarks"><b>Benchmarks</b></a>
-                    <div class="dropdown-menu" style="padding:17px;">
-                        <li><a href="/benchmark_table">Table</a></li>
-                        <li><a href="/benchmark_graph">Graph</a></li>
-                    </div>
-            </li>            
--->
-
-
-
-            
-            <li role="separator" class="divider"><span style="display:inline-block; width: 30px;"></span></li>
-            <li><a href="/about">Help & About</a></li>
-          </ul>
-          
-          
-          
-          <ul class="nav navbar-nav navbar-right">
-
-
-            
-            {% if user.is_authenticated %}
-<!--
-                <li><a href="/accounts/profile">Logged in as <b> {{user.username}} </b></a></li>
--->
-<!--
-                <li><a href="/profile">Profile </a></li>
--->
-
                 <li class="dropdown">
-                  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"> <b> {{user.username}} </b> 's profile<span class="caret"></span></a>
-                  <ul class="dropdown-menu">
-                    <li><a href="/accounts/profile">Profile</a></li>
-                    <li><a href="/accounts/logout">Log out </a></li>
-                  </ul>
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Benchmarks <span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="/benchmark_table">Table</a></li>
+                        <li><a href="/benchmark_chart">Chart</a></li>
+                    </ul>
                 </li>
             
             
-<!--
-                <li><a href="/accounts/logout">Log out </a></li>
--->
-            {% else %}
-                <li><a href="/accounts/login">Login </a></li>
+                <li role="separator" class="divider"><span style="display:inline-block; width: 30px;"></span></li>
+                <li><a href="/about">Help & About</a></li>
+            </ul>
+          
+          
+            <ul class="nav navbar-nav navbar-right">
+                {% if user.is_authenticated %}
+                    <li role="separator" class="divider"><span style="display:inline-block; width: 6px;"></span></li>
+                    <li>
+                        <p class="navbar-btn">
+                            <a href="/benchmark_add" class="btn btn-warning">Add benckmark</a>
+                        </p>
+                    </li>
+                  
+                    <li role="separator" class="divider"><span style="display:inline-block; width: 6px;"></span></li>
+                    <li>
+                        <p class="navbar-btn">
+                            <a href="/accounts/profile" class="btn btn-success"> {{user.username}}'s profile</a>
+                        </p>
+                    </li>
                 
-<!--
-                <li class="dropdown" id="menuLogin">
-                    <a class="dropdown-toggle" href="#" data-toggle="dropdown" id="navLogin"><b>Login</b></a>
-                    <div class="dropdown-menu" style="padding:17px;">
-                        <form class="form" id="formLogin"> 
-                            <div class="form-group">
-                                <input type="text" placeholder="Email" class="form-control">
-                            </div>
-                            <div class="form-group">
-                                <input type="password" placeholder="Password" class="form-control">
-                            </div>
-                            <button type="button" id="btnLogin" class="btn btn-success">Login</button>
-                        </form>
-                        <form class="form" id="formRegister"> 
-                            
-                                <li>- or -------</li>
-                            
-                            <button type="button" id="btnRegister" class="btn btn-normal">Register</button>
-                        </form>
-                    </div>
-                </li>            
--->
-            {% endif %}
-      
-            
-          </ul>
-        </div><!--/.nav-collapse -->
-      </div>
-    </nav>
+                    <li role="separator" class="divider"><span style="display:inline-block; width: 6px;"></span></li>
+                    <li>
+                        <p class="navbar-btn">
+                            <a href="/accounts/logout" class="btn btn-danger">Logout</a>
+                        </p>
+                    </li>
+                
+                {% else %}
     
+                    <li role="separator" class="divider"><span style="display:inline-block; width: 6px;"></span></li>
+                    <li>
+                        <p class="navbar-btn">
+                            <a href="/accounts/login" class="btn btn-info">Login </a>
+                        </p>
+                    </li>
+
+                {% endif %}
+            
+            </ul>
+        </div>
+    </div>
+</nav>
     

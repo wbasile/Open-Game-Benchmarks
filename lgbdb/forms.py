@@ -1,6 +1,8 @@
 from django import forms
 from .models import System, Benchmark, Game
+from django.utils.safestring import mark_safe
 import numpy as np
+
 
 def check_voglperf_format(lines):
     # check the length of the file
@@ -35,7 +37,7 @@ class BenchmarkAddForm(forms.ModelForm):
         #~ fields = '__all__'
         
         fields = [  "frames_file" ,"additional_notes", "game_quality_preset"]
-        widgets = {'additional_notes': forms.Textarea(attrs={'cols': 80, 'rows': 10})}
+        widgets = {'additional_notes': forms.Textarea(attrs={'cols': 80, 'rows': 10,"placeholder":"Comments about the benchmark. For example 'start of level 2', 'final boss', 'windowed mode'"})}
     
     
     
@@ -51,8 +53,11 @@ class BenchmarkAddForm(forms.ModelForm):
         self.fields['user_system'] = forms.ModelChoiceField(required=True,queryset=queryset, initial=queryset)
         self.order_fields([ "user_system", "frames_file", "game_quality_preset" ,"additional_notes"])
 
-        self.fields['frames_file'].label = "VOGLPERF file"
-                
+        self.fields['frames_file'].label = "Frames file"
+               
+        self.fields['user_system'].help_text = mark_safe('Select one of your systems or <a href="/system_add" class="btn btn-xs btn-warning">Add a new system </a> if you do not have one')      
+        self.fields['frames_file'].help_text = "The output of VOGLPERF or FRAPS, a file containing the frame timings <br><b>WARNING! FRAPS is not supported yet!</b>"        
+        self.fields['game_quality_preset'].help_text = "The graphical quality settings used in this benchmark. If not applicable, select <b>n.a.</b>"        
                 
             
 
@@ -171,10 +176,10 @@ class BenchmarkAddForm(forms.ModelForm):
         self.instance.gpu_model = us.gpu_model
         self.instance.resolution = us.resolution
         self.instance.driver = us.driver
-        self.instance.desktop_environment = us.desktop_environment
-        self.instance.window_manager = us.window_manager
-        self.instance.kernel = us.kernel
-        self.instance.linux_distribution = us.linux_distribution
+        self.instance.operative_system = us.operative_system
+        #~ self.instance.window_manager = us.window_manager
+        #~ self.instance.kernel = us.kernel
+        #~ self.instance.linux_distribution = us.linux_distribution
         
     
         g.num_benchmarks = g.num_benchmarks + 1 
@@ -218,10 +223,10 @@ class SystemAddEditForm(forms.ModelForm):
         
         widgets =   {
                     'descriptive_name': forms.TextInput(attrs={'placeholder': "ex. Gaming desktop, Laptop"}),
-                    'linux_distribution': forms.TextInput(attrs={'placeholder': "ex. Ubuntu, Arch, Mint"}),
-                    'desktop_environment': forms.TextInput(attrs={'placeholder': "ex. KDE, GNOME, Cinnamon"}),
-                    'window_manager': forms.TextInput(attrs={'placeholder': "ex. KWin, Marco"}),
-                    'kernel': forms.TextInput(attrs={'placeholder': "ex. x86_64 Linux 3.16.0-38-generic"})
+                    #~ 'linux_distribution': forms.TextInput(attrs={'placeholder': "ex. Ubuntu, Arch, Mint"}),
+                    #~ 'desktop_environment': forms.TextInput(attrs={'placeholder': "ex. KDE, GNOME, Cinnamon"}),
+                    #~ 'window_manager': forms.TextInput(attrs={'placeholder': "ex. KWin, Marco"}),
+                    #~ 'kernel': forms.TextInput(attrs={'placeholder': "ex. x86_64 Linux 3.16.0-38-generic"})
                     }
         
         

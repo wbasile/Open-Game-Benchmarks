@@ -4,16 +4,10 @@
 
 {% block morehead %}
     
-    <!-- code to include the highcharts and jQuery libraries goes here -->
-    <script src="https://code.highcharts.com/highcharts.js"></script>
-    <script src="https://code.highcharts.com/modules/exporting.js"></script>
-    <!-- load_charts filter takes a comma-separated list of id's where -->
-    <!-- the charts need to be rendered to                             -->
-    
-    <link href="{% static 'chartit/js/chartloader.js' %}" rel="stylesheet">
-    
-    {% load chartit %}
-    {{ mychart|load_charts:"chartcontainer" }}
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript">
+    google.load("visualization", "1", {packages:["corechart"]});
+    </script>
     
     {% load bootstrap3 %}
 
@@ -23,15 +17,8 @@
 
 {% block content %}
 
-     <h2>Benchmark chart</h2>    
-     
     {% include "benchmark_filter_form.html" %}
-
-
-    <h4><p>{{ infotext}}</p></h4>
     
-    <div id='chartcontainer'> </div>
+    {{ chart.as_html }}
 
-
-                        
 {% endblock %}

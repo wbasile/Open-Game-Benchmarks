@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% load bootstrap3 %}
+
+
+{% block content %}
+
+<h2>{{ title }}</h2>
+
+<form enctype="multipart/form-data" method="POST" action="">
+    {% csrf_token %}
+    
+    <div class="row">
+        <div class="col-md-8">
+            {% bootstrap_field form.user_system  %}
+            {% bootstrap_field form.frames_file  %}
+            {% bootstrap_field form.game_quality_preset  %}
+            {% bootstrap_field form.additional_notes %}
+            <input type="submit" value="Save"  class="btn btn-primary" />
+        </div>
+    </div>
+    
+</form>
+
+{% endblock %}

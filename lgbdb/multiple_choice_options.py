@@ -1149,3 +1149,35 @@ RESOLUTION_CHOICES = (
 
 
 )
+
+
+
+OS_CHOICES =  (
+                ('Windows',
+                (
+                    ('Windows XP', 'Windows XP'),
+                    ('Windows Vista', 'Windows Vista'),
+                    ('Windows 7', 'Windows 7'),
+                    ('Windows 8', 'Windows 8'),
+                    ('Windows 10', 'Windows 10'),
+                    ('Windows-other','Windows-other'),
+                )
+                ),
+                
+                ('Linux',
+                (
+                    ('Debian-based (Debian, Ubuntu, Mint, Elementary OS, SteamOS)','Debian-based (Debian, Ubuntu, Mint, Elementary OS, SteamOS)'),
+                    ('Arch-based (Arch, Manjaro)','Arch-based (Arch, Manjaro)'),
+                    ('Red Hat-based (RedHat, Fedora, CentOS)','Red Hat-based (RedHat, Fedora, CentOS)'),
+                    ('Gentoo-based (Gentoo, Chromium, Funtoo)','Gentoo-based (Gentoo, Chromium, Funtoo)'),
+                    ('SUSE-based','SUSE-based'),
+                    ('Slackware-based','Slackware-based'),
+                    ('Mandriva-based','Mandriva-based'),
+                    ('Linux-other','Linux-other'),
+                )
+                ),
+                
+                )
+                
+                
+                

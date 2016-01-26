@@ -1,15 +1,23 @@
 {% extends 'base.html' %}
 
-{% block content %}
 <!--
-{{ object }}
+load the javascript needed for gchart
 -->
+{% block morehead %}
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript">
+    google.load("visualization", "1", {packages:["corechart"]});
+    </script>
+{% endblock %}
+
+
+{% block content %}
 
 <h3><p>Benchmark detail</p></h3>
 
 
 <div class="row">
-    <div class="col-md-6">
+    <div class="col-md-4">
         <table class="table table-striped">
             <tbody>
                 <tr>
@@ -58,16 +66,7 @@
                     <th>Resolution</th><td>{{ object.resolution }}</td>
                 </tr>
                 <tr>
-                    <th>Linux distro</th><td>{{ object.linux_distribution }}</td>
-                </tr>
-                <tr>
-                    <th>Kernel</th><td>{{ object.kernel }}</td>
-                </tr>
-                <tr>
-                    <th>Desktop Environment</th><td>{{ object.desktop_environment }}</td>
-                </tr>
-                <tr>
-                    <th>Window Manager</th><td>{{ object.window_manager }}</td>
+                    <th>Operative system</th><td>{{ object.operative_system }}</td>
                 </tr>
                 <tr>
                     <th>Uploaded by</th><td>{{ object.user }}</td>
@@ -81,6 +80,11 @@
             </tbody>
         </table>
     </div>
+    
+    <div class="col-md-8">
+        {{ fpschart.as_html }}
+    </div>
+            
 </div>
 
 
