@@ -54,6 +54,7 @@ class BenchmarkAddForm(forms.ModelForm):
         self.order_fields([ "user_system", "frames_file", "game_quality_preset" ,"additional_notes"])
 
         self.fields['frames_file'].label = "Frames file"
+        self.fields['additional_notes'].label += " (optional)"
                
         self.fields['user_system'].help_text = mark_safe('Select one of your systems or <a href="/system_add" class="btn btn-xs btn-warning">Add a new system </a> if you do not have one')      
         self.fields['frames_file'].help_text = "The output of VOGLPERF or FRAPS, a file containing the frame timings <br><b>WARNING! FRAPS is not supported yet!</b>"        
@@ -235,24 +236,16 @@ class SystemAddEditForm(forms.ModelForm):
         self.user = kwargs.pop('user',None)
         super(SystemAddEditForm, self).__init__(*args, **kwargs)
          
+        self.fields["driver"].label = "GPU Driver"
         
-        for field_name in ['descriptive_name','cpu_model', 'gpu_model','resolution', 'driver']:
-            self.fields[field_name].label = self.fields[field_name].label + "*"
+        #~ for field_name in ['descriptive_name','cpu_model', 'gpu_model','resolution', 'driver']:
+            #~ self.fields[field_name].label = self.fields[field_name].label + "*"
         #~ self.order_fields([ "user_system", "frames_file" ,"additional_notes"])
+     
+        self.fields['descriptive_name'].help_text = "You can give to your system any name; keep it easy to remember"
+        self.fields['cpu_model'].help_text = "On Linux you can use <code>cat /proc/cpuinfo | grep 'model name' | uniq</code> to find out the model of your CPU"
+        self.fields['gpu_model'].help_text = "On Linux you can use <code>lspci -vnn | grep VGA</code> to find out the model of your CPU"
+        self.fields['resolution'].help_text = "On Linux you can use <code>xrandr</code> to find out your current resolution"
         
-       
-        
-        
-
-    '''
-    def clean(self):
-        print self.instance
-        current_desc = self.cleaned_data.get("descriptive_name")
-
-        descriptions = [s.descriptive_name for s in self.user.system_set.all()]
-            
-        if current_desc in descriptions:
-            raise forms.ValidationError("The name " + str(current_desc) + " is already used")
-    '''        
             
             

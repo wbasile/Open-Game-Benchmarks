@@ -8,6 +8,7 @@
             <th>GPU</th>
             <th>FPS average</th>
             <th>Notes</th>
+            <th>OS</th>
         </tr>
     </thead>
         
@@ -19,6 +20,7 @@
             <td>{{ benchmark.gpu_model }}</td>
             <td>{{ benchmark.fps_avg }}</td>
             <td>{{ benchmark.additional_notes }}</td>
+            <td>{{ benchmark.operative_system }}</td>
             
             <td>
                 <a href="/benchmark_detail/{{ benchmark.id }}" class="btn btn-sm btn-warning">Detail</a>

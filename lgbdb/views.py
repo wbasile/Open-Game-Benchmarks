@@ -117,15 +117,35 @@ class GameFilter(django_filters.FilterSet):
 
     title = django_filters.CharFilter(lookup_type='icontains')
     
+    SHOW_CHOICES = (
+                    (0, 'Show all games'),
+                    (1, 'Show games with benchmarks'),
+                    (2, 'Show games without benchmarks'),
+                    )
+    
+    show = django_filters.MethodFilter(action="my_custom_filter",widget=forms.Select(choices=SHOW_CHOICES))
+
     
     class Meta:
         model = Game
         
         # these fields work even if the relative fields are hidden (excluded in the table)
-        fields = ["title"]
+        fields = ["title", "show"]
         
+        #~ widgets = {'show': forms.Select()}
+    
+    
+    
         
-        
+    def my_custom_filter(self, queryset, value):
+        #print queryset
+
+        if value == "1":
+            return queryset.exclude(num_benchmarks=0)
+        elif value == "2":
+            return queryset.filter(num_benchmarks=0)
+        else:
+            return queryset
         
 
 # a view that combines table and filters
@@ -141,8 +161,14 @@ class GameListView(TemplateView):
         filter = GameFilter(self.request.GET, queryset=self.get_queryset(**kwargs))
         
         filter.form.fields['title'].widget.attrs = {'placeholder': "Search by title",}
-        filter.form.fields['title'].label = ""
+        filter.form.fields['title'].label = "Search"
         filter.form.fields['title'].help_text = ""
+        
+        
+        filter.form.fields['show'].label = "Display options"
+        filter.form.fields['show'].help_text = ""
+        
+        #~ print filter.filters['show'].__dict__
         
         
         table = GameTable(filter.qs)
@@ -181,7 +207,7 @@ class BenchmarkFilter(django_filters.FilterSet):
             # limit the multiple choice for the MultipleChoice (text) fields 
             if 'choices' in self.filters[field_name].extra.keys():
             
-                choice_set = set([i[0] for i in Benchmark.objects.values_list(field_name)])
+                choice_set = sorted(set([i[0] for i in Benchmark.objects.values_list(field_name)]))
                 self.filters[field_name].extra['choices'] = ANY_CHOICE + tuple(zip(choice_set,choice_set))
         
         
@@ -199,7 +225,7 @@ class BenchmarkTable(tables.Table):
         model = Benchmark
         #~ attrs = {"class": "paleblue"}
         #~ exclude = ("id", "frames_file", "long_description", "desktop_environment", "kernel", "window_manager", "upload_date", "change_date")
-        fields = ("game", "game_quality_preset", "additional_notes","cpu_model", "gpu_model", "driver", "resolution","fps_avg", "fps_min", "user")
+        fields = ("game", "cpu_model", "gpu_model", "resolution","game_quality_preset","fps_avg", "operative_system","additional_notes", "user")
     
     
     # for the Game column, have the game title link to the steam store page
@@ -259,9 +285,9 @@ class BenchmarkTableView(TemplateView):
 def set_benchmark_y_label(benchmark):
     
     if benchmark.game_quality_preset != "n.a.":
-        y_tick_label = ", ".join([str(x) for x in [benchmark.game, benchmark.gpu_model, benchmark.cpu_model, benchmark.game_quality_preset + " preset", benchmark.resolution ] ])
+        y_tick_label = ", ".join([str(x) for x in [benchmark.game, benchmark.gpu_model, benchmark.cpu_model, benchmark.game_quality_preset + " preset", benchmark.resolution, benchmark.operative_system ] ])
     else:
-        y_tick_label = ", ".join([str(x) for x in [benchmark.game, benchmark.gpu_model, benchmark.cpu_model, benchmark.resolution ] ])
+        y_tick_label = ", ".join([str(x) for x in [benchmark.game, benchmark.gpu_model, benchmark.cpu_model, benchmark.resolution, benchmark.operative_system ] ])
         
     return str(y_tick_label)
 
