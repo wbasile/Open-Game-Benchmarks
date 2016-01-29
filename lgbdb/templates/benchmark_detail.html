@@ -18,7 +18,7 @@ load the javascript needed for gchart
 
 <div class="row">
     <div class="col-md-4">
-        <table class="table table-striped">
+        <table class="table table-striped" style="width: 100%; word-wrap:break-word; table-layout: fixed;">
             <tbody>
                 <tr>
                     <th>Game</th><td>{{ object.game }}</td>
@@ -63,9 +63,6 @@ load the javascript needed for gchart
                     <th>Driver</th><td>{{ object.driver }}</td>
                 </tr>
                 <tr>
-                    <th>Resolution</th><td>{{ object.resolution }}</td>
-                </tr>
-                <tr>
                     <th>Operative system</th><td>{{ object.operative_system }}</td>
                 </tr>
                 <tr>
@@ -81,7 +78,7 @@ load the javascript needed for gchart
         </table>
     </div>
     
-    <div class="col-md-8">
+    <div class="col-md-7">
         {{ fpschart.as_html }}
     </div>
             

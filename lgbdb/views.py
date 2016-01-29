@@ -11,6 +11,7 @@ from django.core.urlresolvers import reverse
 
 from django import forms
 
+from django.db.models import Count
 
 import django_tables2 as tables
 from django_tables2   import RequestConfig
@@ -39,16 +40,21 @@ def home(request):
     num_games = Game.objects.count()
     num_benchmarks = Benchmark.objects.count()
     
+    # compute the highest-fps benchmark
     if Benchmark.objects.count() > 0:
         best_fps_benchmark = Benchmark.objects.order_by("-fps_avg")[0]
     else:
         best_fps_benchmark = None
     
         
+    # compute the most popular game
     if Game.objects.count() > 0 and Benchmark.objects.count() > 0:
-        most_popular_game = Game.objects.order_by("-num_benchmarks")[0]
+        most_popular_game = Game.objects.annotate(num_benchmarks=Count('benchmark')).order_by('-num_benchmarks')[0]
+        print most_popular_game
     else:
         most_popular_game = None
+        
+        
         
     if Benchmark.objects.count() > 0:
         recent_benchmarks = Benchmark.objects.all().order_by('upload_date')[0:5]
@@ -78,8 +84,13 @@ def about(request):
 def GameNoBenchmark(request):
     return render(request, "no_benchmark.html", {})
 
+
+
         
 class GameTable(tables.Table):
+    
+    num_benchmarks = tables.Column(verbose_name="Num benchmarks",empty_values=(), orderable=True)
+    
     class Meta:
         model = Game
         fields = ("title", "steam_appid","num_benchmarks")
@@ -87,8 +98,7 @@ class GameTable(tables.Table):
         
     def render_num_benchmarks(self,record):
    
-        
-        value = int(record.num_benchmarks)
+        value = int(record.benchmark_set.count())
         
         if value > 0:
             return mark_safe('<a href="/benchmark_table/?game=' + str(record.id) + '" >' + str(value) + '</a>')
@@ -102,7 +112,7 @@ class GameTable(tables.Table):
     def render_title(self,record):
         img_url = "https://steamcdn-a.akamaihd.net/steam/apps/"+str(record.steam_appid)+"/capsule_sm_120.jpg"
         
-        value = int(record.num_benchmarks)
+        value = int(record.benchmark_set.count())
         
         if value > 0:
             return mark_safe('<a href="/benchmark_table/?game=' + str(record.id) + '" >' + '<img src="%s" />' % escape(img_url) + " " + unicode(record.title)+"</a>")
@@ -132,18 +142,13 @@ class GameFilter(django_filters.FilterSet):
         # these fields work even if the relative fields are hidden (excluded in the table)
         fields = ["title", "show"]
         
-        #~ widgets = {'show': forms.Select()}
-    
-    
-    
         
     def my_custom_filter(self, queryset, value):
-        #print queryset
-
+        
         if value == "1":
-            return queryset.exclude(num_benchmarks=0)
+            return queryset.annotate(num_benchmarks=Count('benchmark')).filter(num_benchmarks__gt=0)
         elif value == "2":
-            return queryset.filter(num_benchmarks=0)
+            return queryset.annotate(num_benchmarks=Count('benchmark')).filter(num_benchmarks=0)
         else:
             return queryset
         
@@ -157,6 +162,8 @@ class GameListView(TemplateView):
         return Game.objects.all()
 
     def get_context_data(self, **kwargs):
+        
+        
         context = super(GameListView, self).get_context_data(**kwargs)
         filter = GameFilter(self.request.GET, queryset=self.get_queryset(**kwargs))
         
@@ -164,17 +171,35 @@ class GameListView(TemplateView):
         filter.form.fields['title'].label = "Search"
         filter.form.fields['title'].help_text = ""
         
-        
         filter.form.fields['show'].label = "Display options"
         filter.form.fields['show'].help_text = ""
         
-        #~ print filter.filters['show'].__dict__
-        
-        
-        table = GameTable(filter.qs)
+        #~ negative_sort = False
+        # intercept the case in which we are trying to sort by num_benchmarks, which is not a field of the Game model
+        if self.request.GET.get('sort',None) == "num_benchmarks":
+            nr = self.request.GET.copy()
+            
+            arg = nr.pop("sort")[0]
+            #~ if arg[0] == "-":
+                #~ negative_sort = True
+            #~ else:
+                #~ negative_sort = False
+            
+            self.request.GET = nr
+
+            #  modify the filtered queryset by sorting it manually, using the annotate function 
+            new_qs = filter.qs.annotate(num_benchmarks=Count('benchmark')).order_by('-num_benchmarks')
+            
+            table = GameTable(new_qs)
+        else:
+            table = GameTable(filter.qs)
+            
         RequestConfig(self.request).configure(table)
+            
         context['filter'] = filter
         context['table'] = table
+        #~ context['negative_sort'] = negative_sort
+        
         return context
         
         
@@ -461,13 +486,12 @@ def BenchmarkEditView(request, pk=None):
         form = BenchmarkEditForm(request.POST, request.FILES, instance=benchmark)
             
         if form.is_valid():
-            
             # ensure that the owner of this system is the current user
             instance = form.save(commit=False)
             instance.user = request.user
             instance.save()
                 
-            return HttpResponseRedirect('/accounts/profile')
+            return HttpResponseRedirect('/accounts/profile/')
 
     else:
         form = BenchmarkEditForm(instance=benchmark)
@@ -493,12 +517,12 @@ def BenchmarkAddView(request):
         if form.is_valid():
             
             # ensure that the owner of this system is the current user
-            # this shouldn't be needed
+            # I don't think this is really needed
             instance = form.save(commit=False)
             instance.user = request.user
             instance.save()
 
-            return HttpResponseRedirect('/accounts/profile')
+            return HttpResponseRedirect('/accounts/profile/')
             
     else:
         form = BenchmarkAddForm(user=request.user,initial={'user': request.user})
@@ -567,7 +591,7 @@ def BenchmarkAddEditView(request, pk=None):
             else:
                 message = 'Benchmark "' + str(instance) + '" successfully added'
                 
-            return HttpResponseRedirect('/accounts/profile')
+            return HttpResponseRedirect('profile')
             
     else:
         if benchmark:
@@ -621,9 +645,9 @@ class BenchmarkDeleteView(DeleteView):
 
     def get_success_url(self):
         
-        self.game.num_benchmarks -= 1
-        
-        self.game.save()
+        #~ self.game.num_benchmarks -= 1
+        #~ self.game.save()
+        #~ self.game.update_num_benchmarks()
         
         return reverse('profile')
         

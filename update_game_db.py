@@ -5,7 +5,7 @@ import django
 
 def get_linux_appid_dic():
     # read all steam appid<->names    
-    response = urllib2.urlopen('http://api.steampowered.com/ISteamApps/GetAppList/v0001/')
+    response = urllib2.urlopen('http://api.steampowered.com/ISteamApps/GetAppList/v2/')
     applist = json.loads(response.read())['applist']['apps']['app']
     
     # convert the steam list in a dictionary

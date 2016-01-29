@@ -7,7 +7,7 @@ from django.utils.text import slugify
 
 from .multiple_choice_options import *
 
- 
+
 
 @python_2_unicode_compatible
 class System(models.Model):
@@ -41,7 +41,7 @@ class Game(models.Model):
     steam_appid = models.IntegerField(unique = True)
     
     # this is a "static" field instead of being computed on the fly, because in this way django-tables2 is able to sort the game tale by it
-    num_benchmarks = models.IntegerField(default=0)
+    #num_benchmarks = models.IntegerField(default=0)
     
     def __str__(self):
         return self.title
@@ -50,8 +50,6 @@ class Game(models.Model):
         ordering = ('title',)
         
     
-        
-        
 
         
 @python_2_unicode_compatible
@@ -88,7 +86,7 @@ class Benchmark(models.Model):
     
     
     
-    additional_notes = models.CharField(max_length=300, blank=True) # this field is optional
+    additional_notes = models.CharField(max_length=1000, blank=True) # this field is optional
     
     
     
@@ -98,7 +96,7 @@ class Benchmark(models.Model):
     # user cannot input those directly, rather, they are calculated as soon as the frames file is uploaded
     game = models.ForeignKey(Game, on_delete=models.CASCADE)
     
-    fps_data = models.CommaSeparatedIntegerField(max_length=300,default = "")
+    fps_data = models.CommaSeparatedIntegerField(max_length=1500,default = "")
     
     fps_min = models.IntegerField(default = 0.0)
     fps_max = models.IntegerField(default = 0.0)
@@ -121,17 +119,24 @@ class Benchmark(models.Model):
     
     
     # used to automatically update the number of benchmark of a specific game
+    
+    #~ def pre_delete_handler(self):
+        #~ print "DELETING ", str(self)
+        #~ 
     #~ def save(self, *args, **kwargs):
         #~ super(Benchmark, self).save(*args,**kwargs)
-                #~ 
-        #~ # update game num benchmarks
-        #~ if self.id:
-            #~ self.game.num_benchmarks=len(self.game.benchmark_set.all())
-            #~ self.game.save()
         #~ 
+        #~ print "SAVING ", str(self)
+        #~ # update game num benchmarks
+        #~ self.game.update_num_benchmarks()
+        
+        #if self.id:
+        #    self.game.num_benchmarks=len(self.game.benchmark_set.all())
+        #    self.game.save()
+        
     
     def __str__(self):
         return slugify(self.game.title + " " + self.game_quality_preset +" "+ self.cpu_model +" "+ self.gpu_model) # +" "+ str(self.upload_date))
         #~ return self.game.title + " " str(self.upload_date)
     
-    
+

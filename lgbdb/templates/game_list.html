@@ -36,12 +36,19 @@
 </form>
 
 
- <br>
+<br>
+
 
  
 {% if table.page %}
     <div class="table-container">
 {% endif %}
+
+{% if table.page %}
+    
+        {% bootstrap_pagination table.page url=request.get_full_path %}
+{% endif %}
+
  
 {% block table %}
 <table class="table table-striped"{% if table.attrs %} {{ table.attrs.as_html }}{% endif %}>
@@ -82,11 +89,10 @@
     {% endblock table.tfoot %}
 </table>
 {% endblock table %}
+
  
 {% if table.page %}
-    {% block pagination %}
-        {% bootstrap_pagination table.page url=request.get_full_path %}
-    {% endblock pagination %}
+    {% bootstrap_pagination table.page url=request.get_full_path %}
 {% endif %}
 
 {% if table.page %}
