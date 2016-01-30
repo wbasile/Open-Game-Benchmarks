@@ -50,7 +50,6 @@ def home(request):
     # compute the most popular game
     if Game.objects.count() > 0 and Benchmark.objects.count() > 0:
         most_popular_game = Game.objects.annotate(num_benchmarks=Count('benchmark')).order_by('-num_benchmarks')[0]
-        print most_popular_game
     else:
         most_popular_game = None
         
@@ -274,6 +273,23 @@ class BenchmarkTable(tables.Table):
                         
         return mark_safe(button_html)
         
+        
+    def render_additional_notes(self,value):
+        print value
+        
+        return mark_safe('''
+                                <div class="row">
+                                <div class="col-md-2">
+                                <button type="button" class="btn btn-xs btn-default" data-toggle="collapse" data-target="#testc">View</button>
+                                <div id="testc" class="collapse">
+                        '''
+                        +value+
+                        '''
+                                </div>
+                                </div>
+                                </div>
+                            
+                        ''')
         
 
 
@@ -537,89 +553,6 @@ def BenchmarkAddView(request):
     return render(request, template ,context)
     
 
-    
-    
-            
-
-    
-
-@login_required    
-def BenchmarkAddEditView(request, pk=None):
-    
-    #~ has_systems = True
-    
-    if pk:  # this means that we are trying to edit an existing instance
-        # TODO: create the 404 page
-        benchmark = get_object_or_404(Benchmark, pk=pk) # try to get the instance
-        if benchmark.user != request.user: # check if the instance belongs to the requesting user
-            # TODO: create the Forbidden page
-            return HttpResponseForbidden("Forbidden")
-    
-    else:
-        # here the user is trying to add a new benchmark
-        # so check that he has at least on system, otherwise display a message
-        
-        #~ if request.user.system_set.count() == 0:
-            #~ has_systems = False
-            
-        benchmark = None  
-  
-    
-    message = ""
-    title = ""
-    
-    if request.method == 'POST':
-        
-        if benchmark:
-            form = BenchmarkEditForm(request.POST, request.FILES, instance=benchmark)
-        else:
-            form = BenchmarkAddForm(request.POST, request.FILES,user=request.user)
-        
-        
-        #~ print form.fields
-        
-        if form.is_valid():
-            
-            # ensure that the owner of this system is the current user
-            instance = form.save(commit=False)
-            instance.user = request.user
-            instance.save()
-
-            
-            if benchmark:
-                message = 'Benchmark "' + str(instance) + '" successfully changed'
-            else:
-                message = 'Benchmark "' + str(instance) + '" successfully added'
-                
-            return HttpResponseRedirect('profile')
-            
-    else:
-        if benchmark:
-            form = BenchmarkEditForm(instance=benchmark)
-        else:
-            form = BenchmarkAddForm(user=request.user,initial={'user': request.user})
-            
-    
-    if benchmark:    
-        title = 'Edit benchmark "' + str(benchmark) + '"'
-        add_system_button = False
-    else:
-        title = "Add new benchmark"
-        add_system_button = True
-        #~ if not has_systems:
-            #~ infotext = "It looks like you do not have any saved system" 
-        
-    
-    
-    context = {"form":form , "title":title, "message":message}
-    
-    template = "benchmark_add_edit.html"
-        
-    
-    return render(request, template ,context)
-    
-
-    
     
     
 class BenchmarkDeleteView(DeleteView):

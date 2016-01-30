@@ -28,7 +28,6 @@ class System(models.Model):
     #~ window_manager = models.CharField(max_length=50,  blank=True)
     #~ kernel = models.CharField(max_length=50, blank=True)
     
-        
     def __str__(self):
         return self.descriptive_name
 

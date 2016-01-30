@@ -7,78 +7,117 @@
 
 <h1>How to create and upload your benchmarks</h1>
 
+<!--
 <h3>Linux</h3>
+-->
 
-<ul>
-    <li><h4><b>Install voglperf</b></h4></li>
-    <ul>
-        <li>voglperf is an open-source software developed by Valve, to monitor the performance of Steam games under Linux; it is available at <a href="https://github.com/ValveSoftware/voglperf">https://github.com/ValveSoftware/voglperf</a>.
-        You are invited to read the full documentation, available at the voglperf github page, however here is a condensed version (for debian-based Linux systems):<br>
+<div class="container">
+    <h2>Linux</h2>
+    <button type="button" class="btn btn-info" data-toggle="collapse" data-target="#voglperf-instructions">Voglperf instructions</button>
+    <div id="voglperf-instructions" class="collapse">
+        <ul>
+            <li><h4><b>Install voglperf</b></h4></li>
+            <ul>
+                <li>Voglperf is an open-source software developed by Valve, to monitor the performance of Steam games under Linux; it is available at <a href="https://github.com/ValveSoftware/voglperf">https://github.com/ValveSoftware/voglperf</a>.
+                You are invited to read the full documentation, available at the voglperf github page, however here is a condensed version (for debian-based Linux systems):<br>
+                
+                <code>
+                sudo apt-get update<br>
+                sudo apt-get install git ca-certificates cmake g++ gcc-multilib g++-multilib mesa-common-dev libedit-dev libtinfo-dev libtinfo-dev:i386<br>
+                git clone https://github.com/ValveSoftware/voglperf.git<br>
+                cd voglperf<br>
+                make voglperf32<br>
+                make voglperf64
+                </code>
+                </li>
+                <br>
+                note: it is advisable to build both 32 and 64 bit executables because some games might work only with one or the other version; if you see errors in your voglperf terminal such as <b><i>ERROR: Could not retrieve pid of launched game</i></b> you should try the other voglperf build.
+            </ul>
+        </ul>
         
-        <code>
-        sudo apt-get update<br>
-        sudo apt-get install git ca-certificates cmake g++ gcc-multilib g++-multilib mesa-common-dev libedit-dev libtinfo-dev libtinfo-dev:i386<br>
-        git clone https://github.com/ValveSoftware/voglperf.git<br>
-        cd voglperf<br>
-        make voglperf32<br>
-        make voglperf64
-        </code>
+        <ul>
+            <li><h4><b>Benchmark your game with Voglperf</b></h4></li>
+            <ul>
+            
+                <li>in the terminal you can start the voglperf server with:<br>
+                    <code>bin/voglperfrun32 (or bin/voglperfrun64)</code>
+                </li>
+                
+                <li>
+                    point your browser to <code>http://localhost:8081</code> to connect to the voglperf server
+                </li>
+                    
+                <li>in the voglperf console, start your game with<br>
+                    <code>game start &lt;steamappid_here&gt;</code><br>
+                    every game on Steam has a unique numeric identifier called the App ID. You can obtain it by searching your game in the <a href= "/game_list">Game List</a>, or at <a href="https://steamdb.info/linux/" target="new">https://steamdb.info/linux/</a>. For example <code>game start 250900</code> will start "The Binding of Isaac: Rebirth"
+                </li>
+                    
+                <li>create a log file: once you reach the point in the game where you want to start your benchmark, type in the terminal<br>
+                    <code>logfile start 60</code><br>
+                    this will create a log file in /tmp/ with the benchmark data of your game; the number 60 represents for how long, in seconds, the benchmark will run. Take note of the location of this file, it contatins the actual data to be uploaded: the path is displayed in the terminal right after your command, for example <code>Logfile started: /tmp/voglperf.gameid250900.2016_01_25-10_07_31.csv (100 seconds).</code><br>
+                    <b>Important: Open Game Benchmarks does not accept benchmarks shorter than 60 seconds</b>
+                </li>   
+                    
+            </ul>        
+        </ul>            
+
+    </div>
+</div>
+
+
+
+<div class="container">
+    <h2>Windows</h2>
+    <button type="button" class="btn btn-info" data-toggle="collapse" data-target="#fraps-instructions">Fraps instructions</button>
+    <div id="fraps-instructions" class="collapse">
+        <ul>
+            <li><h4><b>Install Fraps</b></h4></li>
+            <ul>
+                <li>Fraps is a commonly used software to show FPS in game and record autio/video footage of gameplay. It can be also used to record frame timings data. A free version is available at <a href="http://www.fraps.com/download.php"> http://www.fraps.com/download.php </a>
+            </ul>
+        </ul>
+        
+        <ul>
+            <li><h4><b>Benchmark your game with Fraps</b></h4></li>
+            <ul>
+            
+                <li>start Fraps. In the "FPS" tab, you can find all the options to configure your benchmark. You can set a hotkey to start the benchmark (default is <b>F11</b>) and check the "FPS" box, under Benchmark Settings. You can also tell Fraps to automatically stop benchmarking after X seconds (use a minimum of 60 seconds)</li>
+                <li>start your game of choice; when you reach the point in the game that you want to benchmark, press the hotkey to start recording the timings</li>
+                
+                <li>at the end of the benchmark, all recorded files will be in the folder Fraps\Benchmarks; the one you need to upload to Open Game Benchmarks is the one ending with <b>fps.csv</b>
+                </li>
+                    
+            </ul>        
+        </ul>            
+
+    </div>
+</div>
+
+
+
+
+
+<div class="container">
+    <h2>Upload your benchmark</h2>
+    <ul>
+        <li>if you didn't already, register to Open Game Benchmarks, it's free!</li>
+        <li>create one or more "systems" (systems are a combination of the harware and the software): in your profile click <a href="/system_add" class="btn btn-xs btn-success">Add system</a>
         </li>
-        <br>
-        note: it is advisable to build both 32 and 64 bit executables because some games might work only with one or the other version; if you see errors in your voglperf terminal such as <b><i>ERROR: Could not retrieve pid of launched game</i></b> you should try the other voglperf build.
+        <li>in your profile click <a href="/benchmark_add" class="btn btn-xs btn-success">Add benckmark</a> (note: this option is not available until you have created at least one system)</li>
+        <li>select the game for which you want to create a benchmark entry</li>
+        <li>select your user system, and the settings preset of the game (if applicable)</li>
+        <li>under "Frames File" upload the log file generated by voglperf</li>
+        <li>optionally add some comment: for example "start of level one", "final boss battle" or "overworld map" are useful comments</li>
+        <li>congratulations, you have just contributed to the Linux gaming community with your first game benchmark!</li>
     </ul>
-</ul>
-        
-<ul>
-    <li><h4><b>Run your game with voglperf</b></h4></li>
-    <ul>
-    
-        <li>in the terminal you can start the voglperf server with:<br>
-            <code>bin/voglperfrun32 (or bin/voglperfrun64)</code>
-        </li>
-        
-        <li>
-            point your browser to <code>http://localhost:8081</code> to connect to the voglperf server
-        </li>
-            
-        <li>in the voglperf console, start your game with<br>
-            <code>game start &lt;steamappid_here&gt;</code><br>
-            every game on Steam has a unique numeric identifier called the App ID. You can obtain it by searching your game in the <a href= "/game_list">Game List</a>, or at <a href="https://steamdb.info/linux/" target="new">https://steamdb.info/linux/</a>. For example <code>game start 250900</code> will start "The Binding of Isaac: Rebirth"
-        </li>
-            
-        <li>create a log file: once you reach the point in the game where you want to start your benchmark, type in the terminal<br>
-            <code>logfile start 60</code><br>
-            this will create a log file in /tmp/ with the benchmark data of your game; the number 60 represents for how long, in seconds, the benchmark will run. Take note of the location of this file, it contatins the actual data to be uploaded: the path is displayed in the terminal right after your command, for example <code>Logfile started: /tmp/voglperf.gameid250900.2016_01_25-10_07_31.csv (100 seconds).</code><br>
-            <b>Important: Open Game Benchmarks does not accept benchmarks shorter than 60 seconds</b>
-         </li>   
-            
-    </ul>        
-</ul>            
-
-
-<h3>Windows</h3>
-<ul>
-    <li><h4><b>TODO</b></h4></li>
-</ul>
-
-
-<h3>Upload your benchmark</h3>
-<ul>
-    <li>if you didn't already, register to Open Game Benchmarks, it's free!</li>
-    <li>create one or more "systems" (systems are a combination of the harware and the software): in your profile click <a href="/system_add" class="btn btn-xs btn-success">Add system</a>
-    </li>
-    <li>in your profile click <a href="/benchmark_add" class="btn btn-xs btn-success">Add benckmark</a> (note: this option is not available until you have created at least one system)</li>
-    <li>select your user system, and the settings preset of the game (if applicable)</li>
-    <li>under "VOGLPERF file" upload the log file generated by voglperf</li>
-    <li>optionally add some comment: for example "start of level one", "final boss battle" or "overworld map" are useful comments</li>
-    <li>congratulations, you have just contributed to the Linux gaming community with your first game benchmark!</li>
-</ul>
+</div>
 
 
 <h1>About</h1>
-    The Open Game Benchmarks database was created with the goal of having a comprehensive resource of game performances on Linux. In the last few years, there has been a remarkable increase of video games available for Linux; small and big, indies and AAA companies are showing more interest in this Operative System evey day, and today we can enjoy on Linux games such as The Witcher 2, XCOM: Enemy Unknown, Civilization V. More and more developers are launching their games on Windows and Linux simultaneously.<br>
+    In the last few years, there has been a remarkable increase of video games available for Linux; small and big, indies and AAA companies are showing more interest in this Operative System evey day, and today we can enjoy games such as The Witcher 2, XCOM: Enemy Unknown, Civilization V on Linux. More and more developers are launching their games on Windows and Linux simultaneously.<br>
     Gaming on Linux has always been present, but the interest that Valve showed in this platform is surely playing an important role in the current rising trend. As of today (January 2016), more than 1500 titles are available on Steam that support Linux.
-    With this in mind, one of the goals of this project is providing comparison information between Linuix and Windows, as a tool to push developers and porters to provide a comparable performance on the two systems.
+    With this in mind, the Open Game Benchmarks database was created, with the goals of having a comprehensive resource of game performances on Linux, and providing comparison information between Linux and Windows, as a tool to push developers and porters to provide a comparable performance on the two systems.
+    
     
 <h1>FAQ</h1>
 
@@ -86,19 +125,12 @@
     <li><h4><b>Why are you supporting only Steam games?</b></h4></li>
     I decided to support only Steam games on this website for several reasons:
     <ul>
-    <li>all of the "high profile" games for Linux are available on Steam</li>
-    <li>the software used to perform the benchmark, voglperf, is made by Valve and supports well Steam games; no alternative that was equally fully featured and simple to use/install is available</li>
     <li>Steam has now enough Linux games to constitute a dataset of respectable size, but still of controlled dimensions; if users could all sort of game executable this database could quickly become very noisy.</li>
+    <li>all of the "high profile" games for Linux are available on Steam</li>
+    <li>I want to provide a resource that is useful to compare game performances between Linux and Windows</li>
     </ul>
 </ul>
 
-<!--
-<ul>    
-    <li><h4><b>Why are you not showing the comparison of games between Linux and Windows?</b></h4></li>
-    That was actually the very first idea, that was born and discussed on <a href="http://www.reddit.com/r/linux_gaming" target="new">reddit.com/r/linux_gaming</a>. 
-    At the moment I am evaluating the idea; suggestions are more than welcome!
-</ul>
--->
 
 <ul>        
     <li><h4><b>Are you going to implement feature xyz?</b></h4></li>    
@@ -112,12 +144,12 @@
 
 <ul>    
     <li><h4><b>I've noticed a bug, where do I report it?</b></h4></li>
-    Please, <a href="mailto:admin@opengamebenchmarks.org">write me an email about it</a>; I will be very grateful for your help.
+    Please, <a href="mailto:admin@opengamebenchmarks.org">write me an email about it</a>; I will be very grateful for your help
 </ul>
     
     
 <h1>Contacts</h1>
-    At the moment the only way to contact me is via email, at <a href="mailto:admin@opengamebenchmarks.org">admin_AT_opengamebenchmarks_DOT_org</a>
+    <a href="mailto:admin@opengamebenchmarks.org">admin_AT_opengamebenchmarks_DOT_org</a>
 
 
 

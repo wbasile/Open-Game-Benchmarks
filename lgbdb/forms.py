@@ -69,14 +69,31 @@ def parse_voglperf_to_fps(lines):
             
     return fps
     
+
     
 # given a fraps file, returns the timings
 def parse_fraps_to_fps(lines):
-
     fps = [int(x) for x in lines[1:]]
-    
     return fps
     
+
+
+def parse_frames_file(frames_file):
+    
+    # read in the file
+    lines = filter(None, frames_file.read().split("\n"))
+
+    # check the format of the file
+    file_format = get_file_format(lines)
+    if not file_format:
+        return None, []
+        
+    if file_format == "voglperf":
+        fps = parse_voglperf_to_fps(lines)
+    elif file_format == "fraps":
+        fps = parse_fraps_to_fps(lines)
+    
+    return file_format, fps
 
 
 
@@ -97,18 +114,21 @@ class BenchmarkAddForm(forms.ModelForm):
         super(BenchmarkAddForm, self).__init__(*args, **kwargs)
             
         # add a field to chose the system among the ones of the user    
-        queryset=self.user.system_set.all()
+        system_choices = [(k.id,k.descriptive_name + " (" + ", ".join([k.cpu_model, k.gpu_model, k.operative_system]) + ")") for k in self.user.system_set.all()]
                 
-        self.fields['user_system'] = forms.ModelChoiceField(required=True,queryset=queryset, initial=queryset)
-        self.order_fields([ "game","user_system", "frames_file", "game_quality_preset" ,"additional_notes"])
-
+        self.fields['user_system'] = forms.ChoiceField(required=True,choices=system_choices)
+ 
+        # adjust some labels and help text
         self.fields['frames_file'].label = "Frames file"
         self.fields['additional_notes'].label += " (optional)"
                
+        self.fields['game'].help_text = mark_safe('Select the game that you benchmarked')      
         self.fields['user_system'].help_text = mark_safe('Select one of your systems or <a href="/system_add" class="btn btn-xs btn-warning">Add a new system </a> if you do not have one')      
-        self.fields['frames_file'].help_text = "The output of VOGLPERF or FRAPS, a file containing the frame timings <br>Minimum 60 seconds, maximum 300 seconds (longer benchmarks will be trimmed)<br><b>WARNING! FRAPS is not supported yet!</b>"        
-        self.fields['game_quality_preset'].help_text = "The graphical quality settings used in this benchmark. If not applicable, select <b>n.a.</b>"        
+        self.fields['frames_file'].help_text = mark_safe("The output of VOGLPERF or FRAPS (<b>fps.csv</b> file), a file containing the frame timings <br>Minimum 60 seconds, maximum 300 seconds (longer benchmarks will be trimmed)<br>")        
+        self.fields['game_quality_preset'].help_text = mark_safe("The graphical quality settings used in this benchmark. If not applicable, select <b>n.a.</b>")
                 
+        # set the order of the fields in the form
+        self.order_fields([ "game","user_system", "frames_file", "game_quality_preset" ,"additional_notes"])
 
 
     def clean(self):
@@ -119,48 +139,52 @@ class BenchmarkAddForm(forms.ModelForm):
         # check if the user has at least 1 system
         if len(self.user.system_set.all()) <= 0:
             raise forms.ValidationError("You must create a system first")
+
         
         # parse the frames file (voglperf)
         frames_file = self.cleaned_data.get('frames_file')
+        
         if not frames_file:
             raise forms.ValidationError("You must upload a valid VOGLPERF or FRAPS output file")
-        
-        
-        lines = filter(None, frames_file.read().split("\n"))
 
-        # check the format of the file
-        file_format = get_file_format(lines)
+        # obtain the format and actual fps data
+        file_format, fps = parse_frames_file(frames_file)
+        
         if not file_format:
             raise forms.ValidationError("The file: " + frames_file.name + " does not seem to be a valid VOGLPERF or FRAPS output")
-            
-        # VOGLPERF: here we can do some double check on the game, because the name of the file contains the steam appid of the game
-        if file_format == "voglperf":
-            fps = parse_voglperf_to_fps(lines)
-            
-            #~ process the name to get the game
-            start_pos = frames_file.name.find("voglperf")
-            game_appid = frames_file.name[start_pos:].split(".")[1].replace("gameid","")
-    
-            #~ check if the steam appid is an integer 
-            try:
-                game_appid = int(game_appid)
-            except ValueError:
-                raise forms.ValidationError("Something strange happened: the game of your VOGLPERF file is not valid. Did you rename the file?")
-            
-            if game_appid not in [x[0] for x in Game.objects.values_list("steam_appid")]:
-                raise forms.ValidationError("Something strange happened: the game of your VOGLPERF file does not match any in the database")
-            
-            if game_appid != game.steam_appid:
-                raise forms.ValidationError("The game of your VOGLPERF file does not match the one you have selected. Maybe you choose the wrong game or file? ")
-            
-        # FRAPS
-        elif file_format == "fraps":
-            fps = parse_fraps_to_fps(lines)
         
-        
-        if fps == []:
+        if not fps:
             raise forms.ValidationError("The file: " + frames_file.name + " does not seem to be a valid VOGLPERF or FRAPS output")
 
+
+        #~ lines = filter(None, frames_file_name.read().split("\n"))
+
+        # check the format of the file
+        #~ file_format = get_file_format(lines)
+
+            
+        # VOGLPERF: here we can do some double check on the game, because the name of the file contains the steam appid of the game
+        #~ if file_format == "voglperf":
+            #~ 
+            #~ #process the name to get the game
+            #~ start_pos = frames_file.name.find("voglperf")
+            #~ game_appid = frames_file.name[start_pos:].split(".")[1].replace("gameid","")
+            #~ #check if the steam appid is an integer 
+            #~ try:
+                #~ game_appid = int(game_appid)
+            #~ except ValueError:
+                #~ raise forms.ValidationError("Something strange happened: the game of your VOGLPERF file is not valid. Did you rename the file?")
+            #~ 
+            #~ if game_appid not in [x[0] for x in Game.objects.values_list("steam_appid")]:
+                #~ raise forms.ValidationError("Something strange happened: the game of your VOGLPERF file does not match any in the database")
+            #~ 
+            #~ if game_appid != game.steam_appid:
+                #~ raise forms.ValidationError("The game of your VOGLPERF file does not match the one you have selected. Maybe you choose the wrong game or file? ")
+            #~ 
+        #~ # FRAPS
+        #~ elif file_format == "fraps":
+            #~ fps = parse_fraps_to_fps(lines)
+    
                 
         # limit the fps to 300, i.e. 5 minutes
         if len(fps) > 300:
@@ -199,7 +223,7 @@ class BenchmarkAddForm(forms.ModelForm):
         self.instance.length_seconds =  len(fps)
         
         # from the user system get all the hardware and software details
-        us = self.cleaned_data["user_system"]
+        us = System.objects.get(id=self.cleaned_data["user_system"])
         
         self.instance.cpu_model = us.cpu_model
         self.instance.gpu_model = us.gpu_model
@@ -228,7 +252,6 @@ class BenchmarkEditForm(forms.ModelForm):
         widgets = {'additional_notes': forms.Textarea(attrs={'cols': 80, 'rows': 10})}
 
 
-
     def __init__(self, *args, **kwargs):
         
         super(BenchmarkEditForm, self).__init__(*args, **kwargs)
@@ -236,7 +259,7 @@ class BenchmarkEditForm(forms.ModelForm):
         for f in ['fps_min','fps_avg', 'fps_std', 'fps_max','fps_median', 'fps_1st_quartile','fps_3rd_quartile','length_seconds']:
             self.fields[f].widget.attrs['readonly'] = True
 
-        # TODO: specify field order here
+        # specify field order here
         self.order_fields([ "game", "game_quality_preset" ,"resolution",'fps_avg','fps_std', 'fps_min', "fps_1st_quartile", "fps_median","fps_3rd_quartile", 'fps_max','length_seconds',"cpu_model", "gpu_model","driver", "operative_system", "additional_notes"])
 
 
