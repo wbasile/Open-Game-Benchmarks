@@ -103,8 +103,9 @@ class GameTable(tables.Table):
             return str(value)
 
     
-    def render_steam_appid(self, value):
-        return mark_safe('<a target="_blank" href="http://steamdb.info/app/' + str(value) + '/" >' + str(value) + '</a>')
+    #~ def render_steam_appid(self, value):
+        #~ return unicode(value)
+        #~ return mark_safe('<a target="_blank" href="http://steamdb.info/app/' + str(value) + '/" >' + str(value) + '</a>')
     
     def render_title(self,record):
         img_url = "https://steamcdn-a.akamaihd.net/steam/apps/"+str(record.steam_appid)+"/capsule_sm_120.jpg"
@@ -253,7 +254,7 @@ class BenchmarkTable(tables.Table):
 
     class Meta:
         model = Benchmark
-        fields = ("game", "cpu_model", "gpu_model", "resolution","game_quality_preset","fps_avg", "operative_system","additional_notes", "user")
+        fields = ("game", "cpu_model", "gpu_model", "resolution","game_quality_preset","fps_median", "operative_system","additional_notes", "user")
     
     
     # for the Game column, have the game title link to the steam store page
@@ -329,11 +330,11 @@ def fps_chart_view(request):
     
     queryset = Benchmark.objects.filter(pk__in=[x.pk for x in f[0:min([len(f), max_displayed_benchmarks])]])
     
-    data =  [['', 'Average', 'Minimum']]
+    data =  [['', 'Median', '1st Quartile']]
         
             
     for s,q in enumerate(queryset):
-        data += [[set_benchmark_y_label(q),q.fps_avg, q.fps_min]]
+        data += [[set_benchmark_y_label(q),q.fps_median, q.fps_1st_quartile]]
     
         
     data_source = SimpleDataSource(data=data)
@@ -502,7 +503,23 @@ def BenchmarkEditView(request, pk=None):
             
     title = 'Edit benchmark "' + str(benchmark) + '"'
     
-    context = {"form":form , "title":title}
+    if benchmark:
+    
+        data =  [['Second', 'FPS']]
+        
+        for s,f in enumerate(benchmark.fps_data.split(",")):
+            data += [[int(s),int(f)]]
+        
+        
+        data_source = SimpleDataSource(data=data)
+        
+        chart = gchart.LineChart(data_source, options={'title': "Frames per second"})
+        
+    else:
+        chart = None
+        
+    
+    context = {"form":form , "title":title, "fpschart":chart}
     
     template = "benchmark_edit.html"
         

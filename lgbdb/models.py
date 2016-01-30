@@ -117,23 +117,6 @@ class Benchmark(models.Model):
     change_date = models.DateTimeField('change date', auto_now=True, auto_now_add=False)
     
     
-    # used to automatically update the number of benchmark of a specific game
-    
-    #~ def pre_delete_handler(self):
-        #~ print "DELETING ", str(self)
-        #~ 
-    #~ def save(self, *args, **kwargs):
-        #~ super(Benchmark, self).save(*args,**kwargs)
-        #~ 
-        #~ print "SAVING ", str(self)
-        #~ # update game num benchmarks
-        #~ self.game.update_num_benchmarks()
-        
-        #if self.id:
-        #    self.game.num_benchmarks=len(self.game.benchmark_set.all())
-        #    self.game.save()
-        
-    
     def __str__(self):
         return slugify(self.game.title + " " + self.game_quality_preset +" "+ self.cpu_model +" "+ self.gpu_model) # +" "+ str(self.upload_date))
         #~ return self.game.title + " " str(self.upload_date)
