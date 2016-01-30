@@ -53,7 +53,7 @@ def home(request):
         
         
     if Benchmark.objects.count() > 0:
-        recent_benchmarks = Benchmark.objects.all().order_by('upload_date')[0:5]
+        recent_benchmarks = Benchmark.objects.all().order_by('-upload_date')[0:5]
     else:
         recent_benchmarks = []
         
