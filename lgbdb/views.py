@@ -1,3 +1,6 @@
+reload(sys) 
+sys.setdefaultencoding("utf-8")
+
 from django.shortcuts import render, render_to_response, get_object_or_404
 from django.http import HttpResponseForbidden
 from .forms import SystemAddEditForm, BenchmarkAddForm, BenchmarkEditForm
@@ -283,7 +286,7 @@ class BenchmarkTable(tables.Table):
                                 <button type="button" class="btn btn-xs btn-default" data-toggle="collapse" data-target="#testc">View</button>
                                 <div id="testc" class="collapse">
                         '''
-                        +str(value)+
+                        +unicode(value)+
                         '''
                                 </div>
                                 </div>
