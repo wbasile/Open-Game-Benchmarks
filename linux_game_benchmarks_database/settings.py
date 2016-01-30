@@ -23,7 +23,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = "zesxj^#0k&7q4$5+k562y7#_#@eoz8ae)(8o(-+k^iq&ecm!l9"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 # Application definition
 
@@ -105,7 +105,7 @@ DATABASES['default']['CONN_MAX_AGE'] = 500
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # Allow all host headers
-ALLOWED_HOSTS = ['linuxgamebenchmarksdb.herokuapp.com','www.lgbdb.org','lgbdb.org']
+ALLOWED_HOSTS = ['*']
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.7/howto/static-files/
