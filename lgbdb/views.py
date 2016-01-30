@@ -283,7 +283,7 @@ class BenchmarkTable(tables.Table):
                                 <button type="button" class="btn btn-xs btn-default" data-toggle="collapse" data-target="#testc">View</button>
                                 <div id="testc" class="collapse">
                         '''
-                        +value+
+                        +str(value)+
                         '''
                                 </div>
                                 </div>
