@@ -7,6 +7,8 @@
 {% load trans blocktrans from i18n %}
 {% load bootstrap3 %}
 
+
+
  
 {% block content %}
  
@@ -39,11 +41,13 @@
     <tbody>
         {% for row in table.page.object_list|default:table.rows %} {# support pagination #}
         {% block table.tbody.row %}
-        <tr class='{% cycle "odd" "even" %}'>
+        
+        <tr> 
             {% for column, cell in row.items %}
                 <td {{ column.attrs.td.as_html }}>{{ cell }}</td>
             {% endfor %}
         </tr>
+        
         {% endblock table.tbody.row %}
         {% empty %}
         {% if table.empty_text %}
@@ -71,7 +75,18 @@
 {% endif %}
 
 
+<!--
+<script>
+$('tbody tr:has(td:contains("Windows"))').addClass('info');
+$('tbody tr:not(:has(td:contains("Windows")))').addClass('danger');
+</script>
+-->
 
+<script>
+$(document).ready(function(){
+    $('[data-toggle="popover"]').popover();   
+});
+</script>
 
 
 

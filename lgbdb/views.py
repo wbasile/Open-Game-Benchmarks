@@ -33,13 +33,6 @@ from graphos.renderers import gchart
 
 def home(request):
     
-    # this updates all the games with the correct number of benchmarks
-    #~ for g in Game.objects.all():
-        #~ 
-        #~ g.num_benchmarks = len(g.benchmark_set.all())
-        #~ g.save()
-        
-    
     num_users = User.objects.count()
     num_games = Game.objects.count()
     num_benchmarks = Benchmark.objects.count()
@@ -93,6 +86,7 @@ def GameNoBenchmark(request):
 class GameTable(tables.Table):
     
     num_benchmarks = tables.Column(verbose_name="Num benchmarks",empty_values=(), orderable=True)
+    steamdb_link = tables.Column(verbose_name="",empty_values=(), orderable=False)
     
     class Meta:
         model = Game
@@ -122,6 +116,11 @@ class GameTable(tables.Table):
         else:
             return mark_safe('<a href="/no_benchmark">' + '<img src="%s" />' % escape(img_url) + " " + unicode(record.title)+"</a>")
             
+    
+    def render_steamdb_link(self, record):
+        value = record.steam_appid
+        
+        return mark_safe('<a target="_blank" class="btn btn-xs btn-danger" href="http://steamdb.info/app/' + str(value) + '/" >SteamDB</a>')
         
 
 
@@ -229,7 +228,6 @@ class BenchmarkFilter(django_filters.FilterSet):
 
         # limit the possible choices in the filter to the items that are in the benchmark list, plus an "any" choice
         
-        #~ print BenchmarkFilter.Meta.fields
         
         for field_name in BenchmarkFilter.Meta.fields:
             # limit the multiple choice for the MultipleChoice (text) fields 
@@ -249,52 +247,37 @@ class BenchmarkFilter(django_filters.FilterSet):
 
         
 class BenchmarkTable(tables.Table):
+    
+    benchmark_detail = tables.Column(verbose_name="",empty_values=(), orderable=False)
+    
+
     class Meta:
         model = Benchmark
-        #~ attrs = {"class": "paleblue"}
-        #~ exclude = ("id", "frames_file", "long_description", "desktop_environment", "kernel", "window_manager", "upload_date", "change_date")
         fields = ("game", "cpu_model", "gpu_model", "resolution","game_quality_preset","fps_avg", "operative_system","additional_notes", "user")
     
     
     # for the Game column, have the game title link to the steam store page
     def render_game(self, value):
-        
-    
         img_url = "https://steamcdn-a.akamaihd.net/steam/apps/"+str(value.steam_appid)+"/capsule_sm_120.jpg"
-        
-        #value = int(record.num_benchmarks)
-        
-        #~ if value > 0:
         return mark_safe('<a href="/benchmark_table/?game=' + str(value.pk) + '" >' + '<img src="%s" /><br>' % escape(img_url) + " " + unicode(value.title)+"</a>")
         
-    
-    
-    benchmark_detail = tables.Column(verbose_name="",empty_values=(), orderable=False)
 
     def render_benchmark_detail(self, record):
-        
         button_html = '<a href="/benchmark_detail/' +str(record.id)+ '" class="btn btn-sm btn-warning">Detail</a>'
-                        
         return mark_safe(button_html)
         
         
     def render_additional_notes(self,value):
-        print value
-        
-        return mark_safe('''
-                                <div class="row">
-                                <div class="col-md-2">
-                                <button type="button" class="btn btn-xs btn-default" data-toggle="collapse" data-target="#testc">View</button>
-                                <div id="testc" class="collapse">
-                        '''
-                        +unicode(value)+
-                        '''
-                                </div>
-                                </div>
-                                </div>
-                            
-                        ''')
-        
+        return mark_safe('''<a href="#" class="btn btn-xs btn-default" data-toggle="popover"  data-trigger="hover" title="Notes" data-content="'''+unicode(value)+'''">View</a>''')
+
+    
+    # different font color for linux and windows
+    #~ def render_operative_system(self,value):
+        #~ print value
+        #~ if value.find("Windows") != -1:
+            #~ return mark_safe('<font color="blue">'+unicode(value)+'</font>')
+        #~ else:
+            #~ return mark_safe('<font color="red">'+unicode(value)+'</font>')
 
 
 
@@ -314,12 +297,12 @@ class BenchmarkTableView(TemplateView):
             filter.form.fields[f].help_text = ""
         
         
-        #~ filter.form.helper = FooFilterFormHelper()
         table = BenchmarkTable(filter.qs)
         RequestConfig(self.request).configure(table)
         context['filter'] = filter
         context['table'] = table
         context['infotext'] = str(len(filter.qs)) + " benchmark(s) found with these criteria"
+        
         return context
         
         

@@ -1,5 +1,6 @@
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
+from django.contrib.auth import views as auth_views
 admin.autodiscover()
 
 import lgbdb.views
@@ -12,7 +13,8 @@ urlpatterns = [
     url(r'^$', lgbdb.views.home, name='home'),
     url(r'^about/$', lgbdb.views.about, name='about'),
     
-    url(r'^accounts/logout/$', 'django.contrib.auth.views.logout', {'next_page': '/'}),
+    url(r'^accounts/logout/$', auth_views.logout, {'next_page': '/'}),
+
     url(r'^accounts/', include('registration.backends.simple.urls')),
     url(r'^accounts/profile/$', lgbdb.views.profile, name='profile'),
     

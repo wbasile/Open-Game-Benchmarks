@@ -10,68 +10,67 @@
 <h2>Welcome to Open Game Benchmarks</h2>
 <br>
 
-<div class="row">
-
-    <div class="col-md-9">
+<div class="col-md-9">
         
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">Latest benchmarks</h3>
+        </div>
+        
+        <div class="panel-body">
+                 
+            {% include 'benchmark_list_simple.html' %}
+            
+        </div>
+    </div>
+    
+</div>
+
+
+        
+<div class="col-md-3">        
+
+    <div class="row">
         <div class="panel panel-default">
             <div class="panel-heading">
-                <h3 class="panel-title">Latest benchmarks</h3>
+                <h3 class="panel-title">Latest news</h3>
             </div>
             
-            <div class="panel-body">
-                     
-                {% include 'benchmark_list_simple.html' %}
+            <div class="panel-body"> 
+                <p>Hi everybody! This moment finally arrived: Open Game Benchmarks is ready to launch. This idea was born in the community, and will grow and mature with the help of the community. This site is now officially in Open Beta stage. Please let me know of any bug and issue you may encounter or features that you would like to see implemented. </p>  
+            </div>
+        </div>
+    </div>        
+                
+        
+    <div class="row">
+ 
+        <div class="panel panel-default">
+    
+            <div class="panel-heading">
+                <h3 class="panel-title">Statistics</h3>
+            </div>
+            
+            <div class="panel-body"> 
+                <p>Registered users: <b>{{ num_users }} </b></p>
+                <p>Supported Linux games on Steam: <a href="game_list"><b>{{ num_games }} </b></a></p>
+                
+                {% if most_popular_game %}
+                    <p>Most popular game: <a href="benchmark_table/?game={{ most_popular_game.pk }}"><b>{{ most_popular_game }} </b> (<b>{{most_popular_game.num_benchmarks}}</b> benchmarks )</a></p>
+                {% endif %}
+                
+                <p>Submitted game benchmarks: <a href="benchmark_table"><b>{{ num_benchmarks }} </b></a></p>
+                
+                {% if best_benchmark %}
+                    <p>Highest-fps benchmark: <a href="benchmark_detail/{{ best_benchmark.pk }}"> <b>{{ best_benchmark.game }} </b> 
+                    (average FPS = <b>{{ best_benchmark.fps_avg }} </b>)</a></p>
+                {% endif %}
+                
                 
             </div>
         </div>
     </div>
-        
-        
-    <div class="col-md-3">
-
-        <div class="row">
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h3 class="panel-title">Latest news</h3>
-                </div>
-                
-                <div class="panel-body"> 
-                    <p>Hi everybody! This moment finally arrived: Open Game Benchmarks is ready to launch. This idea was born in the community, and will grow and mature with the help of the community. This site is now officially in Open Beta stage. Please let me know of any bug and issue you may encounter or features that you would like to see implemented. </p>  
-                </div>
-            </div>
-        </div>        
-                
-        
-        <div class="row">
-     
-            <div class="panel panel-default">
-        
-                <div class="panel-heading">
-                    <h3 class="panel-title">Statistics</h3>
-                </div>
-                
-                <div class="panel-body"> 
-                    <p>Registered users: <b>{{ num_users }} </b></p>
-                    <p>Supported Linux games on Steam: <a href="game_list"><b>{{ num_games }} </b></a></p>
-                    
-                    {% if most_popular_game %}
-                        <p>Most popular game: <a href="benchmark_table/?game={{ most_popular_game.pk }}"><b>{{ most_popular_game }} </b> (<b>{{most_popular_game.num_benchmarks}}</b> benchmarks )</a></p>
-                    {% endif %}
-                    
-                    <p>Submitted game benchmarks: <a href="benchmark_table"><b>{{ num_benchmarks }} </b></a></p>
-                    
-                    {% if best_benchmark %}
-                        <p>Highest-fps benchmark: <a href="benchmark_detail/{{ best_benchmark.pk }}"> <b>{{ best_benchmark.game }} </b> 
-                        (average FPS = <b>{{ best_benchmark.fps_avg }} </b>)</a></p>
-                    {% endif %}
-                    
-                    
-                </div>
-            </div>
-        </div>
-        
-    </div>
+    
 </div>
         
         

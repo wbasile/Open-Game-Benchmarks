@@ -27,13 +27,16 @@
                 <a href="/benchmark_detail/{{ benchmark.id }}" class="btn btn-sm btn-warning">Detail</a>
             </td>
             
-            {% if  request.user  ==  benchmark.user  %}
-            <td>
-                <a href="/benchmark_edit/{{ benchmark.id }}" class="btn btn-sm btn-info">Edit</a>
-            </td>
-            <td>
-                <a href="/benchmark_delete/{{ benchmark.id }}" class="btn btn-sm btn-danger">Delete</a>
-            </td>
+            
+            {% if not num_users %} {# shows additional edit and delete buttons only when we are in the profile #}
+                {% if  request.user  ==  benchmark.user  %}
+                <td>
+                    <a href="/benchmark_edit/{{ benchmark.id }}" class="btn btn-sm btn-info">Edit</a>
+                </td>
+                <td>
+                    <a href="/benchmark_delete/{{ benchmark.id }}" class="btn btn-sm btn-danger">Delete</a>
+                </td>
+                {% endif %}
             {% endif %}
             
         </tr>
