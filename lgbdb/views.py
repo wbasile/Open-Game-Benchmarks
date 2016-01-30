@@ -269,7 +269,7 @@ class BenchmarkTable(tables.Table):
         
         
     def render_additional_notes(self,value):
-        return mark_safe('''<a href="#" class="btn btn-xs btn-default" data-toggle="popover"  data-trigger="hover" title="Notes" data-content="'''+unicode(value)+'''">View</a>''')
+        return mark_safe('''<a href="#" class="btn btn-xs btn-default" data-toggle="popover"  data-trigger="hover" title="Notes" data-content="'''+unicode(value)+'''">View notes</a>''')
 
     
     # different font color for linux and windows
@@ -328,7 +328,7 @@ def fps_chart_view(request):
     
     f = BenchmarkFilter(request.GET, queryset=Benchmark.objects.order_by("upload_date").reverse())
     
-    queryset = Benchmark.objects.filter(pk__in=[x.pk for x in f[0:min([len(f), max_displayed_benchmarks])]])
+    queryset = Benchmark.objects.filter(pk__in=[x.pk for x in f[0:min([len(f), max_displayed_benchmarks])]]).order_by("game")
     
     data =  [['', 'Median', '1st Quartile']]
         
@@ -354,10 +354,10 @@ def BenchmarkDetailView(request, pk=None):
     
     if benchmark:
     
-        data =  [['Second', 'FPS']]
+        data =  [['Second', 'FPS','Median','1st Quartile','3rd Quartile']]
         
         for s,f in enumerate(benchmark.fps_data.split(",")):
-            data += [[int(s),int(f)]]
+            data += [[int(s),int(f), int(benchmark.fps_median), int(benchmark.fps_1st_quartile), int(benchmark.fps_3rd_quartile)]]
         
         
         data_source = SimpleDataSource(data=data)
@@ -505,10 +505,10 @@ def BenchmarkEditView(request, pk=None):
     
     if benchmark:
     
-        data =  [['Second', 'FPS']]
+        data =  [['Second', 'FPS','Median','1st Quartile','3rd Quartile']]
         
         for s,f in enumerate(benchmark.fps_data.split(",")):
-            data += [[int(s),int(f)]]
+            data += [[int(s),int(f), int(benchmark.fps_median), int(benchmark.fps_1st_quartile), int(benchmark.fps_3rd_quartile)]]
         
         
         data_source = SimpleDataSource(data=data)
