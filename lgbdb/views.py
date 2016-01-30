@@ -218,7 +218,7 @@ class BenchmarkFilter(django_filters.FilterSet):
         model = Benchmark
         
         # these fields work even if the relative fields are hidden (excluded in the table)
-        fields = ["game","cpu_model","gpu_model","resolution", "driver","operative_system"]
+        fields = ["game","cpu_model","gpu_model","resolution", "driver","operating_system"]
         
         # this doesn't work :(
         #~ fields = ['user_system.cpu_model']
@@ -254,7 +254,7 @@ class BenchmarkTable(tables.Table):
 
     class Meta:
         model = Benchmark
-        fields = ("game", "cpu_model", "gpu_model", "resolution","game_quality_preset","fps_median", "operative_system","additional_notes", "user")
+        fields = ("game", "cpu_model", "gpu_model", "resolution","game_quality_preset","fps_median", "operating_system","additional_notes", "user")
     
     
     # for the Game column, have the game title link to the steam store page
@@ -273,7 +273,7 @@ class BenchmarkTable(tables.Table):
 
     
     # different font color for linux and windows
-    #~ def render_operative_system(self,value):
+    #~ def render_operating_system(self,value):
         #~ print value
         #~ if value.find("Windows") != -1:
             #~ return mark_safe('<font color="blue">'+unicode(value)+'</font>')
@@ -314,9 +314,9 @@ class BenchmarkTableView(TemplateView):
 def set_benchmark_y_label(benchmark):
     
     if benchmark.game_quality_preset != "n.a.":
-        y_tick_label = ", ".join([str(x) for x in [benchmark.game, benchmark.gpu_model, benchmark.cpu_model, benchmark.game_quality_preset + " preset", benchmark.resolution, benchmark.operative_system ] ])
+        y_tick_label = ", ".join([str(x) for x in [benchmark.game, benchmark.gpu_model, benchmark.cpu_model, benchmark.game_quality_preset + " preset", benchmark.resolution, benchmark.operating_system ] ])
     else:
-        y_tick_label = ", ".join([str(x) for x in [benchmark.game, benchmark.gpu_model, benchmark.cpu_model, benchmark.resolution, benchmark.operative_system ] ])
+        y_tick_label = ", ".join([str(x) for x in [benchmark.game, benchmark.gpu_model, benchmark.cpu_model, benchmark.resolution, benchmark.operating_system ] ])
         
     return str(y_tick_label)
 

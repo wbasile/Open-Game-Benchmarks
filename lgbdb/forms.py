@@ -114,7 +114,7 @@ class BenchmarkAddForm(forms.ModelForm):
         super(BenchmarkAddForm, self).__init__(*args, **kwargs)
             
         # add a field to chose the system among the ones of the user    
-        system_choices = [(k.id,k.descriptive_name + " (" + ", ".join([k.cpu_model, k.gpu_model, k.operative_system]) + ")") for k in self.user.system_set.all()]
+        system_choices = [(k.id,k.descriptive_name + " (" + ", ".join([k.cpu_model, k.gpu_model, k.operating_system]) + ")") for k in self.user.system_set.all()]
                 
         self.fields['user_system'] = forms.ChoiceField(required=True,choices=system_choices)
  
@@ -229,7 +229,7 @@ class BenchmarkAddForm(forms.ModelForm):
         self.instance.gpu_model = us.gpu_model
         self.instance.resolution = us.resolution
         self.instance.driver = us.driver
-        self.instance.operative_system = us.operative_system
+        self.instance.operating_system = us.operating_system
         #~ self.instance.window_manager = us.window_manager
         #~ self.instance.kernel = us.kernel
         #~ self.instance.linux_distribution = us.linux_distribution
@@ -260,7 +260,7 @@ class BenchmarkEditForm(forms.ModelForm):
             self.fields[f].widget.attrs['readonly'] = True
 
         # specify field order here
-        self.order_fields([ "game", "game_quality_preset" ,"resolution",'fps_avg','fps_std', 'fps_min', "fps_1st_quartile", "fps_median","fps_3rd_quartile", 'fps_max','length_seconds',"cpu_model", "gpu_model","driver", "operative_system", "additional_notes"])
+        self.order_fields([ "game", "game_quality_preset" ,"resolution",'fps_avg','fps_std', 'fps_min', "fps_1st_quartile", "fps_median","fps_3rd_quartile", 'fps_max','length_seconds',"cpu_model", "gpu_model","driver", "operating_system", "additional_notes"])
 
 
 

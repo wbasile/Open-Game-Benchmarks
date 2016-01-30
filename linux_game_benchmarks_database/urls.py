@@ -4,6 +4,8 @@ from django.contrib.auth import views as auth_views
 admin.autodiscover()
 
 import lgbdb.views
+import lgbdb.feeds
+
 
 
 urlpatterns = [
@@ -33,5 +35,7 @@ urlpatterns = [
     url(r'^no_benchmark/$', lgbdb.views.GameNoBenchmark, name='no-benchmark'),
     
     url(r'^game_list/$', lgbdb.views.GameListView.as_view(), name='game-list'),
+    
+    url(r'^benchmark_rss/', lgbdb.feeds.LatestBenchmarks()),
     
 ]
