@@ -230,12 +230,9 @@ class BenchmarkAddForm(forms.ModelForm):
         self.instance.resolution = us.resolution
         self.instance.driver = us.driver
         self.instance.operating_system = us.operating_system
-        #~ self.instance.window_manager = us.window_manager
-        #~ self.instance.kernel = us.kernel
-        #~ self.instance.linux_distribution = us.linux_distribution
-
-        # update the benchmark counter of the game
-        #game.num_benchmarks += 1
+        self.instance.desktop_environment = us.desktop_environment
+        self.instance.kernel = us.kernel
+        self.instance.gpu_driver_version = us.gpu_driver_version
 
         return self.cleaned_data 
     
@@ -260,7 +257,7 @@ class BenchmarkEditForm(forms.ModelForm):
             self.fields[f].widget.attrs['readonly'] = True
 
         # specify field order here
-        self.order_fields([ "game", "game_quality_preset" ,"resolution",'fps_avg','fps_std', 'fps_min', "fps_1st_quartile", "fps_median","fps_3rd_quartile", 'fps_max','length_seconds',"cpu_model", "gpu_model","driver", "operating_system", "additional_notes"])
+        self.order_fields([ "game", "game_quality_preset" ,"resolution",'fps_avg','fps_std', 'fps_min', "fps_1st_quartile", "fps_median","fps_3rd_quartile", 'fps_max','length_seconds',"cpu_model", "gpu_model","driver","gpu_driver_version", "operating_system","desktop_environment", "kernel", "additional_notes"])
 
 
 
@@ -276,9 +273,10 @@ class SystemAddEditForm(forms.ModelForm):
         widgets =   {
                     'descriptive_name': forms.TextInput(attrs={'placeholder': "ex. Gaming desktop, Laptop"}),
                     #~ 'linux_distribution': forms.TextInput(attrs={'placeholder': "ex. Ubuntu, Arch, Mint"}),
-                    #~ 'desktop_environment': forms.TextInput(attrs={'placeholder': "ex. KDE, GNOME, Cinnamon"}),
                     #~ 'window_manager': forms.TextInput(attrs={'placeholder': "ex. KWin, Marco"}),
-                    #~ 'kernel': forms.TextInput(attrs={'placeholder': "ex. x86_64 Linux 3.16.0-38-generic"})
+                    'desktop_environment': forms.TextInput(attrs={'placeholder': "ex. KDE, GNOME, Cinnamon, Aero (for Windows)"}),
+                    'kernel': forms.TextInput(attrs={'placeholder': "ex. x86_64 Linux 3.16.0-38-generic"}),
+                    'gpu_driver_version': forms.TextInput(attrs={'placeholder': "ex. NVidia 361.18"}),
                     }
         
         
@@ -289,6 +287,10 @@ class SystemAddEditForm(forms.ModelForm):
          
         self.fields["driver"].label = "GPU Driver"
         
+        self.fields["desktop_environment"].label = "Desktop Environment (optional)"
+        self.fields["kernel"].label = "Linux kernel (optional)"
+        self.fields["gpu_driver_version"].label = "GPU Driver version (optional)"
+        
         #~ for field_name in ['descriptive_name','cpu_model', 'gpu_model','resolution', 'driver']:
             #~ self.fields[field_name].label = self.fields[field_name].label + "*"
         #~ self.order_fields([ "user_system", "frames_file" ,"additional_notes"])
@@ -297,6 +299,7 @@ class SystemAddEditForm(forms.ModelForm):
         self.fields['cpu_model'].help_text = "On Linux you can use <code>cat /proc/cpuinfo | grep 'model name' | uniq</code> to find out the model of your CPU"
         self.fields['gpu_model'].help_text = "On Linux you can use <code>lspci -vnn | grep VGA</code> to find out the model of your CPU"
         self.fields['resolution'].help_text = "On Linux you can use <code>xrandr</code> to find out your current resolution"
+        self.fields['resolution'].help_text = "On Linux you can use <code>uname -mr</code> to find out your Kernel version"
         
             
             

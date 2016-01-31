@@ -26,10 +26,21 @@ for table in tables:
             gpu = gpu.replace('&#160;',' ')
             gpu = re.sub("[\[].*?[\]]", "", gpu)
             
-            if gpu.find("GeForce") != -1 and gpu not in nvidia_gpus:
+            if (gpu.find("GeForce") != -1) or (gpu.find("Quadro") != -1) and gpu not in nvidia_gpus:
                 nvidia_gpus += ["NVidia " + gpu]
                 
 ###############
+
+#~ print "\n".join(nvidia_gpus)
+
+#~ print "('"+"NVidia"+"',\n\t("
+    #~ 
+#~ for gpu in (nvidia_gpus):
+    #~ print "\t('" + gpu + "','" + gpu + "'),"
+    #~ 
+#~ print "\t)\n),\n\n"
+    #~ 
+#~ exit()
 
 
 # AMD GPUS

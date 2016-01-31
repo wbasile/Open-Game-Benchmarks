@@ -22,11 +22,12 @@ class System(models.Model):
     driver = models.CharField(max_length=50,choices=DRIVER_CHOICES)
     operating_system = models.CharField(max_length=80,choices=OS_CHOICES)
     
-    # these might be optional
-    #~ linux_distribution = models.CharField(max_length=50, blank=True)
-    #~ desktop_environment = models.CharField(max_length=50, blank=True)
-    #~ window_manager = models.CharField(max_length=50,  blank=True)
-    #~ kernel = models.CharField(max_length=50, blank=True)
+    # optional
+    #~ linux_distribution = models.CharField(max_length=60, blank=True)
+    #~ window_manager = models.CharField(max_length=60,  blank=True)
+    desktop_environment = models.CharField(max_length=60, blank=True)
+    kernel = models.CharField(max_length=60, blank=True)
+    gpu_driver_version = models.CharField(max_length=60, blank=True)
     
     def __str__(self):
         return self.descriptive_name
@@ -66,11 +67,11 @@ class Benchmark(models.Model):
     driver = models.CharField(max_length=50,choices=DRIVER_CHOICES,blank=True)
     operating_system = models.CharField(max_length=80,choices=OS_CHOICES,blank=True)
      
-    #~ linux_distribution = models.CharField(max_length=50,blank=True)
-    #~ desktop_environment = models.CharField(max_length=50,blank=True)
-    #~ window_manager = models.CharField(max_length=50,blank=True)
-    #~ kernel = models.CharField(max_length=50,blank=True)
-                                      
+    #~ linux_distribution = models.CharField(max_length=60,blank=True)
+    #~ window_manager = models.CharField(max_length=60,blank=True)
+    desktop_environment = models.CharField(max_length=60,blank=True)
+    kernel = models.CharField(max_length=60,blank=True)
+    gpu_driver_version = models.CharField(max_length=60, blank=True)                                  
                     
     GAME_SETTINGS_CHOICES = (
         ('Low', 'Low'),

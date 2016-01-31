@@ -1,6 +1,3 @@
-#~ import sys
-#~ reload(sys) 
-#~ sys.setdefaultencoding("utf-8")
 
 from django.shortcuts import render, render_to_response, get_object_or_404
 from django.http import HttpResponseForbidden
@@ -29,6 +26,23 @@ from graphos.sources.simple import SimpleDataSource
 #~ from graphos.sources.model import ModelDataSource
 from graphos.renderers import gchart
 
+
+def fps_line_chart(benchmark):
+    
+    if not benchmark: return None
+    
+    data =  [['Second', 'FPS','Median','1st Quartile','3rd Quartile']]
+        
+    for s,f in enumerate(benchmark.fps_data.split(",")):
+        data += [[int(s),int(f), int(benchmark.fps_median), int(benchmark.fps_1st_quartile), int(benchmark.fps_3rd_quartile)]]
+        
+    data_source = SimpleDataSource(data=data)
+        
+    chart = gchart.LineChart(data_source, options={'title': "Frames per second"})
+        
+    return chart    
+    
+        
 
 
 def home(request):
@@ -107,6 +121,7 @@ class GameTable(tables.Table):
         #~ return unicode(value)
         #~ return mark_safe('<a target="_blank" href="http://steamdb.info/app/' + str(value) + '/" >' + str(value) + '</a>')
     
+    
     def render_title(self,record):
         img_url = "https://steamcdn-a.akamaihd.net/steam/apps/"+str(record.steam_appid)+"/capsule_sm_120.jpg"
         
@@ -177,16 +192,11 @@ class GameListView(TemplateView):
         filter.form.fields['show'].label = "Display options"
         filter.form.fields['show'].help_text = ""
         
-        #~ negative_sort = False
         # intercept the case in which we are trying to sort by num_benchmarks, which is not a field of the Game model
         if self.request.GET.get('sort',None) == "num_benchmarks":
             nr = self.request.GET.copy()
             
             arg = nr.pop("sort")[0]
-            #~ if arg[0] == "-":
-                #~ negative_sort = True
-            #~ else:
-                #~ negative_sort = False
             
             self.request.GET = nr
 
@@ -201,7 +211,6 @@ class GameListView(TemplateView):
             
         context['filter'] = filter
         context['table'] = table
-        #~ context['negative_sort'] = negative_sort
         
         return context
         
@@ -340,7 +349,7 @@ def fps_chart_view(request):
     data_source = SimpleDataSource(data=data)
         
     chart = gchart.BarChart(data_source, options={'title': "Frames per second"})
-        
+    
     return render(request, "benchmark_chart.html", {'filter': f, 'chart': chart})
 
 
@@ -353,17 +362,8 @@ def BenchmarkDetailView(request, pk=None):
     benchmark = get_object_or_404(Benchmark, pk=pk)
     
     if benchmark:
-    
-        data =  [['Second', 'FPS','Median','1st Quartile','3rd Quartile']]
-        
-        for s,f in enumerate(benchmark.fps_data.split(",")):
-            data += [[int(s),int(f), int(benchmark.fps_median), int(benchmark.fps_1st_quartile), int(benchmark.fps_3rd_quartile)]]
-        
-        
-        data_source = SimpleDataSource(data=data)
-        
-        chart = gchart.LineChart(data_source, options={'title': "Frames per second"})
 
+        chart = fps_line_chart(benchmark)
 
         return render(request, "benchmark_detail.html", {'object':benchmark,'fpschart': chart})
 
@@ -387,10 +387,8 @@ def profile(request):
 def SystemAddEditView(request, pk=None):
     
     if pk:  # this means that we are trying to edit an existing instance
-        # TODO: create the 404 page
         system = get_object_or_404(System, pk=pk) # try to get the instance
         if system.user != request.user: # check if the instance belongs to the requesting user
-            # TODO: create the Forbidden page
             return HttpResponseForbidden()
     
     else:
@@ -408,21 +406,11 @@ def SystemAddEditView(request, pk=None):
             instance = form.save(commit=False)
             
             # Do something with the data
-            
             # ensure that the owner of this system is the current user
             instance.user = request.user
-            
-            # for example, in this case set a default value for "description" if empty
-            # set the description to something meaningful if it is left blank
-            #~ descriptive_name = form.cleaned_data.get("descriptive_name")
-            #~ num_user_systems = len(request.user.system_set.all())
-            #~ if not descriptive_name: 
-                #~ descriptive_name = request.user.username + "_system_" + str(num_user_systems+1)
-            #~ 
-            #~ instance.descriptive_name = descriptive_name
 
             # save the data
-            # instance is actually an instance of System
+            # instance is an instance of System
             instance.save()
             
             if system:
@@ -431,7 +419,6 @@ def SystemAddEditView(request, pk=None):
                 message = 'System "' + instance.descriptive_name + '" successfully added'
                 
             return HttpResponseRedirect('/accounts/profile')
-            #~ return reverse('profile')
     else:
         form = SystemAddEditForm(user=request.user,initial={'user': request.user}, instance=system)    
         
@@ -503,22 +490,8 @@ def BenchmarkEditView(request, pk=None):
             
     title = 'Edit benchmark "' + str(benchmark) + '"'
     
-    if benchmark:
-    
-        data =  [['Second', 'FPS','Median','1st Quartile','3rd Quartile']]
-        
-        for s,f in enumerate(benchmark.fps_data.split(",")):
-            data += [[int(s),int(f), int(benchmark.fps_median), int(benchmark.fps_1st_quartile), int(benchmark.fps_3rd_quartile)]]
-        
-        
-        data_source = SimpleDataSource(data=data)
-        
-        chart = gchart.LineChart(data_source, options={'title': "Frames per second"})
-        
-    else:
-        chart = None
-        
-    
+    chart = fps_line_chart(benchmark)
+
     context = {"form":form , "title":title, "fpschart":chart}
     
     template = "benchmark_edit.html"
@@ -561,8 +534,6 @@ def BenchmarkAddView(request):
     
 class BenchmarkDeleteView(DeleteView):
     
-    
-    
     def dispatch(self, *args, **kwargs):
         
         # verify that the object exists
@@ -581,10 +552,6 @@ class BenchmarkDeleteView(DeleteView):
     template_name = 'benchmark_delete.html'
 
     def get_success_url(self):
-        
-        #~ self.game.num_benchmarks -= 1
-        #~ self.game.save()
-        #~ self.game.update_num_benchmarks()
         
         return reverse('profile')
         
