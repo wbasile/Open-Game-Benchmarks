@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
 
+{% load humanize %}
+
 <!--
 load the javascript needed for gchart
 -->
@@ -8,6 +10,7 @@ load the javascript needed for gchart
     <script type="text/javascript">
     google.load("visualization", "1", {packages:["corechart"]});
     </script>
+    
     
 {% endblock %}
 
@@ -34,7 +37,7 @@ load the javascript needed for gchart
                     <th>FPS Average</th><td>{{ object.fps_avg }}</td>
                 </tr>
                 <tr>
-                    <th>FPS standard dev.</th><td>{{ object.fps_std }}</td>
+                    <th>FPS standard dev.</th><td>{{ object.fps_std |floatformat:2|intcomma }}</td>
                 </tr>
                 <tr>
                     <th>FPS Minimum</th><td>{{ object.fps_min }}</td>

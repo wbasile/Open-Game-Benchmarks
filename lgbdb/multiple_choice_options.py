@@ -1204,6 +1204,7 @@ CPU_CHOICES = (
     ("Intel Core i7-3940XM","Intel Core i7-3940XM"),
     ("Intel Core i7-4500U","Intel Core i7-4500U"),
     ("Intel Core i7-4510U","Intel Core i7-4510U"),
+    ("Intel Core i7-4810MQ","Intel Core i7-4810MQ"),
     ("Intel Core i7-4700HQ","Intel Core i7-4700HQ"),
     ("Intel Core i7-4700MQ","Intel Core i7-4700MQ"),
     ("Intel Core i7-4702MQ","Intel Core i7-4702MQ"),

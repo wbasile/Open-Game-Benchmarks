@@ -259,11 +259,12 @@ class BenchmarkFilter(django_filters.FilterSet):
 class BenchmarkTable(tables.Table):
     
     benchmark_detail = tables.Column(verbose_name="",empty_values=(), orderable=False)
+    IQR = tables.Column(verbose_name="IQR",empty_values=(), orderable=False)
     
 
     class Meta:
         model = Benchmark
-        fields = ("game", "cpu_model", "gpu_model", "resolution","game_quality_preset","fps_median", "operating_system","additional_notes", "user")
+        fields = ("game", "cpu_model", "gpu_model", "resolution","game_quality_preset","fps_median","IQR", "operating_system","additional_notes", "user")
     
     
     # for the Game column, have the game title link to the steam store page
@@ -275,6 +276,13 @@ class BenchmarkTable(tables.Table):
     def render_benchmark_detail(self, record):
         button_html = '<a href="/benchmark_detail/' +str(record.id)+ '" class="btn btn-sm btn-warning">Detail</a>'
         return mark_safe(button_html)
+        
+        
+    def render_IQR(self, record):
+        #~ button_html = '<a href="/benchmark_detail/' +str(record.id)+ '" class="btn btn-sm btn-warning">Detail</a>'
+        iqr_value = record.fps_3rd_quartile - record.fps_1st_quartile
+        
+        return mark_safe(str(iqr_value))
         
         
     def render_additional_notes(self,value):
@@ -309,6 +317,8 @@ class BenchmarkTableView(TemplateView):
         
         table = BenchmarkTable(filter.qs)
         RequestConfig(self.request).configure(table)
+        #~ table.columns['IQR'] = "cippalippa"
+        
         context['filter'] = filter
         context['table'] = table
         context['infotext'] = str(len(filter.qs)) + " benchmark(s) found with these criteria"

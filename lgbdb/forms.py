@@ -4,17 +4,25 @@ from django.utils.safestring import mark_safe
 import numpy as np
 
 
+def is_number(s):
+    try:
+        float(s)
+        return True
+    except ValueError:
+        return False
+        
+
 def check_voglperf_format(lines):
     # check the length of the file
     if len(lines) <= 1: return False
-    print "Length OK"
+    #~ print "Length OK"
     
     # check the format of the header
     ## example:  Dec 22 13:38:47 - isaac.x64
     header = lines[0]
     if header[0] != "#": return False
     if len(header.split("-")) <= 1: return False
-    print "Header OK"
+    #~ print "Header OK"
     
     # check that every line is a float
     for l in lines[1:]:
@@ -23,19 +31,34 @@ def check_voglperf_format(lines):
         except:
             return False
             
-    print "Lines OK"
+    #~ print "Lines OK"
     return True
     
     
 def check_fraps_format(lines):
     if len(lines) <= 1: return False
-    print "Length OK"
-    
-    print lines[0]
+    #~ print "Length OK"
     
     if lines[0].strip() == "FPS":
         return True
     return False
+
+def check_glxosd_format(lines):
+    if len(lines) <= 1: return False
+    #~ print "Length OK"
+    
+    for line in lines:
+        
+        l = line.split(",")
+        
+        if len(l) != 2:
+            return False
+            
+        if is_number(l[0]) == False: return False
+        if is_number(l[1]) == False: return False
+    
+    return True
+
 
 
 def get_file_format(lines):
@@ -45,6 +68,9 @@ def get_file_format(lines):
     
     if check_fraps_format(lines):
         return "fraps"
+        
+    if check_glxosd_format(lines):
+        return "glxosd"
         
     return None
     
@@ -76,6 +102,30 @@ def parse_fraps_to_fps(lines):
     fps = [int(x) for x in lines[1:]]
     return fps
     
+    
+# given a glxosd file, returns the timings
+def parse_glxosd_to_fps(lines):
+    timings = []
+    for l in lines:
+        timings += [int(l.split(",")[1])]
+        
+    frames = []
+    for i in range(1,len(timings)):
+        frames += [(timings[i] - timings[i-1])/1000000.0] 
+    
+    # calculate fps from the timings
+    timecounter = 0
+    framecount = 0
+    fps = []
+    for f in frames:
+        timecounter += f
+        framecount += 1
+        if timecounter >= 1000:
+            fps += [framecount]
+            timecounter = 0
+            framecount = 0
+            
+    return fps
 
 
 def parse_frames_file(frames_file):
@@ -92,6 +142,8 @@ def parse_frames_file(frames_file):
         fps = parse_voglperf_to_fps(lines)
     elif file_format == "fraps":
         fps = parse_fraps_to_fps(lines)
+    elif file_format == "glxosd":
+        fps = parse_glxosd_to_fps(lines)
     
     return file_format, fps
 
@@ -124,7 +176,7 @@ class BenchmarkAddForm(forms.ModelForm):
                
         self.fields['game'].help_text = mark_safe('Select the game that you benchmarked')      
         self.fields['user_system'].help_text = mark_safe('Select one of your systems or <a href="/system_add" class="btn btn-xs btn-warning">Add a new system </a> if you do not have one')      
-        self.fields['frames_file'].help_text = mark_safe("The output of VOGLPERF or FRAPS (<b>fps.csv</b> file), a file containing the frame timings <br>Minimum 60 seconds, maximum 300 seconds (longer benchmarks will be trimmed)<br>")        
+        self.fields['frames_file'].help_text = mark_safe("The output of VOGLPERF, GLXOSD or FRAPS (<b>fps.csv</b> file), a file containing the frame timings <br>Minimum 60 seconds, maximum 300 seconds (longer benchmarks will be trimmed)<br>")        
         self.fields['game_quality_preset'].help_text = mark_safe("The graphical quality settings used in this benchmark. If not applicable, select <b>n.a.</b>")
                 
         # set the order of the fields in the form
@@ -145,16 +197,16 @@ class BenchmarkAddForm(forms.ModelForm):
         frames_file = self.cleaned_data.get('frames_file')
         
         if not frames_file:
-            raise forms.ValidationError("You must upload a valid VOGLPERF or FRAPS output file")
+            raise forms.ValidationError("You must upload a valid VOGLPERF, GLXOSD or FRAPS output file")
 
         # obtain the format and actual fps data
         file_format, fps = parse_frames_file(frames_file)
         
         if not file_format:
-            raise forms.ValidationError("The file: " + frames_file.name + " does not seem to be a valid VOGLPERF or FRAPS output")
+            raise forms.ValidationError("The file: " + frames_file.name + " does not seem to be a valid VOGLPERF, GLXOSD or FRAPS output")
         
         if not fps:
-            raise forms.ValidationError("The file: " + frames_file.name + " does not seem to be a valid VOGLPERF or FRAPS output")
+            raise forms.ValidationError("The file: " + frames_file.name + " does not seem to be a valid VOGLPERF, GLXOSD or FRAPS output")
 
 
         #~ lines = filter(None, frames_file_name.read().split("\n"))
@@ -299,7 +351,7 @@ class SystemAddEditForm(forms.ModelForm):
         self.fields['cpu_model'].help_text = "On Linux you can use <code>cat /proc/cpuinfo | grep 'model name' | uniq</code> to find out the model of your CPU"
         self.fields['gpu_model'].help_text = "On Linux you can use <code>lspci -vnn | grep VGA</code> to find out the model of your CPU"
         self.fields['resolution'].help_text = "On Linux you can use <code>xrandr</code> to find out your current resolution"
-        self.fields['resolution'].help_text = "On Linux you can use <code>uname -mr</code> to find out your Kernel version"
+        self.fields['kernel'].help_text = "On Linux you can use <code>uname -mr</code> to find out your Kernel version"
         
             
             
