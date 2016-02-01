@@ -6,7 +6,7 @@ import django
 def get_linux_appid_dic():
     # read all steam appid<->names    
     response = urllib2.urlopen('http://api.steampowered.com/ISteamApps/GetAppList/v2/')
-    applist = json.loads(response.read())['applist']['apps']['app']
+    applist = json.loads(response.read())['applist']['apps']
     
     # convert the steam list in a dictionary
     appid2name = {}
@@ -29,6 +29,10 @@ def get_linux_appid_dic():
     return linux_appid2name
     
     
+    
+# get the list of linux appids from steamdb.info
+appid2name = get_linux_appid_dic()
+
 
 # setup django to access the API and database
 os.environ["DJANGO_SETTINGS_MODULE"] = "linux_game_benchmarks_database.settings"
@@ -37,18 +41,11 @@ django.setup()
 # get the current list of steam app ids in our db
 from lgbdb.models import Game
 
-#~ for g in Game.objects.all():
-    #~ g.save()   
-#~ exit()
 
 
 current_appid_list = []
 for g in Game.objects.values():
-    a = g['steam_appid']
-    current_appid_list +=[a]
-
-# get the list of linux appids from steamdb.info
-appid2name = get_linux_appid_dic()
+    current_appid_list +=[g['steam_appid']]
 
 
 # for each game found in steamdb.info that is not found in our db, create a new game and insert it into the db
