@@ -341,7 +341,7 @@ def set_benchmark_y_label(benchmark):
 # bar plot with multiple benchmarks using graphos and flot
 def fps_chart_view(request):
     
-    max_displayed_benchmarks = 30
+    max_displayed_benchmarks = 22
     
     f = BenchmarkFilter(request.GET, queryset=Benchmark.objects.order_by("upload_date").reverse())
     
