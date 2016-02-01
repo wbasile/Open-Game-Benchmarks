@@ -27,7 +27,7 @@ def check_voglperf_format(lines):
     # check that every line is a float
     for l in lines[1:]:
         try: 
-            f = float(l)
+            f = float(l.replace(",","."))
         except:
             return False
             
@@ -42,6 +42,7 @@ def check_fraps_format(lines):
     if lines[0].strip() == "FPS":
         return True
     return False
+    
 
 def check_glxosd_format(lines):
     if len(lines) <= 1: return False
@@ -79,7 +80,7 @@ def get_file_format(lines):
 def parse_voglperf_to_fps(lines):
     
     # read the actual frame timings
-    frames = [float(x) for x in lines[1:]]
+    frames = [float(x.replace(",",".")) for x in lines[1:]]
     
     # calculate fps from the timings
     timecounter = 0
@@ -199,6 +200,7 @@ class BenchmarkAddForm(forms.ModelForm):
         if not frames_file:
             raise forms.ValidationError("You must upload a valid VOGLPERF, GLXOSD or FRAPS output file")
 
+
         # obtain the format and actual fps data
         file_format, fps = parse_frames_file(frames_file)
         
@@ -208,14 +210,8 @@ class BenchmarkAddForm(forms.ModelForm):
         if not fps:
             raise forms.ValidationError("The file: " + frames_file.name + " does not seem to be a valid VOGLPERF, GLXOSD or FRAPS output")
 
-
-        #~ lines = filter(None, frames_file_name.read().split("\n"))
-
-        # check the format of the file
-        #~ file_format = get_file_format(lines)
-
             
-        # VOGLPERF: here we can do some double check on the game, because the name of the file contains the steam appid of the game
+        # VOGLPERF: here we could do some double check on the game, because the name of the file contains the steam appid of the game
         #~ if file_format == "voglperf":
             #~ 
             #~ #process the name to get the game
@@ -232,10 +228,8 @@ class BenchmarkAddForm(forms.ModelForm):
             #~ 
             #~ if game_appid != game.steam_appid:
                 #~ raise forms.ValidationError("The game of your VOGLPERF file does not match the one you have selected. Maybe you choose the wrong game or file? ")
-            #~ 
-        #~ # FRAPS
-        #~ elif file_format == "fraps":
-            #~ fps = parse_fraps_to_fps(lines)
+            
+       
     
                 
         # limit the fps to 300, i.e. 5 minutes
@@ -342,16 +336,14 @@ class SystemAddEditForm(forms.ModelForm):
         self.fields["desktop_environment"].label = "Desktop Environment (optional)"
         self.fields["kernel"].label = "Linux kernel (optional)"
         self.fields["gpu_driver_version"].label = "GPU Driver version (optional)"
-        
-        #~ for field_name in ['descriptive_name','cpu_model', 'gpu_model','resolution', 'driver']:
-            #~ self.fields[field_name].label = self.fields[field_name].label + "*"
-        #~ self.order_fields([ "user_system", "frames_file" ,"additional_notes"])
-     
+             
         self.fields['descriptive_name'].help_text = "You can give to your system any name; keep it easy to remember"
         self.fields['cpu_model'].help_text = "On Linux you can use <code>cat /proc/cpuinfo | grep 'model name' | uniq</code> to find out the model of your CPU"
         self.fields['gpu_model'].help_text = "On Linux you can use <code>lspci -vnn | grep VGA</code> to find out the model of your CPU"
         self.fields['resolution'].help_text = "On Linux you can use <code>xrandr</code> to find out your current resolution"
         self.fields['kernel'].help_text = "On Linux you can use <code>uname -mr</code> to find out your Kernel version"
         
-            
+        # correct capitalization fro acronyms
+        self.fields['cpu_model'].label = "CPU Model"
+        self.fields['gpu_model'].label = "GPU Model"
             

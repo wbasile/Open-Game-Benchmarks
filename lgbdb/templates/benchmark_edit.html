@@ -5,10 +5,11 @@
 load the javascript needed for gchart
 -->
 {% block morehead %}
-    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
-    <script type="text/javascript">
-    google.load("visualization", "1", {packages:["corechart"]});
-    </script>
+    {% load static %}
+    <script type="text/javascript" src="{% get_static_prefix %}js/flot/jquery.js"></script>
+    <script src="{% get_static_prefix %}js/flot/jquery.flot.js" type="text/javascript"></script>
+    <script src="{% get_static_prefix %}js/flot/jquery.flot.categories.js" type="text/javascript"></script>
+
 {% endblock %}
 
 
@@ -16,11 +17,13 @@ load the javascript needed for gchart
 
 <h2>{{ title }}</h2>
 
+<div class="row">
+    {{ fpschart.as_html }}
+</div>
+<br>
 
 
 <div class="row">
-    
-    {{ fpschart.as_html }}
     
     <div class="col-md-8">
         

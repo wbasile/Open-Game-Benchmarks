@@ -23,25 +23,11 @@ from django.utils.html import escape
 import django_filters
 
 from graphos.sources.simple import SimpleDataSource
-#~ from graphos.sources.model import ModelDataSource
-from graphos.renderers import gchart
+from graphos.sources.model import ModelDataSource
+from graphos.renderers import gchart, flot
 
 
-def fps_line_chart(benchmark):
-    
-    if not benchmark: return None
-    
-    data =  [['Second', 'FPS','Median','1st Quartile','3rd Quartile']]
-        
-    for s,f in enumerate(benchmark.fps_data.split(",")):
-        data += [[int(s),int(f), int(benchmark.fps_median), int(benchmark.fps_1st_quartile), int(benchmark.fps_3rd_quartile)]]
-        
-    data_source = SimpleDataSource(data=data)
-        
-    chart = gchart.LineChart(data_source, options={'title': "Frames per second"})
-        
-    return chart    
-    
+
         
 
 
@@ -192,6 +178,7 @@ class GameListView(TemplateView):
         filter.form.fields['show'].label = "Display options"
         filter.form.fields['show'].help_text = ""
         
+        
         # intercept the case in which we are trying to sort by num_benchmarks, which is not a field of the Game model
         if self.request.GET.get('sort',None) == "num_benchmarks":
             nr = self.request.GET.copy()
@@ -252,7 +239,9 @@ class BenchmarkFilter(django_filters.FilterSet):
                 query_id_set = set([i[0] for i in Benchmark.objects.values_list(field_name)])
                 self.filters[field_name].extra['queryset'] = Game.objects.filter(pk__in=query_id_set)
                 
-                
+        # correct capitalization
+        self.filters['cpu_model'].label = "CPU Model"        
+        self.filters['gpu_model'].label = "GPU Model"        
 
 
         
@@ -267,7 +256,16 @@ class BenchmarkTable(tables.Table):
         fields = ("game", "cpu_model", "gpu_model", "resolution","game_quality_preset","fps_median","IQR", "operating_system","additional_notes", "user")
     
     
-    # for the Game column, have the game title link to the steam store page
+    def __init__(self, *args, **kwargs):
+        super(BenchmarkTable, self).__init__(*args, **kwargs)
+    
+        # correct capitalization of acronyms
+        self.base_columns['cpu_model'].verbose_name = "CPU Model"
+        self.base_columns['gpu_model'].verbose_name = "GPU Model"
+    
+        # TODO: move here the formatting of IQR heading (with the info popover); now it is a hack in the template
+    
+    
     def render_game(self, value):
         img_url = "https://steamcdn-a.akamaihd.net/steam/apps/"+str(value.steam_appid)+"/capsule_sm_120.jpg"
         return mark_safe('<a href="/benchmark_table/?game=' + str(value.pk) + '" >' + '<img src="%s" /><br>' % escape(img_url) + " " + unicode(value.title)+"</a>")
@@ -278,10 +276,8 @@ class BenchmarkTable(tables.Table):
         return mark_safe(button_html)
         
         
-    def render_IQR(self, record):
-        #~ button_html = '<a href="/benchmark_detail/' +str(record.id)+ '" class="btn btn-sm btn-warning">Detail</a>'
+    def render_IQR(self, record,column):
         iqr_value = record.fps_3rd_quartile - record.fps_1st_quartile
-        
         return mark_safe(str(iqr_value))
         
         
@@ -317,7 +313,6 @@ class BenchmarkTableView(TemplateView):
         
         table = BenchmarkTable(filter.qs)
         RequestConfig(self.request).configure(table)
-        #~ table.columns['IQR'] = "cippalippa"
         
         context['filter'] = filter
         context['table'] = table
@@ -333,38 +328,70 @@ class BenchmarkTableView(TemplateView):
 def set_benchmark_y_label(benchmark):
     
     if benchmark.game_quality_preset != "n.a.":
-        y_tick_label = ", ".join([str(x) for x in [benchmark.game, benchmark.gpu_model, benchmark.cpu_model, benchmark.game_quality_preset + " preset", benchmark.resolution, benchmark.operating_system ] ])
+        y_tick_label = "<br>".join([str(x) for x in [unicode(benchmark.game) + " - " + benchmark.game_quality_preset + " preset, at: " + benchmark.resolution, benchmark.cpu_model + " " + benchmark.cpu_model, benchmark.operating_system ] ])
     else:
-        y_tick_label = ", ".join([str(x) for x in [benchmark.game, benchmark.gpu_model, benchmark.cpu_model, benchmark.resolution, benchmark.operating_system ] ])
+        y_tick_label = "<br>".join([str(x) for x in [unicode(benchmark.game) + " - " + " at: " + benchmark.resolution, benchmark.cpu_model + " " + benchmark.gpu_model, benchmark.operating_system ] ])
         
     return str(y_tick_label)
 
     
-    
+
+
 def fps_chart_view(request):
     
     max_displayed_benchmarks = 100
     
     f = BenchmarkFilter(request.GET, queryset=Benchmark.objects.order_by("upload_date").reverse())
     
-    queryset = Benchmark.objects.filter(pk__in=[x.pk for x in f[0:min([len(f), max_displayed_benchmarks])]]).order_by("game")
+    queryset = queryset = Benchmark.objects.filter(pk__in=[x.pk for x in f[0:min([len(f), max_displayed_benchmarks])]]).order_by("-game")
+
     
-    data =  [['', 'Median', '1st Quartile']]
+    data = [["","Median FPS"]]
+    
+    yticks = []    
         
-            
     for s,q in enumerate(queryset):
-        data += [[set_benchmark_y_label(q),q.fps_median, q.fps_1st_quartile]]
-    
+        #~ iqr = q.fps_3rd_quartile-q.fps_1st_quartile
+        data += [[q.fps_median,s+1 ]]
+        yticks += [[s+1,set_benchmark_y_label(q)]]
+        #~ yticks += [[s+1,str(q.game)]]
         
     data_source = SimpleDataSource(data=data)
         
-    chart = gchart.BarChart(data_source, options={'title': "Frames per second"})
+    options_dic = {
+                    'legend': {'show': False},
+                    'bars' : {'barWidth':0.3,"horizontal":True,"align":"center"},
+                    "grid":{"hoverable":True},
+                    
+                    "yaxis":{
+                            "ticks":yticks,
+                            },
+                    }
+                    
+    height = len(queryset) * 60
+        
+    chart = flot.BarChart(data_source,height=height, options=options_dic)
     
-    return render(request, "benchmark_chart.html", {'filter': f, 'chart': chart})
+    return render(request, "benchmark_chart.html", {'max_bench_num':max_displayed_benchmarks,'filter': f, 'chart': chart})
 
 
 
-
+def fps_line_chart(benchmark):
+    
+    if not benchmark: return None
+    
+    data =  [['Second', 'FPS','Median','1st Quartile','3rd Quartile']]
+        
+    for s,f in enumerate(benchmark.fps_data.split(",")):
+        data += [[int(s),int(f), int(benchmark.fps_median), int(benchmark.fps_1st_quartile), int(benchmark.fps_3rd_quartile)]]
+        
+    data_source = SimpleDataSource(data=data)
+        
+    chart = flot.LineChart(data_source, options={'title': "Frames per second"})
+        
+    return chart    
+    
+    
 
 
 def BenchmarkDetailView(request, pk=None):
@@ -373,8 +400,10 @@ def BenchmarkDetailView(request, pk=None):
     
     if benchmark:
 
-        chart = fps_line_chart(benchmark)
+        #~ chart = test_flot_graph(benchmark)
+        #~ return render(request, "test_graph.html", {'fpschart': chart})
 
+        chart = fps_line_chart(benchmark)
         return render(request, "benchmark_detail.html", {'object':benchmark,'fpschart': chart})
 
 
