@@ -328,7 +328,7 @@ class BenchmarkTableView(TemplateView):
 def set_benchmark_y_label(benchmark):
     
     if benchmark.game_quality_preset != "n.a.":
-        y_tick_label = "<br>".join([str(x) for x in [unicode(benchmark.game) + " - " + benchmark.game_quality_preset + " preset, at: " + benchmark.resolution, benchmark.cpu_model + " " + benchmark.cpu_model, benchmark.operating_system ] ])
+        y_tick_label = "<br>".join([str(x) for x in [unicode(benchmark.game) + " - " + benchmark.game_quality_preset + " preset, at: " + benchmark.resolution, benchmark.cpu_model + " " + benchmark.gpu_model, benchmark.operating_system ] ])
     else:
         y_tick_label = "<br>".join([str(x) for x in [unicode(benchmark.game) + " - " + " at: " + benchmark.resolution, benchmark.cpu_model + " " + benchmark.gpu_model, benchmark.operating_system ] ])
         
@@ -343,7 +343,7 @@ def fps_chart_view(request):
     
     f = BenchmarkFilter(request.GET, queryset=Benchmark.objects.order_by("upload_date").reverse())
     
-    queryset = queryset = Benchmark.objects.filter(pk__in=[x.pk for x in f[0:min([len(f), max_displayed_benchmarks])]]).order_by("-game")
+    queryset = queryset = Benchmark.objects.filter(pk__in=[x.pk for x in f[0:min([len(f), max_displayed_benchmarks])]]).order_by("fps_median")
 
     
     data = [["","Median FPS"]]
