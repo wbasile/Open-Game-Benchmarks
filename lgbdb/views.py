@@ -330,9 +330,9 @@ class BenchmarkTableView(TemplateView):
 def set_benchmark_y_label(benchmark):
     
     if benchmark.game_quality_preset != "n.a.":
-        y_tick_label = "<br>".join([str(x) for x in [unicode(benchmark.game) + " - " + benchmark.game_quality_preset + " preset, at: " + benchmark.resolution, benchmark.cpu_model + " " + benchmark.gpu_model, benchmark.operating_system ] ])
+        y_tick_label = "<br>".join([str(x) for x in [str(benchmark.game) + " - " + benchmark.game_quality_preset + " preset, at: " + benchmark.resolution, benchmark.cpu_model + " " + benchmark.gpu_model, benchmark.operating_system ] ])
     else:
-        y_tick_label = "<br>".join([str(x) for x in [unicode(benchmark.game) + " - " + " at: " + benchmark.resolution, benchmark.cpu_model + " " + benchmark.gpu_model, benchmark.operating_system ] ])
+        y_tick_label = "<br>".join([str(x) for x in [str(benchmark.game) + " - " + " at: " + benchmark.resolution, benchmark.cpu_model + " " + benchmark.gpu_model, benchmark.operating_system ] ])
         
     return str(y_tick_label)
 
@@ -341,7 +341,7 @@ def set_benchmark_y_label(benchmark):
 # bar plot with multiple benchmarks using graphos and flot
 def fps_chart_view(request):
     
-    max_displayed_benchmarks = 22
+    max_displayed_benchmarks = 30
     
     f = BenchmarkFilter(request.GET, queryset=Benchmark.objects.order_by("upload_date").reverse())
     
