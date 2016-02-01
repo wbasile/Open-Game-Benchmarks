@@ -339,7 +339,7 @@ def set_benchmark_y_label(benchmark):
 
 def fps_chart_view(request):
     
-    max_displayed_benchmarks = 10
+    max_displayed_benchmarks = 30
     
     f = BenchmarkFilter(request.GET, queryset=Benchmark.objects.order_by("upload_date").reverse())
     
@@ -369,6 +369,8 @@ def fps_chart_view(request):
                     }
                     
     height = len(queryset) * 60
+    
+    #~ height = 6000
         
     chart = flot.BarChart(data_source,height=height, options=options_dic)
     
