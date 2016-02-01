@@ -1,7 +1,7 @@
 # TODO: automate the creation of this file:
 # GPU: DONE
 # CPUS: see   view-source:https://www.cpubenchmark.net/common_cpus.html
-# Resulutions:  DONE
+# Resolutions:  DONE
 
 GPU_CHOICES = (
 ('AMD',
@@ -1335,3 +1335,10 @@ OS_CHOICES =  (
                 
                 
                 
+GAME_SETTINGS_CHOICES = (
+        ('Low', 'Low'),
+        ('Medium', 'Medium'),
+        ('High', 'High'),
+        ('n.a.', 'n.a.'),
+    )
+    

@@ -23,8 +23,6 @@ class System(models.Model):
     operating_system = models.CharField(max_length=80,choices=OS_CHOICES)
     
     # optional
-    #~ linux_distribution = models.CharField(max_length=60, blank=True)
-    #~ window_manager = models.CharField(max_length=60,  blank=True)
     desktop_environment = models.CharField(max_length=60, blank=True)
     kernel = models.CharField(max_length=60, blank=True)
     gpu_driver_version = models.CharField(max_length=60, blank=True)
@@ -39,9 +37,6 @@ class Game(models.Model):
     
     title = models.CharField(max_length=100)
     steam_appid = models.IntegerField(unique = True)
-    
-    # this is a "static" field instead of being computed on the fly, because in this way django-tables2 is able to sort the game tale by it
-    #num_benchmarks = models.IntegerField(default=0)
     
     def __str__(self):
         return self.title
@@ -66,19 +61,11 @@ class Benchmark(models.Model):
     resolution = models.CharField(max_length=50,choices=RESOLUTION_CHOICES,blank=True)
     driver = models.CharField(max_length=50,choices=DRIVER_CHOICES,blank=True)
     operating_system = models.CharField(max_length=80,choices=OS_CHOICES,blank=True)
-     
-    #~ linux_distribution = models.CharField(max_length=60,blank=True)
-    #~ window_manager = models.CharField(max_length=60,blank=True)
+    
     desktop_environment = models.CharField(max_length=60,blank=True)
     kernel = models.CharField(max_length=60,blank=True)
     gpu_driver_version = models.CharField(max_length=60, blank=True)                                  
-                    
-    GAME_SETTINGS_CHOICES = (
-        ('Low', 'Low'),
-        ('Medium', 'Medium'),
-        ('High', 'High'),
-        ('n.a.', 'n.a.'),
-    )
+                
     
     game_quality_preset = models.CharField(max_length=20,
                                       choices=GAME_SETTINGS_CHOICES,
@@ -90,7 +77,7 @@ class Benchmark(models.Model):
     
     
     
-    # this is the VOGLPERF output file
+    # this is the fps output file
     frames_file = models.FileField()
     
     # user cannot input those directly, rather, they are calculated as soon as the frames file is uploaded
