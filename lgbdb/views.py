@@ -331,10 +331,14 @@ def set_benchmark_y_label(benchmark):
     
     if benchmark.game_quality_preset != "n.a.":
         #~ y_tick_label = "<br>".join([str(x) for x in [str(benchmark.game) + " - " + benchmark.game_quality_preset + " preset, at: " + benchmark.resolution, benchmark.cpu_model + " " + benchmark.gpu_model, benchmark.operating_system ] ])
-        y_tick_label = "<br>".join([str(x) for x in [benchmark.game,benchmark.game_quality_preset + " preset, at: " + benchmark.resolution, benchmark.cpu_model + " " + benchmark.gpu_model, benchmark.operating_system ] ])
+        
+        first_line = " ".join([benchmark.game,benchmark.game_quality_preset + " preset, at: " + benchmark.resolution])
+        
+        y_tick_label = "<br>".join([str(x) for x in [first_line, benchmark.cpu_model + " " + benchmark.gpu_model, benchmark.operating_system ] ])
     else:
         #~ y_tick_label = "<br>".join([str(x) for x in [str(benchmark.game) + " - " + " at: " + benchmark.resolution, benchmark.cpu_model + " " + benchmark.gpu_model, benchmark.operating_system ] ])
-        y_tick_label = "<br>".join([str(x) for x in [benchmark.game ,"at: " + benchmark.resolution, benchmark.cpu_model + " " + benchmark.gpu_model, benchmark.operating_system ] ])
+        first_line = " ".join([benchmark.game, "at: " + benchmark.resolution])
+        y_tick_label = "<br>".join([str(x) for x in [first_line, benchmark.cpu_model + " " + benchmark.gpu_model, benchmark.operating_system ] ])
         
     return str(y_tick_label)
 
