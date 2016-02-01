@@ -339,7 +339,7 @@ def set_benchmark_y_label(benchmark):
 
 def fps_chart_view(request):
     
-    max_displayed_benchmarks = 100
+    max_displayed_benchmarks = 10
     
     f = BenchmarkFilter(request.GET, queryset=Benchmark.objects.order_by("upload_date").reverse())
     
