@@ -28,11 +28,12 @@ from graphos.renderers import gchart, flot
 
 
 
-        
-
-
+# the home page / landing page
+# it contains a list of the latest benchmarks, a news panel and a statistics panel
 def home(request):
     
+    
+    # compute some statistics; TODO: add more!
     num_users = User.objects.count()
     num_games = Game.objects.count()
     num_benchmarks = Benchmark.objects.count()
@@ -51,7 +52,7 @@ def home(request):
         most_popular_game = None
         
         
-        
+    # list of the most recently submitted 5 benchmarks
     if Benchmark.objects.count() > 0:
         recent_benchmarks = Benchmark.objects.all().order_by('-upload_date')[0:5]
     else:
@@ -66,71 +67,29 @@ def home(request):
         'benchmarks_table' : recent_benchmarks,
     }
     
-    
     return render(request, "home.html", context)
 
 
 
-    
+# a simple help and about page; the entire thing is done in the template at the moment
 def about(request):
     return render(request, "about.html", {})
         
     
-    
+# a page to display when the user tries to see benchmarks for a game that does not have any
 def GameNoBenchmark(request):
     return render(request, "no_benchmark.html", {})
 
 
 
-        
-class GameTable(tables.Table):
-    
-    num_benchmarks = tables.Column(verbose_name="Num benchmarks",empty_values=(), orderable=True)
-    steamdb_link = tables.Column(verbose_name="",empty_values=(), orderable=False)
-    
-    class Meta:
-        model = Game
-        fields = ("title", "steam_appid","num_benchmarks")
-
-        
-    def render_num_benchmarks(self,record):
-   
-        value = int(record.benchmark_set.count())
-        
-        if value > 0:
-            return mark_safe('<a href="/benchmark_table/?game=' + str(record.id) + '" >' + str(value) + '</a>')
-        else:
-            return str(value)
-
-    
-    #~ def render_steam_appid(self, value):
-        #~ return unicode(value)
-        #~ return mark_safe('<a target="_blank" href="http://steamdb.info/app/' + str(value) + '/" >' + str(value) + '</a>')
-    
-    
-    def render_title(self,record):
-        img_url = "https://steamcdn-a.akamaihd.net/steam/apps/"+str(record.steam_appid)+"/capsule_sm_120.jpg"
-        
-        value = int(record.benchmark_set.count())
-        
-        if value > 0:
-            return mark_safe('<a href="/benchmark_table/?game=' + str(record.id) + '" >' + '<img src="%s" />' % escape(img_url) + " " + unicode(record.title)+"</a>")
-        else:
-            return mark_safe('<a href="/no_benchmark">' + '<img src="%s" />' % escape(img_url) + " " + unicode(record.title)+"</a>")
-            
-    
-    def render_steamdb_link(self, record):
-        value = record.steam_appid
-        
-        return mark_safe('<a target="_blank" class="btn btn-xs btn-danger" href="http://steamdb.info/app/' + str(value) + '/" >SteamDB</a>')
-        
-
-
-# create a simple filter 
+# create a simple filter for Games
 class GameFilter(django_filters.FilterSet):
 
+    # free text search
+    # TODO: implement autocomplete/typing suggestions
     title = django_filters.CharFilter(lookup_type='icontains')
     
+    # a field to choose which subset of games we will display
     SHOW_CHOICES = (
                     (0, 'Show all games'),
                     (1, 'Show games with benchmarks'),
@@ -146,7 +105,8 @@ class GameFilter(django_filters.FilterSet):
         # these fields work even if the relative fields are hidden (excluded in the table)
         fields = ["title", "show"]
         
-        
+    
+    # a function called by the "show" filter field, to generate a queryset based on a  given value    
     def my_custom_filter(self, queryset, value):
         
         if value == "1":
@@ -155,6 +115,50 @@ class GameFilter(django_filters.FilterSet):
             return queryset.annotate(num_benchmarks=Count('benchmark')).filter(num_benchmarks=0)
         else:
             return queryset
+
+
+
+
+# a django-tables2 table, used in the Game List Page
+class GameTable(tables.Table):
+    
+    # two custom columns, with values computed on the fly (server-side)
+    num_benchmarks = tables.Column(verbose_name="Num benchmarks",empty_values=(), orderable=True)
+    steamdb_link = tables.Column(verbose_name="",empty_values=(), orderable=False)
+    
+    class Meta:
+        model = Game
+        fields = ("title", "steam_appid","num_benchmarks")
+
+    
+    def render_num_benchmarks(self,record):
+   
+        value = int(record.benchmark_set.count())
+        
+        if value > 0:
+            return mark_safe('<a href="/benchmark_table/?game=' + str(record.id) + '" >' + str(value) + '</a>')
+        else:
+            return str(value)
+
+    
+    # for the game title column, display a thumbnail of the game, and make it link to the Benchmark Table Page (filtered for that game)
+    def render_title(self,record):
+        img_url = "https://steamcdn-a.akamaihd.net/steam/apps/"+str(record.steam_appid)+"/capsule_sm_120.jpg"
+        
+        value = int(record.benchmark_set.count())
+        
+        if value > 0:
+            return mark_safe('<a href="/benchmark_table/?game=' + str(record.id) + '" >' + '<img src="%s" />' % escape(img_url) + " " + unicode(record.title)+"</a>")
+        else:
+            return mark_safe('<a href="/no_benchmark">' + '<img src="%s" />' % escape(img_url) + " " + unicode(record.title)+"</a>")
+            
+            
+    # a simple link to steamdb.info
+    def render_steamdb_link(self, record):
+        value = record.steam_appid
+        
+        return mark_safe('<a target="_blank" class="btn btn-xs btn-danger" href="http://steamdb.info/app/' + str(value) + '/" >SteamDB</a>')
+        
         
 
 # a view that combines table and filters
@@ -166,8 +170,6 @@ class GameListView(TemplateView):
         return Game.objects.all()
 
     def get_context_data(self, **kwargs):
-        
-        
         context = super(GameListView, self).get_context_data(**kwargs)
         filter = GameFilter(self.request.GET, queryset=self.get_queryset(**kwargs))
         
@@ -179,18 +181,18 @@ class GameListView(TemplateView):
         filter.form.fields['show'].help_text = ""
         
         
-        # intercept the case in which we are trying to sort by num_benchmarks, which is not a field of the Game model
+        # intercept the case in which we are trying to sort by num_benchmarks, which is not a field of the Game model (so it would give an error)
         if self.request.GET.get('sort',None) == "num_benchmarks":
+            
+            # remove the "sort by num benchmarks" in the GET dictionary
             nr = self.request.GET.copy()
-            
             arg = nr.pop("sort")[0]
-            
             self.request.GET = nr
 
             #  modify the filtered queryset by sorting it manually, using the annotate function 
             new_qs = filter.qs.annotate(num_benchmarks=Count('benchmark')).order_by('-num_benchmarks')
-            
             table = GameTable(new_qs)
+            
         else:
             table = GameTable(filter.qs)
             
@@ -205,9 +207,8 @@ class GameListView(TemplateView):
         
         
         
-ANY_CHOICE = ('', '---------'),
 
-# create a simple filter 
+# create a filter for Benchmarks
 class BenchmarkFilter(django_filters.FilterSet):
 
     class Meta:
@@ -222,34 +223,35 @@ class BenchmarkFilter(django_filters.FilterSet):
     def __init__(self, *args, **kwargs):
         super(BenchmarkFilter, self).__init__(*args, **kwargs)
 
-
         # limit the possible choices in the filter to the items that are in the benchmark list, plus an "any" choice
+        # for example, limit the choices in "Game" only to the game that have at least one benchmark
         
-        
+        ANY_CHOICE = ('', '---------'),
+            
         for field_name in BenchmarkFilter.Meta.fields:
             # limit the multiple choice for the MultipleChoice (text) fields 
             if 'choices' in self.filters[field_name].extra.keys():
-            
                 choice_set = sorted(set([i[0] for i in Benchmark.objects.values_list(field_name)]))
                 self.filters[field_name].extra['choices'] = ANY_CHOICE + tuple(zip(choice_set,choice_set))
-        
         
             # setting the multiple choice for Games is a bit more complicated, because it's a Foreign key
             elif 'queryset' in self.filters[field_name].extra.keys() and field_name == 'game':
                 query_id_set = set([i[0] for i in Benchmark.objects.values_list(field_name)])
                 self.filters[field_name].extra['queryset'] = Game.objects.filter(pk__in=query_id_set)
                 
-        # correct capitalization
+        # correct capitalization in the labels
         self.filters['cpu_model'].label = "CPU Model"        
         self.filters['gpu_model'].label = "GPU Model"        
 
 
         
+# a django-tables2 table, used in the Benchmark Table Page
 class BenchmarkTable(tables.Table):
     
+    # two custom columns: a button that links to that benchmark detail page, and the Interquartile Range
     benchmark_detail = tables.Column(verbose_name="",empty_values=(), orderable=False)
     IQR = tables.Column(verbose_name="IQR",empty_values=(), orderable=False)
-    
+
 
     class Meta:
         model = Benchmark
@@ -266,6 +268,7 @@ class BenchmarkTable(tables.Table):
         # TODO: move here the formatting of IQR heading (with the info popover); now it is a hack in the template
     
     
+    # image thumbnail in the game field
     def render_game(self, value):
         img_url = "https://steamcdn-a.akamaihd.net/steam/apps/"+str(value.steam_appid)+"/capsule_sm_120.jpg"
         return mark_safe('<a href="/benchmark_table/?game=' + str(value.pk) + '" >' + '<img src="%s" /><br>' % escape(img_url) + " " + unicode(value.title)+"</a>")
@@ -295,7 +298,7 @@ class BenchmarkTable(tables.Table):
 
 
 
-# a view that combines table and filters
+# a view that combines table and filter
 class BenchmarkTableView(TemplateView):
     
     template_name = 'benchmark_table.html'
@@ -309,8 +312,7 @@ class BenchmarkTableView(TemplateView):
         
         for f in filter.form.fields:
             filter.form.fields[f].help_text = ""
-        
-        
+             
         table = BenchmarkTable(filter.qs)
         RequestConfig(self.request).configure(table)
         
@@ -336,7 +338,7 @@ def set_benchmark_y_label(benchmark):
 
     
 
-
+# bar plot with multiple benchmarks using graphos and flot
 def fps_chart_view(request):
     
     max_displayed_benchmarks = 30
@@ -354,7 +356,6 @@ def fps_chart_view(request):
         #~ iqr = q.fps_3rd_quartile-q.fps_1st_quartile
         data += [[q.fps_median,s+1 ]]
         yticks += [[s+1,set_benchmark_y_label(q)]]
-        #~ yticks += [[s+1,str(q.game)]]
         
     data_source = SimpleDataSource(data=data)
         
@@ -370,14 +371,12 @@ def fps_chart_view(request):
                     
     height = len(queryset) * 60
     
-    #~ height = 6000
-        
     chart = flot.BarChart(data_source,height=height, options=options_dic)
     
     return render(request, "benchmark_chart.html", {'max_bench_num':max_displayed_benchmarks,'filter': f, 'chart': chart})
 
 
-
+# benchmark fps line plot using graphos and flot
 def fps_line_chart(benchmark):
     
     if not benchmark: return None
@@ -395,22 +394,19 @@ def fps_line_chart(benchmark):
     
     
 
-
+# a simple view to display the benchmark fps line graph and all the info of the given benchmark
 def BenchmarkDetailView(request, pk=None):
     
     benchmark = get_object_or_404(Benchmark, pk=pk)
     
     if benchmark:
 
-        #~ chart = test_flot_graph(benchmark)
-        #~ return render(request, "test_graph.html", {'fpschart': chart})
-
         chart = fps_line_chart(benchmark)
         return render(request, "benchmark_detail.html", {'object':benchmark,'fpschart': chart})
 
 
 
-    
+# user profile page
 @login_required
 def profile(request):
 
@@ -423,7 +419,7 @@ def profile(request):
     
     
     
-    
+# page with form to add or edit systems
 @login_required    
 def SystemAddEditView(request, pk=None):
     
@@ -434,10 +430,8 @@ def SystemAddEditView(request, pk=None):
     
     else:
         system = None  
-  
+
     
-    message = ""
-    title = ""
     
     if request.method == 'POST':
         form = SystemAddEditForm(request.POST,user=request.user, instance=system)
@@ -453,11 +447,6 @@ def SystemAddEditView(request, pk=None):
             # save the data
             # instance is an instance of System
             instance.save()
-            
-            if system:
-                message = 'System "' + instance.descriptive_name + '" successfully changed'
-            else:
-                message = 'System "' + instance.descriptive_name + '" successfully added'
                 
             return HttpResponseRedirect('/accounts/profile')
     else:
@@ -468,19 +457,14 @@ def SystemAddEditView(request, pk=None):
         title = 'Edit system "' + str(system) + '"'
     else:
         title = "Add new system"
-        
-        
-    context = {"form":form , "title":title, "message":message}
-    
+             
+    context = {"form":form , "title":title}
     
     return render(request, "system_add_edit.html",context)
     
 
 
-
-
-
-    
+# page to delete a system
 class SystemDeleteView(DeleteView):
     
     def dispatch(self, *args, **kwargs):
@@ -504,7 +488,42 @@ class SystemDeleteView(DeleteView):
         
         
         
+            
+# page with form to add or add a benchmark
+@login_required    
+def BenchmarkAddView(request):
+    
+    if request.method == 'POST':
         
+        form = BenchmarkAddForm(request.POST, request.FILES,user=request.user)
+        
+        if form.is_valid():
+            
+            # ensure that the owner of this system is the current user
+            # I don't think this is really needed
+            instance = form.save(commit=False)
+            instance.user = request.user
+            instance.save()
+
+            return HttpResponseRedirect('/accounts/profile/')
+            
+    else:
+        form = BenchmarkAddForm(user=request.user,initial={'user': request.user})
+            
+    
+    title = "Add new benchmark"
+    
+    context = {"form":form , "title":title}
+    
+    template = "benchmark_add.html"
+    
+    return render(request, template ,context)
+    
+
+    
+
+# page with form to add or edit benchmarks
+# it also contains the fps graph 
 @login_required    
 def BenchmarkEditView(request, pk=None):
     
@@ -541,38 +560,9 @@ def BenchmarkEditView(request, pk=None):
             
             
             
-@login_required    
-def BenchmarkAddView(request):
-    
-    if request.method == 'POST':
-        
-        form = BenchmarkAddForm(request.POST, request.FILES,user=request.user)
-        
-        if form.is_valid():
             
-            # ensure that the owner of this system is the current user
-            # I don't think this is really needed
-            instance = form.save(commit=False)
-            instance.user = request.user
-            instance.save()
-
-            return HttpResponseRedirect('/accounts/profile/')
             
-    else:
-        form = BenchmarkAddForm(user=request.user,initial={'user': request.user})
-            
-    
-    title = "Add new benchmark"
-    
-    context = {"form":form , "title":title}
-    
-    template = "benchmark_add.html"
-    
-    return render(request, template ,context)
-    
-
-    
-    
+# page to delete a benchmark
 class BenchmarkDeleteView(DeleteView):
     
     def dispatch(self, *args, **kwargs):

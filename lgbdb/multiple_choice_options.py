@@ -1342,3 +1342,15 @@ GAME_SETTINGS_CHOICES = (
         ('n.a.', 'n.a.'),
     )
     
+
+ANTIALIAS_CHOICES = (
+        ('Antialias enabled', 'Antialias enabled'),
+        ('Antialias disabled', 'Antialias enabled'),
+    )
+
+DUAL_GPU_CHOICES = (
+        ('None', 'None'),
+        ('SLI', 'SLI (NVidia)'),
+        ('Crossfire', 'Crossfire (AMD)'),
+    )
+

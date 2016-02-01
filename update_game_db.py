@@ -3,7 +3,9 @@ import urllib2
 import os
 import django
 
+# returns a dictionary in the form <steam_app_id>:<steam_app_name> for all the steam Linux games
 def get_linux_appid_dic():
+
     # read all steam appid<->names    
     response = urllib2.urlopen('http://api.steampowered.com/ISteamApps/GetAppList/v2/')
     applist = json.loads(response.read())['applist']['apps']
@@ -42,7 +44,7 @@ django.setup()
 from lgbdb.models import Game
 
 
-
+# a list with all the appids currently in the database
 current_appid_list = []
 for g in Game.objects.values():
     current_appid_list +=[g['steam_appid']]

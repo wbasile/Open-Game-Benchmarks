@@ -15,7 +15,6 @@ def is_number(s):
 def check_voglperf_format(lines):
     # check the length of the file
     if len(lines) <= 1: return False
-    #~ print "Length OK"
     
     # check the format of the header
     ## example:  Dec 22 13:38:47 - isaac.x64
@@ -31,13 +30,11 @@ def check_voglperf_format(lines):
         except:
             return False
             
-    #~ print "Lines OK"
     return True
     
     
 def check_fraps_format(lines):
     if len(lines) <= 1: return False
-    #~ print "Length OK"
     
     if lines[0].strip() == "FPS":
         return True
@@ -46,7 +43,6 @@ def check_fraps_format(lines):
 
 def check_glxosd_format(lines):
     if len(lines) <= 1: return False
-    #~ print "Length OK"
     
     for line in lines:
         
@@ -96,7 +92,6 @@ def parse_voglperf_to_fps(lines):
             
     return fps
     
-
     
 # given a fraps file, returns the timings
 def parse_fraps_to_fps(lines):
@@ -112,7 +107,7 @@ def parse_glxosd_to_fps(lines):
         
     frames = []
     for i in range(1,len(timings)):
-        frames += [(timings[i] - timings[i-1])/1000000.0] 
+        frames += [(timings[i] - timings[i-1])/1000000.0] # yes, glxosd uses nanoseconds
     
     # calculate fps from the timings
     timecounter = 0
@@ -150,14 +145,14 @@ def parse_frames_file(frames_file):
 
 
 
+# a simple form, that holds the logic to process the uploaded timings file
 class BenchmarkAddForm(forms.ModelForm):
     
     class Meta:
         model = Benchmark        
         
         fields = [  "game", "frames_file" ,"additional_notes", "game_quality_preset"]
-        widgets = {'additional_notes': forms.Textarea(attrs={'cols': 80, 'rows': 10,"placeholder":"Comments about the benchmark. For example 'start of level 2', 'final boss', 'windowed mode'"})}
-    
+        widgets = {'additional_notes': forms.Textarea(attrs={'cols': 80, 'rows': 10,"placeholder":"Comments about the benchmark. For example 'Antialias 8X', start of level 2', 'final boss', 'windowed mode'"})}
     
     
     # this allows this form to receive a user object as a constructor parameter
@@ -273,6 +268,7 @@ class BenchmarkAddForm(forms.ModelForm):
         
         self.instance.cpu_model = us.cpu_model
         self.instance.gpu_model = us.gpu_model
+        self.instance.dual_gpu = us.dual_gpu
         self.instance.resolution = us.resolution
         self.instance.driver = us.driver
         self.instance.operating_system = us.operating_system
@@ -299,18 +295,24 @@ class BenchmarkEditForm(forms.ModelForm):
         
         super(BenchmarkEditForm, self).__init__(*args, **kwargs)
 
+        # make sure that the use does not edit FPS data
         for f in ['fps_min','fps_avg', 'fps_std', 'fps_max','fps_median', 'fps_1st_quartile','fps_3rd_quartile','length_seconds']:
             self.fields[f].widget.attrs['readonly'] = True
-
+            self.fields[f].label = self.fields[f].label.replace("Fps", "FPS")
+            
         # specify field order here
-        self.order_fields([ "game", "game_quality_preset" ,"resolution",'fps_avg','fps_std', 'fps_min', "fps_1st_quartile", "fps_median","fps_3rd_quartile", 'fps_max','length_seconds',"cpu_model", "gpu_model","driver","gpu_driver_version", "operating_system","desktop_environment", "kernel", "additional_notes"])
+        self.order_fields([ "game", "game_quality_preset" ,"resolution",'fps_avg','fps_std', 'fps_min', "fps_1st_quartile", "fps_median","fps_3rd_quartile", 'fps_max','length_seconds',"cpu_model", "gpu_model","dual_gpu","driver","gpu_driver_version", "operating_system","desktop_environment", "kernel", "additional_notes"])
 
-
-
+        #TODO: correct capitalization here
+        # correct capitalization fro acronyms
+        self.fields['cpu_model'].label = "CPU Model"
+        self.fields['gpu_model'].label = "GPU Model"
+        self.fields['dual_gpu'].label = "Dual GPU"
+        
+        
+        
 class SystemAddEditForm(forms.ModelForm):
     
-    #~ stuff = forms.ChoiceField( [('a','A'),('b','B')], widget = forms.Select(attrs = {'onclick' : "alert('foo !');"}))
-        
     class Meta:
         model = System        
         fields = '__all__'
@@ -318,12 +320,12 @@ class SystemAddEditForm(forms.ModelForm):
         
         widgets =   {
                     'descriptive_name': forms.TextInput(attrs={'placeholder': "ex. Gaming desktop, Laptop"}),
-                    #~ 'linux_distribution': forms.TextInput(attrs={'placeholder': "ex. Ubuntu, Arch, Mint"}),
-                    #~ 'window_manager': forms.TextInput(attrs={'placeholder': "ex. KWin, Marco"}),
                     'desktop_environment': forms.TextInput(attrs={'placeholder': "ex. KDE, GNOME, Cinnamon, Aero (for Windows)"}),
                     'kernel': forms.TextInput(attrs={'placeholder': "ex. x86_64 Linux 3.16.0-38-generic"}),
                     'gpu_driver_version': forms.TextInput(attrs={'placeholder': "ex. NVidia 361.18"}),
+                    'additional_details': forms.Textarea(attrs={'cols': 80, 'rows': 4,"placeholder":"Details about the system. For example CPU/GPU overclock, RAM, quadruple monitor"}),
                     }
+      
         
         
     # this constructor allows this form to receive a user object as a constructor parameter
@@ -336,14 +338,16 @@ class SystemAddEditForm(forms.ModelForm):
         self.fields["desktop_environment"].label = "Desktop Environment (optional)"
         self.fields["kernel"].label = "Linux kernel (optional)"
         self.fields["gpu_driver_version"].label = "GPU Driver version (optional)"
+        self.fields["additional_details"].label = "Additional details (optional)"
              
         self.fields['descriptive_name'].help_text = "You can give to your system any name; keep it easy to remember"
         self.fields['cpu_model'].help_text = "On Linux you can use <code>cat /proc/cpuinfo | grep 'model name' | uniq</code> to find out the model of your CPU"
-        self.fields['gpu_model'].help_text = "On Linux you can use <code>lspci -vnn | grep VGA</code> to find out the model of your CPU"
+        self.fields['gpu_model'].help_text = "On Linux you can use <code>lspci -vnn | grep VGA</code> to find out the model of your GPU"
         self.fields['resolution'].help_text = "On Linux you can use <code>xrandr</code> to find out your current resolution"
         self.fields['kernel'].help_text = "On Linux you can use <code>uname -mr</code> to find out your Kernel version"
         
         # correct capitalization fro acronyms
         self.fields['cpu_model'].label = "CPU Model"
         self.fields['gpu_model'].label = "GPU Model"
+        self.fields['dual_gpu'].label = "Dual GPU"
             

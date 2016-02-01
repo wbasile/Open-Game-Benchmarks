@@ -1,5 +1,5 @@
 """
-Django settings for linux_game_benchmarks_database project on Heroku. Fore more info, see:
+Django settings for this project on Heroku. Fore more info, see:
 https://github.com/heroku/heroku-django-template
 
 For more information on this file, see
