@@ -31,16 +31,6 @@ for table in tables:
                 
 ###############
 
-#~ print "\n".join(nvidia_gpus)
-
-#~ print "('"+"NVidia"+"',\n\t("
-    #~ 
-#~ for gpu in (nvidia_gpus):
-    #~ print "\t('" + gpu + "','" + gpu + "'),"
-    #~ 
-#~ print "\t)\n),\n\n"
-    #~ 
-#~ exit()
 
 
 # AMD GPUS
