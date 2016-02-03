@@ -9,10 +9,25 @@ from .multiple_choice_options import *
 
 
 
+class NewsPost(models.Model):
+    title = models.CharField(max_length=100, unique=True)
+    slug = models.SlugField(max_length=100, unique=True)
+    body = models.TextField()
+    posted = models.DateField(db_index=True, auto_now_add=True)
+    
+    def __unicode__(self):
+        return '%s' % self.title
 
-# a system is a combination of hardware and software
-# each user can have multiple systems
-# when adding a benchmark, the user can select one of his systems
+    def get_absolute_url(self):
+        return ('view_blog_post', None, { 'slug': self.slug })
+
+
+
+
+""" a system is a combination of hardware and software
+each user can have multiple systems
+when adding a benchmark, the user can select one of his systems
+"""
 @python_2_unicode_compatible
 class System(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)

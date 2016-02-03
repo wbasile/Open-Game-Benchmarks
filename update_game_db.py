@@ -34,6 +34,10 @@ def get_linux_appid_dic():
     
 # get the list of linux appids from steamdb.info
 appid2name = get_linux_appid_dic()
+#~ for k in appid2name.values():
+    #~ print k
+    #~ 
+#~ exit()
 
 
 # setup django to access the API and database

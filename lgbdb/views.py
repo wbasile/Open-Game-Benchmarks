@@ -2,7 +2,7 @@
 from django.shortcuts import render, render_to_response, get_object_or_404
 from django.http import HttpResponseForbidden
 from .forms import SystemAddEditForm, BenchmarkAddForm, BenchmarkEditForm
-from .models import System,Benchmark, Game
+from .models import System,Benchmark, Game, NewsPost
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect
@@ -52,11 +52,14 @@ def home(request):
         most_popular_game = None
         
         
-    # list of the most recently submitted 5 benchmarks
+    # list of the most recently submitted 10 benchmarks
     if Benchmark.objects.count() > 0:
-        recent_benchmarks = Benchmark.objects.all().order_by('-upload_date')[0:5]
+        recent_benchmarks = Benchmark.objects.all().order_by('-upload_date')[0:10]
     else:
         recent_benchmarks = []
+        
+        
+    latest_post = NewsPost.objects.latest('posted')
         
     context = {
         'num_users' : num_users,
@@ -65,6 +68,7 @@ def home(request):
         'best_benchmark' : best_fps_benchmark,
         'most_popular_game' : most_popular_game,
         'benchmarks_table' : recent_benchmarks,
+        'latest_post':latest_post,
     }
     
     return render(request, "home.html", context)
