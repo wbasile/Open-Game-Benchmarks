@@ -59,7 +59,7 @@ def home(request):
         recent_benchmarks = []
         
         
-    latest_post = NewsPost.objects.order_by('-posted')[0]
+    latest_post = NewsPost.objects.order_by('posted')[0]
         
     context = {
         'num_users' : num_users,
