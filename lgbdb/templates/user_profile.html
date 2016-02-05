@@ -2,7 +2,7 @@
 
 
 {% block content %}
-<h1>User profile: {{user}}</h1>
+<h1>User profile: {{userobject.username}}</h1>
 <br>
 
 
@@ -10,7 +10,9 @@
 <div class="panel panel-default">
     
     <div class="panel-heading">
+        {% if userobject == user %}
         <a href="/system_add" class="btn pull-right btn-success">Add system</a>
+        {% endif %}
         <div class="row">
             <div class="col-md-4">
                 <h3 class="panel-title">Systems</h3>
@@ -43,6 +45,8 @@
                         <td>{{ system.driver }}</td>
                         <td>{{ system.resolution }}</td>
                         <td>{{ system.operating_system }}</td>
+                        
+                        {% if userobject == user %}
                         <td>
                             <form action="/system_edit/{{ system.id }}">
                                 <input type="submit" value="Edit" class="btn btn-sm btn-info">
@@ -53,6 +57,15 @@
                                 <input type="submit" value="Delete" class="btn btn-sm btn-danger">
                             </form>
                         </td>
+                        
+                        {% else %}
+                        <td>
+                            <form action="/system_detail/{{ system.id }}">
+                                <input type="submit" value="Detail" class="btn btn-sm btn-warning">
+                            </form>
+                        </td>
+                        
+                        {% endif %}
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -71,7 +84,10 @@
         Allow the addition of new benchmarks only if the user has at least one system
         -->
         {% if uss %}
-            <a href="/benchmark_add" class="btn pull-right btn-success">Add benchmark</a>
+            {% if userobject == user %}
+                <a href="/benchmark_add" class="btn pull-right btn-success">Add benchmark</a>
+            {% endif %}
+            
         {% else %}
             <p class="pull-right"><i>you must add one or more Systems in order to create Benchmarks</i></p>
         {% endif %}

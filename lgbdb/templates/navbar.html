@@ -32,40 +32,41 @@
                 <li role="separator" class="divider"><span style="display:inline-block; width: 30px;"></span></li>
 -->
                 <li><a href="/about">Help & About</a></li>
-                <li><a href="https://github.com/wbasile/Open-Game-Benchmarks">GitHub</a></li>
+                <li><a href="https://github.com/wbasile/Open-Game-Benchmarks" target="new">GitHub <span class="badge">New!</span></a></li>
             </ul>
           
           
             <ul class="nav navbar-nav navbar-right">
                 {% if user.is_authenticated %}
-                    <li role="separator" class="divider"><span style="display:inline-block; width: 6px;"></span></li>
-                    <li>
-                        <p class="navbar-btn">
-                            <a href="/benchmark_add" class="btn btn-success">Add benchmark</a>
-                        </p>
-                    </li>
-                  
-                    <li role="separator" class="divider"><span style="display:inline-block; width: 6px;"></span></li>
-                    <li>
-                        <p class="navbar-btn">
-                            <a href="/accounts/profile" class="btn btn-default"> {{user.username}}'s profile</a>
-                        </p>
+                
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{user.username}} <span class="caret"></span></a>
+                        <ul class="dropdown-menu ">
+                            <li>
+                                <a href="/benchmark_add" >Add benchmark</a>
+                            </li>
+                            
+                            <li>
+                                <a href="/accounts/profile" >Profile</a>
+                            </li>
+                          
+                            <li>
+                                <a href="/accounts/logout" >Logout</a>
+                            </li>
+                        </ul>
                     </li>
                 
-                    <li role="separator" class="divider"><span style="display:inline-block; width: 6px;"></span></li>
-                    <li>
-                        
-                        <a href="/accounts/logout" >Logout</a>
-                        
-                    </li>
+                    
                 
+                    
                 {% else %}
     
-                    <li role="separator" class="divider"><span style="display:inline-block; width: 6px;"></span></li>
+                   
                     <li>
-                        <p class="navbar-btn">
-                            <a href="/accounts/login" class="btn btn-info">Login </a>
-                        </p>
+                        
+                        <a href="/accounts/login">Login </a>
+                       
+                        
                     </li>
 
                 {% endif %}

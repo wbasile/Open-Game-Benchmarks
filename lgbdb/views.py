@@ -320,6 +320,10 @@ class BenchmarkTableView(TemplateView):
         table = BenchmarkTable(filter.qs)
         RequestConfig(self.request).configure(table)
         
+        # TODO: pass this request to benchmark chart
+        #print self.request
+        
+        
         context['filter'] = filter
         context['table'] = table
         context['infotext'] = str(len(filter.qs)) + " benchmark(s) found with these criteria"
@@ -334,13 +338,11 @@ class BenchmarkTableView(TemplateView):
 def set_benchmark_y_label(benchmark):
     
     if benchmark.game_quality_preset != "n.a.":
-        #~ y_tick_label = "<br>".join([str(x) for x in [str(benchmark.game) + " - " + benchmark.game_quality_preset + " preset, at: " + benchmark.resolution, benchmark.cpu_model + " " + benchmark.gpu_model, benchmark.operating_system ] ])
         
         first_line = " ".join([str(x) for x in [benchmark.game,benchmark.game_quality_preset + " preset, at: " + benchmark.resolution]])
         
         y_tick_label = "<br>".join([str(x) for x in [first_line, benchmark.cpu_model + " " + benchmark.gpu_model, benchmark.operating_system ] ])
     else:
-        #~ y_tick_label = "<br>".join([str(x) for x in [str(benchmark.game) + " - " + " at: " + benchmark.resolution, benchmark.cpu_model + " " + benchmark.gpu_model, benchmark.operating_system ] ])
         first_line = " ".join([str(x) for x in [benchmark.game, "at: " + benchmark.resolution]])
         y_tick_label = "<br>".join([str(x) for x in [first_line, benchmark.cpu_model + " " + benchmark.gpu_model, benchmark.operating_system ] ])
         
@@ -350,7 +352,7 @@ def set_benchmark_y_label(benchmark):
 
 # bar plot with multiple benchmarks using graphos and flot
 def fps_chart_view(request):
-    
+
     max_displayed_benchmarks = 30
     
     f = BenchmarkFilter(request.GET, queryset=Benchmark.objects.order_by("upload_date").reverse())
@@ -384,6 +386,8 @@ def fps_chart_view(request):
     chart = flot.BarChart(data_source,height=height, options=options_dic)
     
     return render(request, "benchmark_chart.html", {'max_bench_num':max_displayed_benchmarks,'filter': f, 'chart': chart})
+
+
 
 
 # benchmark fps line plot using graphos and flot
@@ -426,6 +430,19 @@ def profile(request):
     context = { "uss":uss, "benchmarks_table":usb}
     
     return render(request, 'profile.html', context)
+    
+    
+# user profile page
+def user_profile(request,pk=None):
+
+    user = get_object_or_404(User, pk=pk)
+
+    uss = user.system_set.all()
+    usb = user.benchmark_set.order_by("upload_date").reverse()
+           
+    context = { "uss":uss, "benchmarks_table":usb, "userobject":user}
+    
+    return render(request, 'user_profile.html', context)
     
     
     

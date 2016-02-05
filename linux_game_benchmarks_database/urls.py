@@ -19,6 +19,7 @@ urlpatterns = [
 
     url(r'^accounts/', include('registration.backends.simple.urls')),
     url(r'^accounts/profile/$', lgbdb.views.profile, name='profile'),
+    url(r'^user_profile/(?P<pk>\d+)$', lgbdb.views.user_profile, name='user_profile'),
     
     url(r'^system_add/$', lgbdb.views.SystemAddEditView, name='add_system'),
     url(r'^system_edit/(?P<pk>\d+)$', lgbdb.views.SystemAddEditView, name='edit_system'),
