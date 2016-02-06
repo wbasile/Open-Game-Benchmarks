@@ -18,24 +18,24 @@ urlpatterns = [
     url(r'^accounts/logout/$', auth_views.logout, {'next_page': '/'}),
 
     url(r'^accounts/', include('registration.backends.simple.urls')),
-    url(r'^accounts/profile/$', lgbdb.views.profile, name='profile'),
-    url(r'^user_profile/(?P<pk>\d+)$', lgbdb.views.user_profile, name='user_profile'),
+    url(r'^accounts/profile/$', lgbdb.views.user_profile, name='user-profile-default'),
+    url(r'^accounts/profile/(?P<pk>\d+)$', lgbdb.views.user_profile, name='user-profile'),
     
-    url(r'^system_add/$', lgbdb.views.SystemAddEditView, name='add_system'),
-    url(r'^system_edit/(?P<pk>\d+)$', lgbdb.views.SystemAddEditView, name='edit_system'),
-    url(r'^system_delete/(?P<pk>\d+)$', lgbdb.views.SystemDeleteView.as_view(), name='system-delete',),
+    url(r'^system_detail/(?P<pk>\d+)$', lgbdb.views.SystemDetailView, name='system-detail',),
+    url(r'^system_add/$', lgbdb.views.SystemAddEditView, name='system-add'),
+    url(r'^system_edit/(?P<pk>\d+)$', lgbdb.views.SystemAddEditView, name='system-edit'),
+    url(r'^system_delete/(?P<pk>\d+)$', lgbdb.views.SystemDeleteView, name='system-delete',),
     
+    url(r'^benchmark_detail/(?P<pk>\d+)$', lgbdb.views.BenchmarkDetailView, name='benchmark-detail',),
     url(r'^benchmark_add/$', lgbdb.views.BenchmarkAddView, name='benchmark-add'),
     url(r'^benchmark_edit/(?P<pk>\d+)$', lgbdb.views.BenchmarkEditView, name='benchmark-edit'),
-    url(r'^benchmark_detail/(?P<pk>\d+)$', lgbdb.views.BenchmarkDetailView, name='benchmark-detail',),
-    url(r'^benchmark_delete/(?P<pk>\d+)$', lgbdb.views.BenchmarkDeleteView.as_view(), name='benchmark-delete',),
+    url(r'^benchmark_delete/(?P<pk>\d+)$', lgbdb.views.BenchmarkDeleteView, name='benchmark-delete',),
         
-    url(r'^benchmark_table/$', lgbdb.views.BenchmarkTableView.as_view(), name='benchmark-table'),
+    url(r'^benchmark_table/$', lgbdb.views.BenchmarkTableView, name='benchmark-table'),
     url(r'^benchmark_chart/$', lgbdb.views.fps_chart_view, name='benchmark-chart'),
-    
     url(r'^no_benchmark/$', lgbdb.views.GameNoBenchmark, name='no-benchmark'),
     
-    url(r'^game_list/$', lgbdb.views.GameListView.as_view(), name='game-list'),
+    url(r'^game_table/$', lgbdb.views.GameTableView, name='game-table'),
     
     url(r'^benchmark_rss/', lgbdb.feeds.LatestBenchmarks()),
     

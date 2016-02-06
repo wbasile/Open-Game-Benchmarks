@@ -1,24 +1,9 @@
-
-{% extends 'base.html' %}
-
-
+ 
 {% load querystring from django_tables2 %}
 {% load title from django_tables2 %}
 {% load trans blocktrans from i18n %}
 {% load bootstrap3 %}
 
-
-
- 
-{% block content %}
- 
-<h2>Benchmark table</h2>
- 
-{% include "benchmark_filter_form.html" %}
-
-
-
- <h4><p>{{ infotext}}</p></h4>
  
 {% if table.page %}
     <div class="table-container">
@@ -83,22 +68,11 @@
 {% endif %}
 
 
-<!--
-<script>
-$('tbody tr:has(td:contains("Windows"))').addClass('info');
-$('tbody tr:not(:has(td:contains("Windows")))').addClass('danger');
-</script>
--->
-
 <script>
 $(document).ready(function(){
     $('[data-toggle="popover"]').popover();   
 });
 </script>
-
-
-
-{% endblock %}
 
 
 

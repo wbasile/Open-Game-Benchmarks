@@ -20,7 +20,9 @@
         
         <div class="panel-body">
                  
-            {% include 'benchmark_list_simple.html' %}
+            {% with table=benchmark_table %}
+                {% include 'benchmark_table.html' %}
+            {% endwith %}
             
         </div>
     </div>

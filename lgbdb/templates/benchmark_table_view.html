@@ -1,0 +1,23 @@
+
+{% extends 'base.html' %}
+ 
+{% block content %}
+ 
+<h2>Benchmark table</h2>
+ 
+{% include "benchmark_filter_form.html" %}
+
+<h4><p>{{ infotext}}</p></h4>
+ 
+{% include "benchmark_table.html" %}
+
+{% endblock %}
+
+
+
+
+
+
+
+
+

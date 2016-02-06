@@ -46,26 +46,18 @@
                         <td>{{ system.resolution }}</td>
                         <td>{{ system.operating_system }}</td>
                         
+                        <td>
+                            <a href="/system_detail/{{ system.id }}" class="btn btn-xs btn-warning">Detail</a>
+                        </td>
                         {% if userobject == user %}
                         <td>
-                            <form action="/system_edit/{{ system.id }}">
-                                <input type="submit" value="Edit" class="btn btn-sm btn-info">
-                            </form>
+                            <a href="/system_edit/{{ system.id }}" class="btn btn-xs btn-info">Edit</a>
                         </td>
                         <td>
-                            <form action="/system_delete/{{ system.id }}">
-                                <input type="submit" value="Delete" class="btn btn-sm btn-danger">
-                            </form>
+                            <a href="/system_delete/{{ system.id }}" class="btn btn-xs btn-danger">Delete</a>
                         </td>
-                        
-                        {% else %}
-                        <td>
-                            <form action="/system_detail/{{ system.id }}">
-                                <input type="submit" value="Detail" class="btn btn-sm btn-warning">
-                            </form>
-                        </td>
-                        
                         {% endif %}
+                        
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -100,10 +92,11 @@
     </div>
             
     <div class="panel-body">
-        
-        <!-- ## TABLE HERE -->
-        {% include 'benchmark_list_simple.html' %}
-        
+        {% if usb %}
+            {% with table=benchmark_table %}
+                {% include 'benchmark_table.html' %}
+            {% endwith %}
+        {% endif %}
     </div>
 </div>
 

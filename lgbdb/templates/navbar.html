@@ -1,78 +1,77 @@
-<!-- Fixed navbar -->
-<nav class="navbar navbar-inverse navbar-fixed-top">
-    <div class="container">
-          
-        <div class="navbar-header">
-            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
-            <a class="navbar-brand" href="/">Open Game Benchmarks</a>
-        </div>
-        
-        <div id="navbar" class="navbar-collapse collapse">
-            <ul class="nav navbar-nav">
-<!--
-                <li role="separator" class="divider"><span style="display:inline-block; width: 30px;"></span></li>
--->
-                <li><a href="/game_list">Games</a></li>
-            
-                <li class="dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Benchmarks <span class="caret"></span></a>
-                    <ul class="dropdown-menu">
-                        <li><a href="/benchmark_table">Table</a></li>
-                        <li><a href="/benchmark_chart">Chart</a></li>
-                    </ul>
-                </li>
-            
-            
-<!--
-                <li role="separator" class="divider"><span style="display:inline-block; width: 30px;"></span></li>
--->
-                <li><a href="/about">Help & About</a></li>
-                <li><a href="https://github.com/wbasile/Open-Game-Benchmarks" target="new">GitHub <span class="badge">New!</span></a></li>
-            </ul>
-          
-          
-            <ul class="nav navbar-nav navbar-right">
-                {% if user.is_authenticated %}
-                
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{user.username}} <span class="caret"></span></a>
-                        <ul class="dropdown-menu ">
-                            <li>
-                                <a href="/benchmark_add" >Add benchmark</a>
-                            </li>
-                            
-                            <li>
-                                <a href="/accounts/profile" >Profile</a>
-                            </li>
-                          
-                            <li>
-                                <a href="/accounts/logout" >Logout</a>
-                            </li>
-                        </ul>
-                    </li>
-                
-                    
-                
-                    
-                {% else %}
-    
-                   
-                    <li>
-                        
-                        <a href="/accounts/login">Login </a>
-                       
-                        
-                    </li>
+{% load staticfiles %}
 
-                {% endif %}
-            
-            </ul>
-        </div>
+
+<style type = "text/css">
+
+.navbar-nav > li > a, .navbar-brand {
+    padding-top:10px !important; 
+    padding-bottom:0 !important;
+    height: 54px;
+}
+.navbar {min-height:54px !important;}
+
+</style>
+
+
+<nav class="navbar navbar-default navbar-fixed-top">
+  <div class="container-fluid">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      
+      <a class="navbar-brand" href="/"><img alt="logo" src="{% static 'icons/logo.png' %}"></a>
+     
     </div>
+
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav">
+        <li><a href="/game_table">Games</a></li>
+        
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Benchmarks <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="/benchmark_table">Table</a></li>
+            <li role="separator" class="divider"></li>
+            <li><a href="/benchmark_chart">Chart</a></li>
+          </ul>
+        </li>
+        
+        <li><a href="/about">Help & About</a></li>
+        <li><a href="https://github.com/wbasile/Open-Game-Benchmarks" target="new">GitHub <span class="badge">New!</span></a></li>
+        
+      </ul>
+      
+      
+      <ul class="nav navbar-nav navbar-right">
+          {% if user.is_authenticated %}
+          
+
+            <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{user.username}}<span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="/accounts/profile/{{user.pk}}" >Profile</a></li>
+            <li role="separator" class="divider"></li>
+            <li><a href="/benchmark_add/" >Add benchmark</a></li>
+            <li><a href="/system_add/" >Add system</a></li>
+            <li role="separator" class="divider"></li>
+            <li><a href="/accounts/logout" >Logout</a></li>
+          </ul>
+        </li>
+                    
+                    
+            {% else %}
+                <li>
+                    <a href="/accounts/login">Login </a>
+                </li>
+            {% endif %}
+                
+      </ul>
+    </div><!-- /.navbar-collapse -->
+  </div><!-- /.container-fluid -->
 </nav>
-    

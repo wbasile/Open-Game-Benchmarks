@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% load bootstrap3 %}
+
+
+{% block content %}
+
+
+
+{% if action == "add" %}
+    <h2>{{ action | title}} system</h2>
+    <i>you need to add a System only once; you will be then able to select it when you upload a game benchmark</i><br><br>
+{% else %}    
+    <h2>{{ action | title}} system: {{object}} </h2>
+    
+    User: <a href="/accounts/profile/{{object.user.pk}}">{{object.user}}</a>
+{% endif %}
+<br>
+<br>
+
+
+
+
+{% if action == "edit" or action == "add" %}
+    
+    <form method="POST" action="" >
+        {% csrf_token %}
+        
+        {% for field in form %}
+        <tr>
+            <td>{% bootstrap_field field  show_help=True layout="horizontal" %}</td>
+            <td>&nbsp;</td>
+        </tr>
+        {% endfor %}
+        
+        <input type="submit" value="Save" class="btn btn-primary"/>
+        
+    </form>
+    
+{% elif action == "detail" or action == "delete" %}
+
+    {% if action == "delete" %}
+
+        <p>Are you sure you want to delete this system?</p>
+        <table>
+            <tr>
+                <td>
+                    <form action="{% url "system-delete" pk=object.id %}" method="POST">
+                    {% csrf_token %}
+                
+                        <input type="submit" value="Yes, delete." class="btn btn-danger" />
+                    
+                    </form>
+                
+                </td>
+                
+                <td>&nbsp;<td>
+                
+                <td>
+                    <form action="{% url "user-profile" pk=user.pk %}">
+                        <input type="submit" value="No, cancel" class="btn btn-info">
+                    </form>
+                </td>
+            </tr>
+        </table>
+        
+        <br>
+    
+    {% endif %}
+
+    <table class="table table-striped">
+        <tbody>
+            {% for field in form %}
+                <tr>
+                    <td><b>{{field.label}}</b></td><td>{{field.value}}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+{% endif %}
+        
+                
+{% endblock %}
+

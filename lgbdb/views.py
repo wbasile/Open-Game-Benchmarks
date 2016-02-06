@@ -1,26 +1,19 @@
 
-from django.shortcuts import render, render_to_response, get_object_or_404
-from django.http import HttpResponseForbidden
 from .forms import SystemAddEditForm, BenchmarkAddForm, BenchmarkEditForm
 from .models import System,Benchmark, Game, NewsPost
+from .filters import GameFilter, BenchmarkFilter
+from .tables import GameTable, BenchmarkTable
+from django_tables2   import RequestConfig
+
+
+from django.shortcuts import render, render_to_response, get_object_or_404
+from django.http import HttpResponseForbidden
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect
-from django.views.generic import DeleteView
-from django.views.generic import DetailView, TemplateView
 from django.core.urlresolvers import reverse
-
-from django import forms
-
 from django.db.models import Count
 
-import django_tables2 as tables
-from django_tables2   import RequestConfig
-from django.utils.safestring import mark_safe
-from django.utils.html import escape
-
-
-import django_filters
 
 from graphos.sources.simple import SimpleDataSource
 from graphos.sources.model import ModelDataSource
@@ -54,10 +47,17 @@ def home(request):
         
     # list of the most recently submitted 10 benchmarks
     if Benchmark.objects.count() > 0:
-        recent_benchmarks = Benchmark.objects.all().order_by('-upload_date')[0:10]
-    else:
-        recent_benchmarks = []
+        recent_benchmarks = Benchmark.objects.all().order_by('-upload_date')[0:5]
+        benchmark_table = BenchmarkTable(recent_benchmarks,user=request.user)
         
+        RequestConfig(request).configure(benchmark_table)
+        # exclude some fields from this table since it is used in the home page
+        benchmark_table.exclude = ["IQR","additional_notes"]
+        # make it not sortable, because we are using a sliced queryset
+        benchmark_table._orderable = False
+        
+    else:
+        benchmark_table = None
         
     latest_post = NewsPost.objects.order_by('posted')[0]
         
@@ -67,13 +67,43 @@ def home(request):
         'num_benchmarks' : num_benchmarks,
         'best_benchmark' : best_fps_benchmark,
         'most_popular_game' : most_popular_game,
-        'benchmarks_table' : recent_benchmarks,
+        'benchmark_table' : benchmark_table,
         'latest_post':latest_post,
     }
     
     return render(request, "home.html", context)
 
 
+
+
+# user profile page
+def user_profile(request,pk=None):
+    
+    # if the pk of the user to view is not provided, try to display the profile of the currently logged user
+
+    if not pk:
+        if request.user.is_authenticated():
+            pk = request.user.pk
+        
+    user = get_object_or_404(User, pk=pk)
+        
+    uss = user.system_set.all()    
+    
+    #~ system_table = SystemTable(uss)
+    #~ RequestConfig(request).configure(system_table)
+    
+    usb = user.benchmark_set.order_by("upload_date").reverse()
+    benchmark_table = BenchmarkTable(usb,user=request.user)
+    RequestConfig(request).configure(benchmark_table)
+    benchmark_table.exclude = ["user"]
+    
+    context = { "uss":uss,"usb":usb, "benchmark_table":benchmark_table, "userobject":user}
+    
+    return render(request, 'user_profile.html', context)
+    
+    
+    
+    
 
 # a simple help and about page; the entire thing is done in the template at the moment
 def about(request):
@@ -86,254 +116,65 @@ def GameNoBenchmark(request):
 
 
 
-# create a simple filter for Games
-class GameFilter(django_filters.FilterSet):
 
-    # free text search
-    # TODO: implement autocomplete/typing suggestions
-    title = django_filters.CharFilter(lookup_type='icontains')
+
+def GameTableView(request):
     
-    # a field to choose which subset of games we will display
-    SHOW_CHOICES = (
-                    (0, 'Show all games'),
-                    (1, 'Show games with benchmarks'),
-                    (2, 'Show games without benchmarks'),
-                    )
+    filter = GameFilter(request.GET)
+    filter.form.fields['title'].widget.attrs = {'placeholder': "Search by title",}
+    filter.form.fields['title'].label = "Search"
+    filter.form.fields['title'].help_text = ""
+    filter.form.fields['show'].label = "Display options"
+    filter.form.fields['show'].help_text = ""
     
-    show = django_filters.MethodFilter(action="my_custom_filter",widget=forms.Select(choices=SHOW_CHOICES))
+    # little hack to make the django_table2 sortable by a field with a computed value    
+    # intercept the case in which we are trying to sort by num_benchmarks, which is not a field of the Game model (so it would give an error)
+    if request.GET.get('sort',None) == "num_benchmarks":
+        
+        # remove the "sort by num benchmarks" in the GET dictionary
+        nr = request.GET.copy()
+        arg = nr.pop("sort")[0]
+        request.GET = nr
 
+        #  modify the filtered queryset by sorting it manually, using the annotate function 
+        new_qs = filter.qs.annotate(num_benchmarks=Count('benchmark')).order_by('-num_benchmarks')
+        table = GameTable(new_qs)
+        
+    else:
+        table = GameTable(filter.qs)
+                            
+    RequestConfig(request).configure(table)
+        
+        
+    context = {
+        'filter' : filter,
+        'table' : table,
+    }
     
-    class Meta:
-        model = Game
-        
-        # these fields work even if the relative fields are hidden (excluded in the table)
-        fields = ["title", "show"]
-        
-    
-    # a function called by the "show" filter field, to generate a queryset based on a  given value    
-    def my_custom_filter(self, queryset, value):
-        
-        if value == "1":
-            return queryset.annotate(num_benchmarks=Count('benchmark')).filter(num_benchmarks__gt=0)
-        elif value == "2":
-            return queryset.annotate(num_benchmarks=Count('benchmark')).filter(num_benchmarks=0)
-        else:
-            return queryset
-
-
-
-
-# a django-tables2 table, used in the Game List Page
-class GameTable(tables.Table):
-    
-    # two custom columns, with values computed on the fly (server-side)
-    num_benchmarks = tables.Column(verbose_name="Num benchmarks",empty_values=(), orderable=True)
-    steamdb_link = tables.Column(verbose_name="",empty_values=(), orderable=False)
-    
-    class Meta:
-        model = Game
-        fields = ("title", "steam_appid","num_benchmarks")
-
-    
-    def render_num_benchmarks(self,record):
-   
-        value = int(record.benchmark_set.count())
-        
-        if value > 0:
-            return mark_safe('<a href="/benchmark_table/?game=' + str(record.id) + '" >' + str(value) + '</a>')
-        else:
-            return str(value)
-
-    
-    # for the game title column, display a thumbnail of the game, and make it link to the Benchmark Table Page (filtered for that game)
-    def render_title(self,record):
-        img_url = "https://steamcdn-a.akamaihd.net/steam/apps/"+str(record.steam_appid)+"/capsule_sm_120.jpg"
-        
-        value = int(record.benchmark_set.count())
-        
-        if value > 0:
-            return mark_safe('<a href="/benchmark_table/?game=' + str(record.id) + '" >' + '<img src="%s" />' % escape(img_url) + " " + unicode(record.title)+"</a>")
-        else:
-            return mark_safe('<a href="/no_benchmark">' + '<img src="%s" />' % escape(img_url) + " " + unicode(record.title)+"</a>")
-            
-            
-    # a simple link to steamdb.info
-    def render_steamdb_link(self, record):
-        value = record.steam_appid
-        
-        return mark_safe('<a target="_blank" class="btn btn-xs btn-danger" href="http://steamdb.info/app/' + str(value) + '/" >SteamDB</a>')
-        
-        
-
-# a view that combines table and filters
-class GameListView(TemplateView):
-    
-    template_name = 'game_list.html'
-
-    def get_queryset(self, **kwargs):
-        return Game.objects.all()
-
-    def get_context_data(self, **kwargs):
-        context = super(GameListView, self).get_context_data(**kwargs)
-        filter = GameFilter(self.request.GET, queryset=self.get_queryset(**kwargs))
-        
-        filter.form.fields['title'].widget.attrs = {'placeholder': "Search by title",}
-        filter.form.fields['title'].label = "Search"
-        filter.form.fields['title'].help_text = ""
-        
-        filter.form.fields['show'].label = "Display options"
-        filter.form.fields['show'].help_text = ""
-        
-        
-        # intercept the case in which we are trying to sort by num_benchmarks, which is not a field of the Game model (so it would give an error)
-        if self.request.GET.get('sort',None) == "num_benchmarks":
-            
-            # remove the "sort by num benchmarks" in the GET dictionary
-            nr = self.request.GET.copy()
-            arg = nr.pop("sort")[0]
-            self.request.GET = nr
-
-            #  modify the filtered queryset by sorting it manually, using the annotate function 
-            new_qs = filter.qs.annotate(num_benchmarks=Count('benchmark')).order_by('-num_benchmarks')
-            table = GameTable(new_qs)
-            
-        else:
-            table = GameTable(filter.qs)
-            
-        RequestConfig(self.request).configure(table)
-            
-        context['filter'] = filter
-        context['table'] = table
-        
-        return context
-        
-        
-        
-        
-        
-
-# create a filter for Benchmarks
-class BenchmarkFilter(django_filters.FilterSet):
-
-    class Meta:
-        model = Benchmark
-        
-        # these fields work even if the relative fields are hidden (excluded in the table)
-        fields = ["game","cpu_model","gpu_model","resolution", "driver","operating_system"]
-        
-        # this doesn't work :(
-        #~ fields = ['user_system.cpu_model']
-        
-    def __init__(self, *args, **kwargs):
-        super(BenchmarkFilter, self).__init__(*args, **kwargs)
-
-        # limit the possible choices in the filter to the items that are in the benchmark list, plus an "any" choice
-        # for example, limit the choices in "Game" only to the game that have at least one benchmark
-        
-        ANY_CHOICE = ('', '---------'),
-            
-        for field_name in BenchmarkFilter.Meta.fields:
-            # limit the multiple choice for the MultipleChoice (text) fields 
-            if 'choices' in self.filters[field_name].extra.keys():
-                choice_set = sorted(set([i[0] for i in Benchmark.objects.values_list(field_name)]))
-                self.filters[field_name].extra['choices'] = ANY_CHOICE + tuple(zip(choice_set,choice_set))
-        
-            # setting the multiple choice for Games is a bit more complicated, because it's a Foreign key
-            elif 'queryset' in self.filters[field_name].extra.keys() and field_name == 'game':
-                query_id_set = set([i[0] for i in Benchmark.objects.values_list(field_name)])
-                self.filters[field_name].extra['queryset'] = Game.objects.filter(pk__in=query_id_set)
-                
-        # correct capitalization in the labels
-        self.filters['cpu_model'].label = "CPU Model"        
-        self.filters['gpu_model'].label = "GPU Model"        
-
-
-        
-# a django-tables2 table, used in the Benchmark Table Page
-class BenchmarkTable(tables.Table):
-    
-    # two custom columns: a button that links to that benchmark detail page, and the Interquartile Range
-    benchmark_detail = tables.Column(verbose_name="",empty_values=(), orderable=False)
-    IQR = tables.Column(verbose_name="IQR",empty_values=(), orderable=False)
-
-
-    class Meta:
-        model = Benchmark
-        fields = ("game", "cpu_model", "gpu_model", "resolution","game_quality_preset","fps_median","IQR", "operating_system","additional_notes", "user")
+    return render(request, "game_table_view.html", context)
     
     
-    def __init__(self, *args, **kwargs):
-        super(BenchmarkTable, self).__init__(*args, **kwargs)
+
+
+
+def BenchmarkTableView(request):
     
-        # correct capitalization of acronyms
-        self.base_columns['cpu_model'].verbose_name = "CPU Model"
-        self.base_columns['gpu_model'].verbose_name = "GPU Model"
-    
-        # TODO: move here the formatting of IQR heading (with the info popover); now it is a hack in the template
-    
-    
-    # image thumbnail in the game field
-    def render_game(self, value):
-        img_url = "https://steamcdn-a.akamaihd.net/steam/apps/"+str(value.steam_appid)+"/capsule_sm_120.jpg"
-        return mark_safe('<a href="/benchmark_table/?game=' + str(value.pk) + '" >' + '<img src="%s" /><br>' % escape(img_url) + " " + unicode(value.title)+"</a>")
+    filter = BenchmarkFilter(request.GET)
         
-
-    def render_benchmark_detail(self, record):
-        button_html = '<a href="/benchmark_detail/' +str(record.id)+ '" class="btn btn-sm btn-warning">Detail</a>'
-        return mark_safe(button_html)
-        
-        
-    def render_IQR(self, record,column):
-        iqr_value = record.fps_3rd_quartile - record.fps_1st_quartile
-        return mark_safe(str(iqr_value))
-        
-        
-    def render_additional_notes(self,value):
-        return mark_safe('''<a href="#" class="btn btn-xs btn-default" data-toggle="popover"  data-trigger="hover" title="Notes" data-content="'''+unicode(value)+'''">View notes</a>''')
-
-
-    def render_user(self,value):
-        return mark_safe('<a href="/user_profile/'+str(value.id)+'">'+str(value.username)+'</a>')
-
-    # different font color for linux and windows
-    #~ def render_operating_system(self,value):
-        #~ print value
-        #~ if value.find("Windows") != -1:
-            #~ return mark_safe('<font color="blue">'+unicode(value)+'</font>')
-        #~ else:
-            #~ return mark_safe('<font color="red">'+unicode(value)+'</font>')
-
-
-
-# a view that combines table and filter
-class BenchmarkTableView(TemplateView):
-    
-    template_name = 'benchmark_table.html'
-
-    def get_queryset(self, **kwargs):
-        return Benchmark.objects.order_by("upload_date").reverse()
-
-    def get_context_data(self, **kwargs):
-        context = super(BenchmarkTableView, self).get_context_data(**kwargs)
-        filter = BenchmarkFilter(self.request.GET, queryset=self.get_queryset(**kwargs))
-        
-        for f in filter.form.fields:
-            filter.form.fields[f].help_text = ""
+    for f in filter.form.fields:
+        filter.form.fields[f].help_text = ""
              
-        table = BenchmarkTable(filter.qs)
-        RequestConfig(self.request).configure(table)
+    table = BenchmarkTable(filter.qs,user=request.user)
+    RequestConfig(request).configure(table)
         
-        # TODO: pass this request to benchmark chart
-        #print self.request
-        
-        
-        context['filter'] = filter
-        context['table'] = table
-        context['infotext'] = str(len(filter.qs)) + " benchmark(s) found with these criteria"
-        
-        return context
-        
-        
+    context = {
+        'filter' : filter,
+        'table' : table,
+    }
+    
+    return render(request, "benchmark_table_view.html", context)
+    
+    
         
         
 
@@ -388,7 +229,7 @@ def fps_chart_view(request):
     
     chart = flot.BarChart(data_source,height=height, options=options_dic)
     
-    return render(request, "benchmark_chart.html", {'max_bench_num':max_displayed_benchmarks,'filter': f, 'chart': chart})
+    return render(request, "benchmark_chart_view.html", {'max_bench_num':max_displayed_benchmarks,'filter': f, 'chart': chart})
 
 
 
@@ -411,41 +252,21 @@ def fps_line_chart(benchmark):
     
     
 
+
+    
+    
+    
 # a simple view to display the benchmark fps line graph and all the info of the given benchmark
-def BenchmarkDetailView(request, pk=None):
+def SystemDetailView(request, pk=None):
     
-    benchmark = get_object_or_404(Benchmark, pk=pk)
+    system = get_object_or_404(System, pk=pk)
     
-    if benchmark:
-
-        chart = fps_line_chart(benchmark)
-        return render(request, "benchmark_detail.html", {'object':benchmark,'fpschart': chart})
-
-
-
-# user profile page
-@login_required
-def profile(request):
-
-    uss = request.user.system_set.all()
-    usb = request.user.benchmark_set.order_by("upload_date").reverse()
-           
-    context = { "uss":uss, "benchmarks_table":usb}
+    form = SystemAddEditForm(instance=system)    
     
-    return render(request, 'profile.html', context)
+    action = "detail"
     
+    return render(request, "system_action.html", {'object':system, 'action':action, 'form':form})
     
-# user profile page
-def user_profile(request,pk=None):
-
-    user = get_object_or_404(User, pk=pk)
-
-    uss = user.system_set.all()
-    usb = user.benchmark_set.order_by("upload_date").reverse()
-           
-    context = { "uss":uss, "benchmarks_table":usb, "userobject":user}
-    
-    return render(request, 'user_profile.html', context)
     
     
     
@@ -457,9 +278,11 @@ def SystemAddEditView(request, pk=None):
         system = get_object_or_404(System, pk=pk) # try to get the instance
         if system.user != request.user: # check if the instance belongs to the requesting user
             return HttpResponseForbidden()
-    
+        else:
+            action = "edit"
     else:
         system = None  
+        action = "add"
 
     
     
@@ -478,43 +301,57 @@ def SystemAddEditView(request, pk=None):
             # instance is an instance of System
             instance.save()
                 
-            return HttpResponseRedirect('/accounts/profile')
+            return HttpResponseRedirect('/accounts/profile/'+str(request.user.pk))
     else:
         form = SystemAddEditForm(user=request.user,initial={'user': request.user}, instance=system)    
         
-    
-    if system:    
-        title = 'Edit system "' + str(system) + '"'
-    else:
-        title = "Add new system"
              
-    context = {"form":form , "title":title}
+    context = {'object':system, "form":form , "action":action}
     
-    return render(request, "system_add_edit.html",context)
+    return render(request, "system_action.html",context)
     
+
+
 
 
 # page to delete a system
-class SystemDeleteView(DeleteView):
+def SystemDeleteView(request, pk=None):
     
-    def dispatch(self, *args, **kwargs):
-        
-        # verify that the object exists
-        system = get_object_or_404(System, pk=kwargs['pk'])
-        
-        # check that the user tryng to delete the system is the owner of that system 
-        # (this prevents also anonymous, non-logged-in users to delete)
-        if system.user == self.request.user:  
-            return super(SystemDeleteView, self).dispatch(*args, **kwargs)
-        else:
-            return HttpResponseForbidden("Forbidden")
-            
+    system = get_object_or_404(System, pk=pk)
     
-    model = System
-    template_name = 'system_delete.html'
+    # check that the user tryng to delete the system is the owner of that system 
+    # (this prevents also anonymous, non-logged-in users to delete)
+    if system.user != request.user:  
+        return HttpResponseForbidden("Forbidden")
+        
+    if request.method == "POST":
+        system.delete()
+        return HttpResponseRedirect('/accounts/profile/'+str(request.user.pk))
+        
+        
+    form = SystemAddEditForm(user=request.user,initial={'user': request.user}, instance=system)    
+    
+    action = "delete"
+    
+    return render(request, "system_action.html", {'object':system, 'action':action, 'form':form})
+    
+    
 
-    def get_success_url(self):
-        return reverse('profile')
+
+# a simple view to display the benchmark fps line graph and all the info of the given benchmark
+def BenchmarkDetailView(request, pk=None):
+    
+    benchmark = get_object_or_404(Benchmark, pk=pk)
+    
+    chart = fps_line_chart(benchmark)
+    
+    form = BenchmarkEditForm(instance=benchmark)    
+    
+    action = "detail"
+    
+    return render(request, "benchmark_action.html", {'object':benchmark,'fpschart': chart, 'action':action, 'form':form})
+
+        
         
         
         
@@ -535,17 +372,18 @@ def BenchmarkAddView(request):
             instance.user = request.user
             instance.save()
 
-            return HttpResponseRedirect('/accounts/profile/')
+            return HttpResponseRedirect('/accounts/profile/'+str(request.user.pk))
             
     else:
         form = BenchmarkAddForm(user=request.user,initial={'user': request.user})
             
+
     
-    title = "Add new benchmark"
+    action = "add"
     
-    context = {"form":form , "title":title}
+    context = {'object':None, "form":form , "action":action}
     
-    template = "benchmark_add.html"
+    template = "benchmark_action.html"
     
     return render(request, template ,context)
     
@@ -572,51 +410,75 @@ def BenchmarkEditView(request, pk=None):
             instance.user = request.user
             instance.save()
                 
-            return HttpResponseRedirect('/accounts/profile/')
+            return HttpResponseRedirect('/accounts/profile/'+str(request.user.pk))
 
     else:
         form = BenchmarkEditForm(instance=benchmark)
             
-            
-    title = 'Edit benchmark "' + str(benchmark) + '"'
-    
+                
     chart = fps_line_chart(benchmark)
-
-    context = {"form":form , "title":title, "fpschart":chart}
     
-    template = "benchmark_edit.html"
+    action = "edit"
+    
+    context = {'object':benchmark, "form":form , "action":action, "fpschart":chart}
+    
+    template = "benchmark_action.html"
         
     return render(request, template ,context)        
             
             
             
             
+# page to delete a system
+def BenchmarkDeleteView(request, pk=None):
+    
+    benchmark = get_object_or_404(Benchmark, pk=pk)
+    
+    # check that the user tryng to delete the system is the owner of that system 
+    # (this prevents also anonymous, non-logged-in users to delete)
+    if benchmark.user != request.user:  
+        return HttpResponseForbidden("Forbidden")
+        
+    if request.method == "POST":
+        benchmark.delete()
+        return HttpResponseRedirect('/accounts/profile/'+str(request.user.pk))
+        
+    
+    chart = fps_line_chart(benchmark)
+    
+    form = BenchmarkEditForm(instance=benchmark)    
+    
+    action = "delete"
+    
+    return render(request, "benchmark_action.html", {'object':benchmark, 'action':action, 'form':form,'fpschart':chart})
+
+
             
 # page to delete a benchmark
-class BenchmarkDeleteView(DeleteView):
-    
-    def dispatch(self, *args, **kwargs):
-        
-        # verify that the object exists
-        benchmark = get_object_or_404(Benchmark, pk=kwargs['pk'])
-        
-        # check that the user tryng to delete the system is the owner of that system 
-        # (this prevents also anonymous, non-logged-in users to delete)
-        if benchmark.user == self.request.user:  
-            self.game = benchmark.game
-            return super(BenchmarkDeleteView, self).dispatch(*args, **kwargs)
-        else:
-            return HttpResponseForbidden("Forbidden")
-            
-    
-    model = Benchmark
-    template_name = 'benchmark_delete.html'
-
-    def get_success_url(self):
-        
-        return reverse('profile')
-        
-        
-
-
-    
+#~ class BenchmarkDeleteView(DeleteView):
+    #~ 
+    #~ def dispatch(self, *args, **kwargs):
+        #~ 
+        #~ # verify that the object exists
+        #~ benchmark = get_object_or_404(Benchmark, pk=kwargs['pk'])
+        #~ 
+        #~ # check that the user tryng to delete the system is the owner of that system 
+        #~ # (this prevents also anonymous, non-logged-in users to delete)
+        #~ if benchmark.user == self.request.user:  
+            #~ self.game = benchmark.game
+            #~ return super(BenchmarkDeleteView, self).dispatch(*args, **kwargs)
+        #~ else:
+            #~ return HttpResponseForbidden("Forbidden")
+            #~ 
+    #~ 
+    #~ model = Benchmark
+    #~ template_name = 'benchmark_delete.html'
+#~ 
+    #~ def get_success_url(self):
+        #~ 
+        #~ return reverse('profile')
+        #~ 
+        #~ 
+#~ 
+#~ 
+    #~ 

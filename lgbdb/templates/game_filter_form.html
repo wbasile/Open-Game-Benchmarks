@@ -1,0 +1,25 @@
+{% load bootstrap3 %}
+
+<!--
+the game filter form
+-->
+<form action="#" method="get" class="form">
+    <div class="row">
+        <div class="col-md-3">
+            {% bootstrap_field filter.form.title %}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-3">
+            {% bootstrap_field filter.form.show %}
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-2">
+            <input type="submit" value="Search" class="btn btn-primary"/>
+        </div>
+    </div>
+    
+</form>
