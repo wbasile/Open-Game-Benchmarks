@@ -3,7 +3,7 @@
 
 An open-source project with the aim of collecting and analysing game performance data in both Linux and Windows
 <br>
-<a href="www.opengamebenchmarks.org" target="new">www.opengamebenchmarks.org</a>
+<a href="http://www.opengamebenchmarks.org" target="new">www.opengamebenchmarks.org</a>
 
 
 <h2>Goals</h2>
