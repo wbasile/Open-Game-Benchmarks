@@ -22,7 +22,7 @@ Possible usages:
 
 
 <h2>How does it work?</h2>
-<p>A few tools exist that can record the frame timings for OpenGL applications, such as <a href="https://github.com/ValveSoftware/voglperf" target="new">Voglperf</a> and <a href="https://glxosd.nickguletskii.com/" target="new">GLXOSD</a> on Linux and <a href="http://www.fraps.com/" target="new">FRAPS</a> on Windows. The user can upload this data to Open Game Benchmarks, where they are parsed and recorded, and a number of statistical measures (median, quartiles, average, standard deviation) are calculated. Together with the frame timings data, the use uploads a set of hardware+software settings.</p>
+<p>A few tools exist that can record the frame timings for OpenGL applications, such as <a href="https://github.com/ValveSoftware/voglperf" target="new">Voglperf</a> and <a href="https://glxosd.nickguletskii.com/" target="new">GLXOSD</a> on Linux and <a href="http://www.fraps.com/" target="new">FRAPS</a> on Windows. The user can upload this data to Open Game Benchmarks, where they are parsed and recorded, and a number of statistical measures (median, quartiles, average, standard deviation) are calculated. Together with the frame timings data, the user uploads a set of hardware+software settings.</p>
  
 <p>A single benchmark is displayed in a detail page, with a graph and all its variables. In addition, the user can select an arbitrary number of benchmarks to compare: these can be seen as a table or a bar graph.</p>
 
