@@ -11,7 +11,7 @@
 <br>
 
 <div class="row">
-    <div class="col-md-6">
+    <div class="col-md-12">
         
         <form method="POST" action="" >
         
@@ -19,9 +19,10 @@
 
         {% for field in form %}
         <tr>
-            <td>{% bootstrap_field field %}</td>
-            <br>
+            <td>{% bootstrap_field field  show_help=True layout="horizontal" %}</td>
+            <td>&nbsp;</td>
         </tr>
+        
         {% endfor %}
         
         <br>

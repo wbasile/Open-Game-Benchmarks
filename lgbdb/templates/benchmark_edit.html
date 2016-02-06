@@ -25,18 +25,28 @@ load the javascript needed for gchart
 
 <div class="row">
     
-    <div class="col-md-8">
+    <div class="col-md-12">
         
         <form enctype="multipart/form-data" method="POST" action="" >
         
         {% csrf_token %}
-
-        {% bootstrap_form form %}
+        
+        {% for field in form %}
+        <tr>
+            <td>{% bootstrap_field field  show_help=True layout="horizontal" %}</td>
+            <td>&nbsp;</td>
+        </tr>
+        
+        {% endfor %}
+        
+        
         
         <input type="submit" value="Save"  class="btn btn-primary" />
             
         
         </form>
+        
+       
 
     </div>
     

@@ -291,7 +291,10 @@ class BenchmarkTable(tables.Table):
     def render_additional_notes(self,value):
         return mark_safe('''<a href="#" class="btn btn-xs btn-default" data-toggle="popover"  data-trigger="hover" title="Notes" data-content="'''+unicode(value)+'''">View notes</a>''')
 
-    
+
+    def render_user(self,value):
+        return mark_safe('<a href="/user_profile/'+str(value.id)+'">'+str(value.username)+'</a>')
+
     # different font color for linux and windows
     #~ def render_operating_system(self,value):
         #~ print value
