@@ -1098,6 +1098,13 @@ GPU_CHOICES = (
 	('NVidia Quadro NVS 300M','NVidia Quadro NVS 300M'),
 	('NVidia Quadro NVS 320M','NVidia Quadro NVS 320M'),
 	('NVidia Quadro NVS 510M','NVidia Quadro NVS 510M'),
+    ('Nvidia NVS 2100M','Nvidia NVS 2100M'),
+    ('Nvidia NVS 3100M','Nvidia NVS 3100M'),
+    ('Nvidia NVS 4200M','Nvidia NVS 4200M'),
+    ('Nvidia NVS 5100M','Nvidia NVS 5100M'),
+    ('Nvidia NVS 5200M','Nvidia NVS 5200M'),
+    ('Nvidia NVS 5400M','Nvidia NVS 5400M'),
+
 	)
 ),
 
