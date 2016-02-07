@@ -8,12 +8,12 @@ from django_tables2   import RequestConfig
 
 from django.shortcuts import render, render_to_response, get_object_or_404
 from django.http import HttpResponseForbidden
+from django.http import HttpResponseRedirect
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.db.models import Count
-
+from django.template import RequestContext
 
 from graphos.sources.simple import SimpleDataSource
 from graphos.sources.model import ModelDataSource
@@ -163,6 +163,10 @@ def GameTableView(request):
 
 def BenchmarkTableView(request):
     
+    if "btn-other" in request.GET:
+        add_get = "&".join([x+"="+request.GET[x] for x in request.GET.keys() if x != "btn-other"])
+        return HttpResponseRedirect('/benchmark_chart/?'+add_get)
+        
     filter = BenchmarkFilter(request.GET)
         
     for f in filter.form.fields:
@@ -200,7 +204,13 @@ def set_benchmark_y_label(benchmark):
 
 # bar plot with multiple benchmarks using graphos and flot
 def fps_chart_view(request):
-
+    
+    
+    if "btn-other" in request.GET:
+        add_get = "&".join([x+"="+request.GET[x] for x in request.GET.keys()  if x != "btn-other" ])
+        return HttpResponseRedirect('/benchmark_table/?'+add_get)
+        
+    
     max_displayed_benchmarks = 30
     
     f = BenchmarkFilter(request.GET, queryset=Benchmark.objects.order_by("upload_date").reverse())
