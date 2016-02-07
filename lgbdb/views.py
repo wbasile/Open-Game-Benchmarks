@@ -47,14 +47,18 @@ def home(request):
         
     # list of the most recently submitted 10 benchmarks
     if Benchmark.objects.count() > 0:
-        recent_benchmarks = Benchmark.objects.all().order_by('-upload_date')[0:5]
+        recent_benchmarks = Benchmark.objects.all().order_by('-upload_date')[0:10]
         benchmark_table = BenchmarkTable(recent_benchmarks,user=request.user)
-        
         RequestConfig(request).configure(benchmark_table)
+        
         # exclude some fields from this table since it is used in the home page
         benchmark_table.exclude = ["IQR","additional_notes"]
+        
         # make it not sortable, because we are using a sliced queryset
         benchmark_table._orderable = False
+        
+        # disable pagination
+        benchmark_table.page = None
         
     else:
         benchmark_table = None
@@ -164,7 +168,7 @@ def BenchmarkTableView(request):
     for f in filter.form.fields:
         filter.form.fields[f].help_text = ""
              
-    table = BenchmarkTable(filter.qs,user=request.user)
+    table = BenchmarkTable(filter.qs.order_by("-upload_date"),user=request.user)
     RequestConfig(request).configure(table)
         
     context = {

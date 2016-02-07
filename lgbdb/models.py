@@ -7,6 +7,7 @@ from django.utils.text import slugify
 
 from .multiple_choice_options import *
 
+from datetime import datetime
 
 
 class NewsPost(models.Model):
