@@ -63,7 +63,7 @@ def home(request):
     else:
         benchmark_table = None
         
-    latest_post = NewsPost.objects.order_by('posted')[0]
+    latest_post = NewsPost.objects.order_by('-posted')[0]
         
     context = {
         'num_users' : num_users,
