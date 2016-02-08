@@ -359,11 +359,13 @@ def BenchmarkDetailView(request, pk=None):
     
     chart = fps_line_chart(benchmark)
     
-    form = BenchmarkEditForm(instance=benchmark)    
+    form = BenchmarkEditForm(instance=benchmark)   
+    
+    iqr =  benchmark.fps_3rd_quartile - benchmark.fps_1st_quartile
     
     action = "detail"
     
-    return render(request, "benchmark_action.html", {'object':benchmark,'fpschart': chart, 'action':action, 'form':form})
+    return render(request, "benchmark_action.html", {'object':benchmark,'fpschart': chart, 'action':action, 'form':form, 'iqr':iqr})
 
         
         
@@ -464,7 +466,9 @@ def BenchmarkDeleteView(request, pk=None):
     
     action = "delete"
     
-    return render(request, "benchmark_action.html", {'object':benchmark, 'action':action, 'form':form,'fpschart':chart})
+    iqr =  benchmark.fps_3rd_quartile - benchmark.fps_1st_quartile
+    
+    return render(request, "benchmark_action.html", {'object':benchmark, 'action':action, 'form':form,'fpschart':chart, 'iqr':iqr})
 
 
             
