@@ -1402,6 +1402,8 @@ GAME_SETTINGS_CHOICES = (
         ('Low', 'Low'),
         ('Medium', 'Medium'),
         ('High', 'High'),
+        ('Very High', 'Very High'),
+        ('Ultra', 'Ultra'),
         ('n.a.', 'n.a.'),
     )
     
