@@ -63,6 +63,8 @@ class Game(models.Model):
     title = models.CharField(max_length=100)
     steam_appid = models.IntegerField(unique = True)
     
+    upload_date = models.DateTimeField('upload date',default=datetime.now, blank=True)
+    
     def __str__(self):
         return self.title
         
