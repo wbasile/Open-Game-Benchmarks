@@ -31,10 +31,10 @@ the benchmark filter form
     <div class="row">
         <div class="col-md-3">
             <input type="submit" name="btn-search" value="Search" class="btn btn-primary"/>
-            {% if table %}
-                <input type="submit" name="btn-other" value="View as graph" class="btn btn-info"/>
-            {% else %}
+            {% if chart %}
                 <input type="submit" name="btn-other" value="View as table" class="btn btn-info"/>
+            {% else %}
+                <input type="submit" name="btn-other" value="View as graph" class="btn btn-info"/>
             {% endif %}
         </div>
     </div>

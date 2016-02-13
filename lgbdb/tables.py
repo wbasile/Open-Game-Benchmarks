@@ -116,3 +116,64 @@ class BenchmarkTable(tables.Table):
             #~ return mark_safe('<font color="red">'+unicode(value)+'</font>')
 
 
+# a django-tables2 table, used in the Benchmark Table Page
+class BenchmarkChartTable(tables.Table):
+    
+    # this function builds the label of each bar 
+    def set_benchmark_y_label(self,benchmark):
+                
+        data_list = [benchmark.resolution, benchmark.cpu_model , benchmark.gpu_model]
+        
+        if benchmark.game_quality_preset != "n.a.":
+            data_list = [benchmark.game_quality_preset + " preset, at: "] + data_list
+        
+        if benchmark.additional_notes:
+            data_list += [benchmark.additional_notes]
+        
+        y_tick_label = ", ".join(data_list)
+            
+        return unicode(y_tick_label)
+        
+        
+    def __init__(self, *args, **kwargs):
+        super(BenchmarkChartTable, self).__init__(*args, **kwargs)
+        
+        # compute the max fps median
+        fps_medians = [x.fps_median for x in self.data.queryset]
+        self.max_fps = float(max(fps_medians))
+        
+        self.base_columns['operating_system'].verbose_name = "OS"
+        self.base_columns['operating_system'].attrs={"th": {"width": "10%"}}
+        self.base_columns['game'].attrs={"th": {"width": "30%"}}
+
+    class Meta:
+        model = Benchmark
+        fields = ("game","operating_system","fps_median")
+        
+    
+    def render_game(self, value):
+        return mark_safe('<a href="/benchmark_chart/?game=' + str(value.pk) + '" >'+ unicode(value.title)+"</a>")
+        
+    def render_operating_system(self, record,value):
+        if record.operating_system.lower().find("windows") != -1:
+            return mark_safe('<span class="label label-primary">'+ value.split("(")[0]+'</span>')
+        else:
+            return mark_safe('<span class="label label-danger">'+ value.split("(")[0]+'</span>')
+        
+        
+    def render_fps_median(self, record, value):
+        
+        perc_val = (float(value) / self.max_fps) * 100
+        
+        col_linux = "#ff4136"
+        col_windows = "#158cba"
+        bar_col = col_linux
+        if record.operating_system.lower().find("windows") != -1:
+            bar_col = col_windows
+                  
+        data_content = self.set_benchmark_y_label(record)
+        
+        return mark_safe('<a class="nounderline" href="#" data-toggle="popover"  data-trigger="hover" title="Notes" data-placement="left" data-content="'+data_content+'"><div style="background:#DDDDDD; border:0px solid #666666;"><div style="padding-left: 5px; background: '+bar_col+'; width:'+str(perc_val)+'%;">'+str(value)+'</div></div></a>')
+        
+        
+        

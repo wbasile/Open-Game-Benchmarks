@@ -32,7 +32,7 @@ urlpatterns = [
     url(r'^benchmark_delete/(?P<pk>\d+)$', lgbdb.views.BenchmarkDeleteView, name='benchmark-delete',),
         
     url(r'^benchmark_table/$', lgbdb.views.BenchmarkTableView, name='benchmark-table'),
-    url(r'^benchmark_chart/$', lgbdb.views.fps_chart_view, name='benchmark-chart'),
+    url(r'^benchmark_chart/$', lgbdb.views.BenchmarkChartView, name='benchmark-chart'),
     url(r'^no_benchmark/$', lgbdb.views.GameNoBenchmark, name='no-benchmark'),
     
     url(r'^game_table/$', lgbdb.views.GameTableView, name='game-table'),

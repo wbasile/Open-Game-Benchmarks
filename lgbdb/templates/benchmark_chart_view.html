@@ -1,28 +1,41 @@
-{% extends 'base.html' %}
 
-{% load staticfiles %}
+{% extends 'base.html' %}
 
 {% block morehead %}
     
-    {% load static %}
-    <script type="text/javascript" src="{% get_static_prefix %}js/flot/jquery.js"></script>
-    <script src="{% get_static_prefix %}js/flot/jquery.flot.js" type="text/javascript"></script>
-    <script src="{% get_static_prefix %}js/flot/jquery.flot.categories.js" type="text/javascript"></script>
+    <style>
+    table {table-layout: fixed;}
     
-    {% load bootstrap3 %}
-
+    .nounderline {color: #FFFFFF; text-decoration: none !important ;}
+    a.nounderline:link {color: #FFFFFF; text-decoration:none;}
+    a.nounderline:hover {color: #FFFFFF; text-decoration:none;}
+    a.nounderline:visited {color: #FFFFFF; text-decoration:none;}
+    a.nounderline:active {color: #FFFFFF; text-decoration:none;}
+    </style>
+    
 {% endblock %}
+
 
 
 {% block content %}
+ 
+<h2>Benchmark chart</h2>
 
-    <h2>Benchmark bar chart</h2>
-    A maximum of {{max_bench_num}} benchmarks is displayed
-    <br><br>
+{% include "benchmark_filter_form.html" %}
 
-    {% include "benchmark_filter_form.html" %}
-    
-    <p class="text-center"><b>Frames Per Second (Median)</b></p>
-    {{ chart.as_html }}
+
+
+<h4><p>{{ infotext}}</p></h4>
+ 
+{% include "benchmark_table.html" %}
 
 {% endblock %}
+
+
+
+
+
+
+
+
+

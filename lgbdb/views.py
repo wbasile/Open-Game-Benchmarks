@@ -2,7 +2,7 @@
 from .forms import SystemAddEditForm, BenchmarkAddForm, BenchmarkEditForm
 from .models import System,Benchmark, Game, NewsPost
 from .filters import GameFilter, BenchmarkFilter
-from .tables import GameTable, BenchmarkTable
+from .tables import GameTable, BenchmarkTable, BenchmarkChartTable
 from django_tables2   import RequestConfig
 
 
@@ -183,69 +183,31 @@ def BenchmarkTableView(request):
     return render(request, "benchmark_table_view.html", context)
     
     
-        
-        
 
-# this function builds the label of each bar 
-def set_benchmark_y_label(benchmark):
-    
-    if benchmark.game_quality_preset != "n.a.":
-        
-        first_line = " ".join([str(x) for x in [benchmark.game,benchmark.game_quality_preset + " preset, at: " + benchmark.resolution]])
-        
-        y_tick_label = "<br>".join([str(x) for x in [first_line, benchmark.cpu_model + " " + benchmark.gpu_model, benchmark.operating_system ] ])
-    else:
-        first_line = " ".join([str(x) for x in [benchmark.game, "at: " + benchmark.resolution]])
-        y_tick_label = "<br>".join([str(x) for x in [first_line, benchmark.cpu_model + " " + benchmark.gpu_model, benchmark.operating_system ] ])
-        
-    return str(y_tick_label)
 
-    
-
-# bar plot with multiple benchmarks using graphos and flot
-def fps_chart_view(request):
-    
+def BenchmarkChartView(request):
     
     if "btn-other" in request.GET:
-        add_get = "&".join([x+"="+request.GET[x] for x in request.GET.keys()  if x != "btn-other" ])
+        add_get = "&".join([x+"="+request.GET[x] for x in request.GET.keys() if x != "btn-other"])
         return HttpResponseRedirect('/benchmark_table/?'+add_get)
         
-    
-    max_displayed_benchmarks = 30
-    
-    f = BenchmarkFilter(request.GET, queryset=Benchmark.objects.order_by("upload_date").reverse())
-    
-    queryset = queryset = Benchmark.objects.filter(pk__in=[x.pk for x in f[0:min([len(f), max_displayed_benchmarks])]]).order_by("fps_median")
-
-    
-    data = [["","Median FPS"]]
-    
-    yticks = []    
+    filter = BenchmarkFilter(request.GET)
         
-    for s,q in enumerate(queryset):
-        #~ iqr = q.fps_3rd_quartile-q.fps_1st_quartile
-        data += [[q.fps_median,s+1 ]]
-        yticks += [[s+1,set_benchmark_y_label(q)]]
+    for f in filter.form.fields:
+        filter.form.fields[f].help_text = ""
+             
+    table = BenchmarkChartTable(filter.qs.order_by("-upload_date"))
+    RequestConfig(request).configure(table)
         
-    data_source = SimpleDataSource(data=data)
-        
-    options_dic = {
-                    'legend': {'show': False},
-                    'bars' : {'barWidth':0.3,"horizontal":True,"align":"center"},
-                    "grid":{"hoverable":True},
-                    
-                    "yaxis":{
-                            "ticks":yticks,
-                            },
-                    }
-                    
-    height = len(queryset) * 60
+    context = {
+        'filter' : filter,
+        'table' : table,
+        'chart' : True
+    }
     
-    chart = flot.BarChart(data_source,height=height, options=options_dic)
+    return render(request, "benchmark_chart_view.html", context)
     
-    return render(request, "benchmark_chart_view.html", {'max_bench_num':max_displayed_benchmarks,'filter': f, 'chart': chart})
-
-
+      
 
 
 # benchmark fps line plot using graphos and flot
