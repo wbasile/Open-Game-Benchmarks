@@ -101,7 +101,7 @@ class BenchmarkTable(tables.Table):
         
         
     def render_additional_notes(self,value):
-        return mark_safe('''<a href="#" class="btn btn-xs btn-default" data-toggle="popover"  data-trigger="hover" title="Notes" data-content="'''+unicode(value)+'''">View notes</a>''')
+        return mark_safe('''<a href="#" class="btn btn-xs btn-default" data-toggle="popover"  data-trigger="hover" title="Notes" data-content="'''+unicode(value.replace('"','&quot;'))+'''">View notes</a>''')
 
 
     def render_user(self,value):
@@ -128,10 +128,13 @@ class BenchmarkChartTable(tables.Table):
             data_list = [benchmark.game_quality_preset + " preset, at: "] + data_list
         
         if benchmark.additional_notes:
+           
             data_list += [benchmark.additional_notes]
         
         y_tick_label = ", ".join(data_list)
             
+        
+        
         return unicode(y_tick_label)
         
         
@@ -171,7 +174,7 @@ class BenchmarkChartTable(tables.Table):
         if record.operating_system.lower().find("windows") != -1:
             bar_col = col_windows
                   
-        data_content = self.set_benchmark_y_label(record)
+        data_content = self.set_benchmark_y_label(record).replace('"','&quot;')
         
         return mark_safe('<a class="nounderline" href="#" data-toggle="popover"  data-trigger="hover" title="Notes" data-placement="left" data-content="'+data_content+'"><div style="background:#DDDDDD; border:0px solid #666666;"><div style="padding-left: 5px; background: '+bar_col+'; width:'+str(perc_val)+'%;">'+str(value)+'</div></div></a>')
         
