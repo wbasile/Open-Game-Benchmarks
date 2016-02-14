@@ -147,7 +147,8 @@ class BenchmarkChartTable(tables.Table):
         
         self.base_columns['operating_system'].verbose_name = "OS"
         self.base_columns['operating_system'].attrs={"th": {"width": "10%"}}
-        self.base_columns['game'].attrs={"th": {"width": "30%"}}
+        self.base_columns['game'].attrs={"th": {"width": "20%"}}
+        self.base_columns['fps_median'].attrs={"th": {"width": "50%"}}
 
     class Meta:
         model = Benchmark
