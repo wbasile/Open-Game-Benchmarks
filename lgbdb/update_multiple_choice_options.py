@@ -162,7 +162,7 @@ dualGpu=["None","SLI", "Crossfire"]
 antialias=["Antialias enable","Antialias disable"]
 
 ## Print out everything in a nice python dictionary format
-info = 'GPU CHOICES = (\n'
+info = 'GPU_CHOICES = (\n'
 
 for vendor, vendor_gpus in zip(["AMD", "Intel", "NVidia"],[amd_gpus, intel_gpus, nvidia_gpus]):
 
@@ -203,7 +203,7 @@ for ratio in sorted(resolutions.keys()):
         
         info = info + '\t)\n\t),'
         i=i+1
-info = info + ')\n),'
+info = info + ')\n'
         
 info = info + '\nOS_CHOICES = ('
 for system in sorted(systems.keys()):
@@ -251,6 +251,6 @@ info = info + ' \n\t)'
             
 info = info.encode('ascii', 'ignore')
 info = str(info.decode('ascii'))           
-with open("multiple_choice_options2.py", "w") as f:
+with open("multiple_choice_options.py", "w") as f:
     f.write(info)
     
