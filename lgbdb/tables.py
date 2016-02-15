@@ -79,8 +79,8 @@ class BenchmarkTable(tables.Table):
     
     # image thumbnail in the game field
     def render_game(self, value):
-        img_url = "https://steamcdn-a.akamaihd.net/steam/apps/"+str(value.steam_appid)+"/capsule_sm_120.jpg"
-        return mark_safe('<a href="/benchmark_table/?game=' + str(value.title) + '" >' + '<img src="%s" /><br>' % escape(img_url) + " " + unicode(value.title)+"</a>")
+        img_url = "https://steamcdn-a.akamaihd.net/steam/apps/"+unicode(value.steam_appid)+"/capsule_sm_120.jpg"
+        return mark_safe('<a href="/benchmark_table/?game=' + unicode(value.title) + '" >' + '<img src="%s" /><br>' % escape(img_url) + " " + unicode(value.title)+"</a>")
         
 
     def render_benchmark_detail(self, record):
@@ -107,7 +107,7 @@ class BenchmarkTable(tables.Table):
 
 
     def render_user(self,value):
-        return mark_safe('<a href="/accounts/profile/'+str(value.id)+'">'+str(value.username)+'</a>')
+        return mark_safe('<a href="/accounts/profile/'+str(value.id)+'">'+unicode(value.username)+'</a>')
 
 
     def render_operating_system(self,value,record):
@@ -169,7 +169,7 @@ class BenchmarkChartTable(tables.Table):
         
     
     def render_game(self, value):
-        return mark_safe('<a href="/benchmark_chart/?game=' + str(value.title) + '" >'+ unicode(value.title)+"</a>")
+        return mark_safe('<a href="/benchmark_chart/?game=' + unicode(value.title) + '" >'+ unicode(value.title)+"</a>")
         
     def render_operating_system(self, record,value):
         if record.operating_system.lower().find("windows") != -1:
