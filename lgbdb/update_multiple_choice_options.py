@@ -10,16 +10,16 @@ import re
 ###############
 
 
-print "Fetching CPUs"
+
 # CPUS
 wiki = "http://www.cpubenchmark.net/CPU_mega_page.html"
 header = {'User-Agent': 'Mozilla/5.0'} #Needed to prevent 403 error on Wikipedia
 req = urllib2.Request(wiki,headers=header)
 page = urllib2.urlopen(req)
 soup = BeautifulSoup(page)
-print soup
 
-tables = soup.find_all('a')
+
+tables = soup.findAll('a')
 
 intel_cpus = []
 amd_cpus = []
@@ -39,8 +39,6 @@ for table in tables:
                 intel_cpus += [cpu]
                         
 ###############
-
-exit()
 
 
 
