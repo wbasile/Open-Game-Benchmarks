@@ -80,7 +80,7 @@ class BenchmarkTable(tables.Table):
     # image thumbnail in the game field
     def render_game(self, value):
         img_url = "https://steamcdn-a.akamaihd.net/steam/apps/"+str(value.steam_appid)+"/capsule_sm_120.jpg"
-        return mark_safe('<a href="/benchmark_table/?game=' + str(value.pk) + '" >' + '<img src="%s" /><br>' % escape(img_url) + " " + unicode(value.title)+"</a>")
+        return mark_safe('<a href="/benchmark_table/?game=' + str(value.title) + '" >' + '<img src="%s" /><br>' % escape(img_url) + " " + unicode(value.title)+"</a>")
         
 
     def render_benchmark_detail(self, record):
@@ -156,7 +156,7 @@ class BenchmarkChartTable(tables.Table):
         
     
     def render_game(self, value):
-        return mark_safe('<a href="/benchmark_chart/?game=' + str(value.pk) + '" >'+ unicode(value.title)+"</a>")
+        return mark_safe('<a href="/benchmark_chart/?game=' + str(value.title) + '" >'+ unicode(value.title)+"</a>")
         
     def render_operating_system(self, record,value):
         if record.operating_system.lower().find("windows") != -1:
