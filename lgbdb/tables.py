@@ -24,9 +24,9 @@ class GameTable(tables.Table):
         value = int(record.benchmark_set.count())
         
         if value > 0:
-            return mark_safe('<a href="/benchmark_table/?game=' + str(record.title) + '" >' + str(value) + '</a>')
+            return mark_safe('<a href="/benchmark_table/?game=' + unicode(record.title) + '" >' + str(value) + '</a>')
         else:
-            return str(value)
+            return unicode(value)
 
     
     # for the game title column, display a thumbnail of the game, and make it link to the Benchmark Table Page (filtered for that game)
@@ -36,7 +36,7 @@ class GameTable(tables.Table):
         value = int(record.benchmark_set.count())
         
         if value > 0:
-            return mark_safe('<a href="/benchmark_table/?game=' + str(record.title) + '" >' + '<img src="%s" />' % escape(img_url) + " " + unicode(record.title)+"</a>")
+            return mark_safe('<a href="/benchmark_table/?game=' + unicode(record.title) + '" >' + '<img src="%s" />' % escape(img_url) + " " + unicode(record.title)+"</a>")
         else:
             return mark_safe('<a href="/no_benchmark">' + '<img src="%s" />' % escape(img_url) + " " + unicode(record.title)+"</a>")
             
@@ -45,7 +45,7 @@ class GameTable(tables.Table):
     def render_steamdb_link(self, record):
         value = record.steam_appid
         
-        return mark_safe('<a target="_blank" class="nounderline label label-primary" href="http://steamdb.info/app/' + str(value) + '/" >SteamDB</a>')
+        return mark_safe('<a target="_blank" class="nounderline label label-primary" href="http://steamdb.info/app/' + unicode(value) + '/" >SteamDB</a>')
         
         
         

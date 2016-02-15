@@ -22,7 +22,7 @@ class GameFilter(django_filters.FilterSet):
                     (2, 'Show games without benchmarks'),
                     )
     
-    show = django_filters.MethodFilter(action="my_custom_filter",widget=forms.Select(choices=SHOW_CHOICES))
+    show = django_filters.MethodFilter(widget=forms.Select(choices=SHOW_CHOICES))
 
     
     class Meta:
@@ -33,7 +33,7 @@ class GameFilter(django_filters.FilterSet):
         
     
     # a function called by the "show" filter field, to generate a queryset based on a  given value    
-    def my_custom_filter(self, queryset, value):
+    def filter_show(self, queryset, value):
         
         if value == "1":
             return queryset.annotate(num_benchmarks=Count('benchmark')).filter(num_benchmarks__gt=0)
