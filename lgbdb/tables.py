@@ -24,7 +24,7 @@ class GameTable(tables.Table):
         value = int(record.benchmark_set.count())
         
         if value > 0:
-            return mark_safe('<a href="/benchmark_table/?game=' + str(record.id) + '" >' + str(value) + '</a>')
+            return mark_safe('<a href="/benchmark_table/?game=' + str(record.title) + '" >' + str(value) + '</a>')
         else:
             return str(value)
 
