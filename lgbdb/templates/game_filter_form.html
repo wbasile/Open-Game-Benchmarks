@@ -1,5 +1,17 @@
 {% load bootstrap3 %}
 
+
+
+<!--
+build the list of game titles for autocomplete
+-->
+<datalist id="mylist">
+{% for game in gamelist %}
+  <option>{{ game.title}}</option>
+{% endfor %}
+</datalist>
+    
+
 <!--
 the game filter form
 -->
@@ -23,3 +35,4 @@ the game filter form
     </div>
     
 </form>
+

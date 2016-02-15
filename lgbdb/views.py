@@ -126,8 +126,11 @@ def GameTableView(request):
     
     filter = GameFilter(request.GET)
     filter.form.fields['title'].widget.attrs = {'placeholder': "Search by title",}
-    filter.form.fields['title'].label = "Search"
+    filter.form.fields['title'].label = "Game Title"
     filter.form.fields['title'].help_text = ""
+    filter.form.fields["title"].widget.attrs["list"] = "mylist" # <- list needed to autocomplete
+    gamelist = Game.objects.all()
+    
     filter.form.fields['show'].label = "Display options"
     filter.form.fields['show'].help_text = ""
     
@@ -149,10 +152,10 @@ def GameTableView(request):
                             
     RequestConfig(request).configure(table)
         
-        
     context = {
         'filter' : filter,
         'table' : table,
+        "gamelist" : gamelist,
     }
     
     return render(request, "game_table_view.html", context)
@@ -171,13 +174,21 @@ def BenchmarkTableView(request):
         
     for f in filter.form.fields:
         filter.form.fields[f].help_text = ""
-             
+    
+    filter.form.fields['game'].widget.attrs = {'placeholder': "Search by title",}
+    filter.form.fields['game'].label = "Game Title"
+    filter.form.fields["game"].widget.attrs["list"] = "mylist" # <- list needed to autocomplete
+    
+    query_id_set = set([i[0] for i in Benchmark.objects.values_list("game")])
+    gamelist = Game.objects.filter(pk__in=query_id_set)
+   
     table = BenchmarkTable(filter.qs.order_by("-upload_date"),user=request.user)
     RequestConfig(request).configure(table)
         
     context = {
         'filter' : filter,
         'table' : table,
+        'gamelist' : gamelist
     }
     
     return render(request, "benchmark_table_view.html", context)

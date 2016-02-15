@@ -49,7 +49,9 @@ class GameFilter(django_filters.FilterSet):
 
 # create a filter for Benchmarks
 class BenchmarkFilter(django_filters.FilterSet):
-
+    
+    game = django_filters.MethodFilter(lookup_type='icontains')
+            
     class Meta:
         model = Benchmark
         
@@ -73,13 +75,19 @@ class BenchmarkFilter(django_filters.FilterSet):
                 choice_set = sorted(set([i[0] for i in Benchmark.objects.values_list(field_name)]))
                 self.filters[field_name].extra['choices'] = ANY_CHOICE + tuple(zip(choice_set,choice_set))
         
-            # setting the multiple choice for Games is a bit more complicated, because it's a Foreign key
-            elif 'queryset' in self.filters[field_name].extra.keys() and field_name == 'game':
-                query_id_set = set([i[0] for i in Benchmark.objects.values_list(field_name)])
-                self.filters[field_name].extra['queryset'] = Game.objects.filter(pk__in=query_id_set)
-                
+  
         # correct capitalization in the labels
         self.filters['cpu_model'].label = "CPU Model"        
-        self.filters['gpu_model'].label = "GPU Model"        
-
+        self.filters['gpu_model'].label = "GPU Model"     
+        
+   
+        
+    def filter_game(self, queryset, value):
+        if not value:   
+            return queryset
+                
+        c_game = Game.objects.filter(title__icontains = value)
+      
+        return queryset.filter(game__in=c_game)
+            
 
