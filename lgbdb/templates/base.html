@@ -32,9 +32,20 @@
     <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
     <script src="{% static 'js/ie10-viewport-bug-workaround.js' %}"></script>
     <script src="{% static 'js/ie-emulation-modes-warning.js' %}"></script>
-    
 
-    <!-- used to load highraphs stuff -->
+
+    <style>
+    table {table-layout: auto;}
+    
+    .nounderline {color: #FFFFFF; text-decoration: none !important ;}
+    a.nounderline:link {color: #FFFFFF; text-decoration:none;}
+    a.nounderline:hover {color: #FFFFFF; text-decoration:none;}
+    a.nounderline:visited {color: #FFFFFF; text-decoration:none;}
+    a.nounderline:active {color: #FFFFFF; text-decoration:none;}
+    </style>
+
+
+    <!-- used to load additional styles etc -->
     {% block morehead %}
     
     {% endblock %}

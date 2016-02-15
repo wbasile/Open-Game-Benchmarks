@@ -36,7 +36,7 @@ class GameTable(tables.Table):
         value = int(record.benchmark_set.count())
         
         if value > 0:
-            return mark_safe('<a href="/benchmark_table/?game=' + str(record.id) + '" >' + '<img src="%s" />' % escape(img_url) + " " + unicode(record.title)+"</a>")
+            return mark_safe('<a href="/benchmark_table/?game=' + str(record.title) + '" >' + '<img src="%s" />' % escape(img_url) + " " + unicode(record.title)+"</a>")
         else:
             return mark_safe('<a href="/no_benchmark">' + '<img src="%s" />' % escape(img_url) + " " + unicode(record.title)+"</a>")
             
@@ -45,7 +45,7 @@ class GameTable(tables.Table):
     def render_steamdb_link(self, record):
         value = record.steam_appid
         
-        return mark_safe('<a target="_blank" class="btn btn-xs btn-danger" href="http://steamdb.info/app/' + str(value) + '/" >SteamDB</a>')
+        return mark_safe('<a target="_blank" class="nounderline label label-primary" href="http://steamdb.info/app/' + str(value) + '/" >SteamDB</a>')
         
         
         
@@ -87,10 +87,12 @@ class BenchmarkTable(tables.Table):
         #display edit and delete buttons if the benchmark of this row belongs to the currently logged in user
         if self.user == record.user:
             
-            button_html = '<a href="/benchmark_detail/' +str(record.id)+ '" class="btn btn-xs btn-warning">Detail</a></td><td><a href="/benchmark_edit/' +str(record.id)+ '" class="btn btn-xs btn-info">Edit</a></td><td><a href="/benchmark_delete/' +str(record.id)+ '" class="btn btn-xs btn-danger">Delete</a>'
+            #~ button_html = '<a href="/benchmark_detail/' +str(record.id)+ '" class="btn btn-xs btn-warning">Detail</a></td><td><a href="/benchmark_edit/' +str(record.id)+ '" class="btn btn-xs btn-info">Edit</a></td><td><a href="/benchmark_delete/' +str(record.id)+ '" class="btn btn-xs btn-danger">Delete</a>'
+            
+            button_html = '<a href="/benchmark_detail/' +str(record.id)+ '" class="nounderline label label-warning">Detail</a></td><td><a href="/benchmark_edit/' +str(record.id)+ '" class="nounderline label label-info">Edit</a></td><td><a href="/benchmark_delete/' +str(record.id)+ '" class="nounderline label label-danger">Delete</a>'
             
         else:
-            button_html = '<a href="/benchmark_detail/' +str(record.id)+ '" class="btn btn-xs btn-warning">Detail</a>'
+            button_html = '<a href="/benchmark_detail/' +str(record.id)+ '" class="nounderline label label-warning">Detail</a>'
             
         return mark_safe(button_html)
         
@@ -101,12 +103,23 @@ class BenchmarkTable(tables.Table):
         
         
     def render_additional_notes(self,value):
-        return mark_safe('''<a href="#" class="btn btn-xs btn-default" data-toggle="popover"  data-trigger="hover" title="Notes" data-content="'''+unicode(value.replace('"','&quot;'))+'''">View notes</a>''')
+        return mark_safe('''<a href="#" class="nounderline label label-default" data-toggle="popover"  data-trigger="hover" title="Notes" data-content="'''+unicode(value.replace('"','&quot;'))+'''">View notes</a>''')
 
 
     def render_user(self,value):
         return mark_safe('<a href="/accounts/profile/'+str(value.id)+'">'+str(value.username)+'</a>')
 
+
+    def render_operating_system(self,value,record):
+        
+        if record.operating_system.lower().find("windows") != -1:
+        
+            return mark_safe('<a href="#" class="nounderline label label-primary" data-toggle="popover"  data-trigger="hover" title="OS" data-content="'+unicode(value)+'">'+value.split("(")[0]+'</a>')
+        else:
+            return mark_safe('<a href="#" class="nounderline label label-danger" data-toggle="popover" data-trigger="hover" title="OS" data-content="'+unicode(value)+'">'+value.split("(")[0]+'</a>')
+            
+            
+        
     # different font color for linux and windows
     #~ def render_operating_system(self,value):
         #~ print value
@@ -160,9 +173,10 @@ class BenchmarkChartTable(tables.Table):
         
     def render_operating_system(self, record,value):
         if record.operating_system.lower().find("windows") != -1:
-            return mark_safe('<span class="label label-primary">'+ value.split("(")[0]+'</span>')
+        
+            return mark_safe('<a href="#" class="nounderline label label-primary" data-toggle="popover"  data-trigger="hover" title="OS" data-content="'+unicode(value)+'">'+value.split("(")[0]+'</a>')
         else:
-            return mark_safe('<span class="label label-danger">'+ value.split("(")[0]+'</span>')
+            return mark_safe('<a href="#" class="nounderline label label-danger" data-toggle="popover" data-trigger="hover" title="OS" data-content="'+unicode(value)+'">'+value.split("(")[0]+'</a>')
         
         
     def render_fps_median(self, record, value):
