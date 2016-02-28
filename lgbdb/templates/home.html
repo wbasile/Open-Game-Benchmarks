@@ -61,7 +61,7 @@ Share and analyse performance data of Steam games in Windows and Linux
                 <p>Supported Linux games on Steam: <a href="game_list"><b>{{ num_games }} </b></a></p>
                 
                 {% if most_popular_game %}
-                    <p>Most popular game: <a href="benchmark_table/?game={{ most_popular_game.pk }}"><b>{{ most_popular_game }} </b> (<b>{{most_popular_game.num_benchmarks}}</b> benchmarks )</a></p>
+                    <p>Most popular game: <a href="benchmark_table/?game={{ most_popular_game.title }}"><b>{{ most_popular_game }} </b> (<b>{{most_popular_game.num_benchmarks}}</b> benchmarks )</a></p>
                 {% endif %}
                 
                 <p>Submitted game benchmarks: <a href="benchmark_table"><b>{{ num_benchmarks }} </b></a></p>
