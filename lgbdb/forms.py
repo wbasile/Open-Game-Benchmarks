@@ -131,6 +131,8 @@ def parse_frames_file(frames_file):
 
     # check the format of the file
     file_format = get_file_format(lines)
+    
+ 
     if not file_format:
         return None, []
         

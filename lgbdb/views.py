@@ -350,8 +350,8 @@ def BenchmarkDetailView(request, pk=None):
 def BenchmarkAddView(request):
     
     if request.method == 'POST':
-        
         form = BenchmarkAddForm(request.POST, request.FILES,user=request.user)
+        
         
         if form.is_valid():
             
