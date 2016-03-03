@@ -138,7 +138,7 @@ class BenchmarkChartTable(tables.Table):
         data_list = [benchmark.resolution, benchmark.cpu_model , benchmark.gpu_model]
         
         if benchmark.game_quality_preset != "n.a.":
-            data_list = [benchmark.game_quality_preset + " preset, at: "] + data_list
+            data_list = [benchmark.game_quality_preset + " preset"] + data_list
         
         if benchmark.additional_notes:
            

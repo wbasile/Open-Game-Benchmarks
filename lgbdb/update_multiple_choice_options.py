@@ -157,7 +157,7 @@ systems["Windows"]=['Windows XP', 'Windows Vista', 'Windows 7', 'Windows 8', 'Wi
 systems["Linux"]=['Debian-based (Debian, Ubuntu, Mint, Elementary OS, SteamOS)','Arch-based (Arch, Manjaro)',
                     'Red Hat-based (RedHat, Fedora, CentOS)','Gentoo-based (Gentoo, Chromium, Funtoo)','SUSE-based',
                     'Slackware-based','Mandriva-based','Linux-other']
-gameSettings=["Low","Medium","High","Very High","Ultra"]
+gameSettings=["Low","Medium","High","Very High","Ultra","n.a."]
 dualGpu=["None","SLI", "Crossfire"]
 antialias=["Antialias enable","Antialias disable"]
 

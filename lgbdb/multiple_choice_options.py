@@ -3316,6 +3316,7 @@ GAME_SETTINGS_CHOICES = (
 	('High','High'),
 	('Very High','Very High'),
 	('Ultra','Ultra'),
+	('n.a.','n.a.'),
 
 	)
 ANTIALIAS_CHOICES = (
