@@ -131,6 +131,8 @@ def parse_frames_file(frames_file):
 
     # check the format of the file
     file_format = get_file_format(lines)
+    
+ 
     if not file_format:
         return None, []
         
@@ -232,7 +234,7 @@ class BenchmarkAddForm(forms.ModelForm):
             fps = fps[0:300]
 
         # raise an error or warning if the duration is below a certain threshold
-        duration_cutoff = 60
+        duration_cutoff = 59
         if len(fps) < duration_cutoff:
             raise forms.ValidationError("The duration of the benchmark should be at least " + str(duration_cutoff) + " seconds (your test is " + str(len(fps)) + "s)")
 

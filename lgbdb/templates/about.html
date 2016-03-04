@@ -7,7 +7,31 @@
 
 <h1>How to create and upload your benchmarks</h1>
 
-<h3>Remember to turn <b>VSync off</b></h3>
+
+<div class="container">
+    <h2>Remember to turn <b>VSync off</b></h2>
+    <button type="button" class="btn btn-info" data-toggle="collapse" data-target="#vsync-instructions">HOW TO turn VSync off</button>
+    <div id="vsync-instructions" class="collapse">
+        <ul>
+            <h4><b>Recognizing whether vsync is on or off</b></h4>
+            <p>
+            Run the game with a tool to show current FPS (steam overlay, voglperf, glxosd). If your FPS is higher than your monitor refresh rate (60Hz for most monitors), vsync is definitely off. If your FPS is lower, vsync might be on or off, and there's no foolproof way to tell. Try running the game with lowest graphics settings and lowest resolution, that should considerable increase your FPS. If your FPS is still way under your monitor refresh rate, your hardware is probably slow. You can try toggling vsync on and off according to the guide below to see whether it has any effect. If your FPS seems to be exactly your monitor refresh rate (i.e. hovers between 59-61 FPS all the time, with a common monitor), vsync is most probably on, or the game is FPS-locked (the framerate won't exceed your monitor refresh rate, even with disabled vsync).
+            </p>
+
+            <h4><b>Disabling vsync</b></h4>
+            <p>
+            <li>See the previous section for instructions on how to recognize whether vsync is on or off.</li>
+            <li>Many games have an in-game option to toggle vsync. Try it and see whether it makes any difference. For certain combinations of games and drivers, this sometimes has no effect.</li>
+            <li>Proprietary drivers come with a configuration tool (AMD or Nvidia configuration center). Use that tool to toggle vsync either globally or for that particular game. Try it and see if it has some effect.</li>
+            <li>Open source drivers do not have configuration tools, but you can sometimes disable vsync by running <code>vblank_mode=0</code> game command. You can easily test this with <code>vblank_mode=0 glxgears</code>, you should see <code>ATTENTION: default value of option vblank_mode overridden by environment</code> message and reported FPS way over your monitor refresh rate (hundreds or thousands). You can use this even with Steam, so you can run <code>vblank_mode=0 steam</code> (make sure to exit it first, if it is already running) and all Steam games should now run with vsync disabled. However, this doesn't unfortunately affect all games, so with some of them, you're out of luck.</li>
+            <li>If you haven't managed to turn vsync off for a certain game,you can still upload your benchmark, but in this case we strongly encourage you to add a comment about that ("VSync on!") and describe why it was not possible to turn it off.</li>
+            </p>
+
+        </ul>
+    
+    </div>
+</div>
+    
 
 <div class="container">
     <h2>Linux</h2>
@@ -154,7 +178,7 @@
 
 <ul>        
     <li><h4><b>Are you going to implement feature xyz?</b></h4></li>    
-    Possibly; <a href="mailto:admin@opengamebenchmarks.org">drop me an email</a> about that!
+    Possibly; check our <a href="https://github.com/wbasile/Open-Game-Benchmarks" target="new"> GitHub repository</a> to stay updated with the latest ideas.
 </ul> 
     
 <ul>       
@@ -164,49 +188,12 @@
 
 <ul>    
     <li><h4><b>I've noticed a bug, where do I report it?</b></h4></li>
-    Please, <a href="mailto:admin@opengamebenchmarks.org">write me an email about it</a>; I will be very grateful for your help
+    Please, open an issue in <a href="https://github.com/wbasile/Open-Game-Benchmarks/issues" target="new">GitHub</a> or <a href="mailto:admin@opengamebenchmarks.org">write me an email about it</a>; I will be very grateful for your help.
 </ul>
     
     
 <h1>Contacts</h1>
     <a href="mailto:admin@opengamebenchmarks.org">admin_AT_opengamebenchmarks_DOT_org</a>
-
-
-
-<br><br>    
-<button type="button" class="btn btn-default" data-toggle="collapse" data-target="#changelog">Changelog</button>
-<div id="changelog" class="collapse">
-    <ul>
-        <ul>
-            2016-01-30 
-            <li>added support for ultrawide (21:9) resolutions</li>
-            <li>added feed with latest benchmarks</li>
-            <li>added this changelog</li>
-            <li>corrected "operative system" to "operating system"</li>   
-        </ul>        
-        <ul>
-            2016-01-31 
-            <li>added NVidia Quadro GPUs</li>
-            <li>added several AMD and Intel CPUs</li>
-            <li>added Desktop Environment, Kernel and GPU driver version as free text fields</li>   
-            <li>added support for GLXOSD</li>
-            <li>added IQR in benchmarks table</li>
-        </ul>       
-        <ul>
-            2016-02-01
-            <li>switched from gchart to flot API for the graphs</li>
-            <li>added integration with GitHub</li>
-        </ul> 
-        <ul>
-            2016-02-05
-            <li>added logo and update graphics</li>
-            <li>added button to switch current results (benchmarks) from table to charts and vice-versa</li>
-        </ul> 
-    </ul>            
-
-</div>
-
-
 
 
 
