@@ -154,7 +154,7 @@
                     <th>Upload date</th><td>{{ object.upload_date }}</td>
                 </tr>
                 <tr>
-                    <th>Notes</th><td>{{ object.additional_notes }}</td>
+                    <th>Notes</th><td>{{ object.additional_notes |linebreaks}}</td>
                 </tr>
             </tbody>
         </table>
