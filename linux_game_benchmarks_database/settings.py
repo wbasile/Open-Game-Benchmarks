@@ -64,7 +64,7 @@ ROOT_URLCONF = 'linux_game_benchmarks_database.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': ['lgbdb/templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
