@@ -10,7 +10,7 @@
 }
 .navbar {min-height:54px !important;}
 
-@media (max-width: 900px) {
+@media (max-width: 1030px) {
     .navbar-header {
         float: none;
     }
@@ -82,27 +82,30 @@ build the list of game titles for autocomplete
     <!-- Collect the nav links, forms, and other content for toggling -->
     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
       <ul class="nav navbar-nav navbar-right">
-        <li><a href="/game_table">Games</a></li>
+
+        <li><a href="/game_table"><p><h4>Games</h4></p></a></li>
         
+                
         <li class="dropdown">
-          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Benchmarks <span class="caret"></span></a>
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><p><h4>Benchmarks<span class="caret"></span></h4></p> </a>
           <ul class="dropdown-menu">
-            <li><a href="/benchmark_table">Table</a></li>
+            <li><a href="/benchmark_table"><p><h4>Table</h4></p></a></li>
             <li role="separator" class="divider"></li>
-            <li><a href="/benchmark_chart">Chart</a></li>
+            <li><a href="/benchmark_chart"><p><h4>Chart</h4></p></a></li>
           </ul>
         </li>
         
+        <li><a href="{% url 'topic-list' %}"><p><h4>Forum<span class="badge">New!</span></h4></p></a></li>
 
 
         <li class="dropdown">
-          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Help & About <span class="caret"></span></a>
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><p><h4>Help & About <span class="caret"></span></h4></p></a>
           <ul class="dropdown-menu">
-            <li><a href="/about">How-to</a></li>
-            <li><a href="/about">FAQs</a></li>
-            <li><a href="/about">Contacts</a></li>
+            <li><a href="/about"><p><h4>How-to</h4></p></a></li>
+            <li><a href="/about"><p><h4>FAQs</h4></p></a></li>
+            <li><a href="/about"><p><h4>Contacts</h4></p></a></li>
             <li role="separator" class="divider"></li>
-            <li><a href="https://github.com/wbasile/Open-Game-Benchmarks" target="new">GitHub <span class="badge">New!</span></a></li>
+            <li><a href="https://github.com/wbasile/Open-Game-Benchmarks" target="new"><p><h4>GitHub</h4></p></a></li>
           </ul>
         </li>
         
@@ -111,40 +114,35 @@ build the list of game titles for autocomplete
                
                 <div class="form-group has-feedback form-group-sm">
                     
-                    <input type="text" class="form-control" list="mylist" name="game" placeholder="Search game" />
-                    <i class="glyphicon glyphicon-search form-control-feedback"></i>
+                    <p><h4><input type="text" class="form-control" list="mylist" name="game" placeholder="Search game" />
+                    
+                    </h4></p>
                 </div>
 
 
             </form>
         </li>
-        
-<!--
-      </ul>
-      
-      <ul class="nav navbar-nav navbar-right">
-          
--->
+   
           
           {% if user.is_authenticated %}
           
 
             <li class="dropdown">
-          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><b>{{user.username}}</b><span class="caret"></span></a>
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><p><h4>{{user.username}}<span class="caret"></span></h4></p></a>
           <ul class="dropdown-menu">
-            <li><a href="/accounts/profile/{{user.pk}}" >Profile</a></li>
+            <li><a href="/accounts/profile/{{user.pk}}" ><p><h4>Profile</h4></p></a></li>
             <li role="separator" class="divider"></li>
-            <li><a href="/benchmark_add/" >Add benchmark</a></li>
-            <li><a href="/system_add/" >Add system</a></li>
+            <li><a href="/benchmark_add/" ><p><h4>Add benchmark</h4></p></a></li>
+            <li><a href="/system_add/" ><p><h4>Add system</h4></p></a></li>
             <li role="separator" class="divider"></li>
-            <li><a href="/accounts/logout" >Logout</a></li>
+            <li><a href="/accounts/logout" ><p><h4>Logout</h4></p></a></li>
           </ul>
         </li>
                     
                     
             {% else %}
                 <li>
-                    <a href="/accounts/login">Login </a>
+                    <a href="/accounts/login"><p><h4>Login</h4></p></a>
                 </li>
             {% endif %}
                 
