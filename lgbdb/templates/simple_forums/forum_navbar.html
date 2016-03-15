@@ -1,0 +1,17 @@
+
+{% load simple_forum_tags %}
+
+<nav class="navbar navbar-default ">
+        
+            <ul class="nav navbar-nav navbar-left">
+                <li><a href="{% url 'topic-list' %}">Forum Home</a></li>
+                <li><a href="{% url 'search' %}">Search</a></li>
+
+                {% if request.user.is_authenticated %}
+
+                    <li><a href="{% url 'thread-create' %}">New Thread</a></li>
+
+                {% endif %}
+
+            </ul>
+        </nav>    

@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Home{% endblock %}
+
+{% load simple_forum_tags %}
+
+{% block content %}
+
+    {% include 'simple_forums/forum_navbar.html' %}
+
+    
+    {% if topic_list %}
+        <h2>Topics</h2>
+    
+        <table class="table table-striped">
+
+        <tbody>
+            {% for topic in topic_list %}
+            
+            <tr>
+              <td><h3><a href="{% url 'thread-list' topic.pk topic.slug %}">{{ topic.title }}</a></h3>
+                  <p>{{ topic.description }}</p>
+              <td>
+
+            </tr>
+
+            {% endfor %}
+        </tbody>
+        
+    
+    </table>
+
+    {% else %}
+        <p>No topics found.</p>
+    
+    {% endif %}
+        
+{% endblock %}

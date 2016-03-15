@@ -39,6 +39,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django.contrib.humanize',
     'registration',
+    'simple_forums',
     'django_tables2',
     'django_filters',
     'bootstrap3',

@@ -39,4 +39,6 @@ urlpatterns = [
     
     url(r'^benchmark_rss/', lgbdb.feeds.LatestBenchmarks()),
     
+    url(r'^forums/', include('simple_forums.urls')),
+    
 ]

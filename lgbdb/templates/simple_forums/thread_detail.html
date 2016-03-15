@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% load simple_forum_tags %}
+{% load bootstrap3 %}
+
+
+
+{% block page_title %}{{ thread.title }}{% endblock %}
+
+
+{% block content %}
+
+    {% include 'simple_forums/forum_navbar.html' %}
+
+	<h1>{{ thread.title }}</h1>
+	<h5>Created {{ thread.time_created }}</h5>
+
+	<hr />
+
+	{% with thread.message_set.all as messages %}
+		{% if messages %}
+			{% for message in messages %}
+
+				<div class="post-area">
+
+					<div class="post-heading">
+						<h4 class="text-primary">{{ message.user }}</h4>
+						<p>{{ message.time_created }}</p>
+						<span class="hidden-xs arrow"></span>
+					</div>
+
+					<div class="post-content">
+						{% render_markup message.body %}
+					</div>
+
+				</div>
+
+				<hr />
+
+			{% endfor %}
+		{% else %}
+
+			<p>There are no replies to this thread.</p>
+
+		{% endif %}
+	{% endwith %}
+
+	{% if reply_form %}
+
+		
+
+		<form action="" method="post">
+
+			{% csrf_token %}
+
+            {% bootstrap_form reply_form %}
+			
+			<button type="submit" class="btn btn-primary">Post Reply</button>
+
+		</form>
+
+	{% else %}
+
+		<p>You must be <a href="{% login_url %}">logged in</a> to reply.</p>
+
+	{% endif %}
+
+{% endblock %}

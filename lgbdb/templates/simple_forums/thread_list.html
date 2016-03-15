@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block page_title %}{{ topic.title }}{% endblock %}
+
+{% load simple_forum_tags %}
+
+{% block content %}
+
+    {% include 'simple_forums/forum_navbar.html' %}
+
+	{% if thread_list or sticky_thread_list %}
+
+		<div class="sorting">
+			<h3>Sort By:</h3>
+
+			<ul>
+
+				{% for option in sort_options %}
+
+					<li><a href="{{ request.url }}?sort={{ option }}{% if sort_current == option and not sort_reversed %}&rev=true{% endif %}">{% if sort_current == option %}<i class="fa {% if sort_reversed %}fa-caret-down{% else %}fa-caret-up{% endif %}"></i> {% endif %}{{ option|title }}</a></li>
+
+				{% endfor %}
+
+			</ul>
+		</div>
+
+		<table class="table table-striped">
+
+			<thead>
+				<tr>
+					<th colspan="8">Title</th>
+					<th colspan="2">Replies</th>
+					<th colspan="2">Last Activity</th>
+				</tr>
+			</thead>
+
+			<tbody>
+
+				{% for thread in sticky_thread_list %}
+
+					{% include 'simple_forums/snippets/render_thread_listing.html' %}
+
+				{% endfor %}
+
+				{% for thread in thread_list %}
+
+					{% include 'simple_forums/snippets/render_thread_listing.html' %}
+
+				{% endfor %}
+
+			</tbody>
+
+		</table>
+
+	{% else %}
+
+		<p>No threads found.</p>
+		
+	{% endif %}
+
+{% endblock %}
