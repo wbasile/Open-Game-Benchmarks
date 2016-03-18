@@ -39,6 +39,7 @@ urlpatterns = [
     
     url(r'^benchmark_rss/', lgbdb.feeds.LatestBenchmarks()),
     
+    url(r'^forums/$', lgbdb.views.TopicListView.as_view(), name='topic-list'),
     url(r'^forums/', include('simple_forums.urls')),
     
 ]

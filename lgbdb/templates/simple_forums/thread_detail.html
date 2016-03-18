@@ -1,5 +1,23 @@
 {% extends 'base.html' %}
 
+
+{% block morehead %}
+<style type = "text/css">
+
+
+[class*="post-col"] {
+  padding-top: 15px;
+  padding-bottom: 15px;
+  margin-bottom: 5px;
+  border: 1px solid #ddd;
+  
+}
+
+
+</style>
+
+{% endblock %}
+
 {% load simple_forum_tags %}
 {% load bootstrap3 %}
 
@@ -9,10 +27,51 @@
 
 
 {% block content %}
+    
+    <div class="row">
+        <div class="col-md-4">
+                                            
+            <ul class="breadcrumb">
+                
+                <li><a href="{% url 'topic-list' %}">Forums</a></li>
+                <li><a href="{% url 'thread-list' thread.topic.pk thread.topic.slug %}">{{ thread.topic.title }}</a></li>
+                <li class="active">{{ thread.title }}</li>
+            </ul>
+            
+        </div>
+        
+        <div class="col-md-4">
+            <ul class="box">
+                
+                <form id="search-form" action="{% url 'search' %}" method="get">
+                    <div class="input-group">
+                        
+                        <span class="input-group-addon"><i class="fa fa-search fa-fw"></i></span>
+                        
+                        <input type="text" class="form-control" name="q"{% if query %} value="{{ query }}"{% endif %} placeholder="Search forums" />
+                      
+                    </div>
+                </form>
+                
+            </ul>
+        </div>
+        
+        {% if user.is_authenticated %}
+        <div class="col-md-4">
+            <ul class="box">
+                <a href="{% url 'thread-create' %}" class="btn btn-info" >Create New Thread</a>
+            </ul>
+          
+        </div>
+        {% endif %}
+        
+        
+    </div>
+   
+   
+   
 
-    {% include 'simple_forums/forum_navbar.html' %}
-
-	<h1>{{ thread.title }}</h1>
+	<h3>{{ thread.title }}</h3>
 	<h5>Created {{ thread.time_created }}</h5>
 
 	<hr />
@@ -21,21 +80,22 @@
 		{% if messages %}
 			{% for message in messages %}
 
-				<div class="post-area">
-
-					<div class="post-heading">
-						<h4 class="text-primary">{{ message.user }}</h4>
-						<p>{{ message.time_created }}</p>
-						<span class="hidden-xs arrow"></span>
-					</div>
-
-					<div class="post-content">
-						{% render_markup message.body %}
-					</div>
-
-				</div>
-
-				<hr />
+      <div class="row">
+        <div class="col-md-3 post-col">
+            <div class="post-heading">
+                <h4 class="text-primary">{{ message.user }}</h4>
+                <p>{{ message.time_created }}</p>
+                <span class="hidden-xs arrow"></span>
+            </div>
+            
+        </div>
+        <div class="col-md-9 post-col">
+            <div class="post-content">
+                {% render_markup message.body %}
+            </div>
+            
+        </div>
+      </div>
 
 			{% endfor %}
 		{% else %}
@@ -45,9 +105,8 @@
 		{% endif %}
 	{% endwith %}
 
-	{% if reply_form %}
 
-		
+	{% if reply_form %}
 
 		<form action="" method="post">
 

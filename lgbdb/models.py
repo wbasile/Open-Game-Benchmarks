@@ -12,15 +12,27 @@ from datetime import datetime
 
 class NewsPost(models.Model):
     title = models.CharField(max_length=100, unique=True)
-    slug = models.SlugField(max_length=100, unique=True)
+    #~ slug = models.SlugField(max_length=100, unique=True)
+    slug = models.SlugField()
+
     body = models.TextField()
     posted = models.DateField(db_index=True, auto_now_add=True)
     
     def __unicode__(self):
         return '%s' % self.title
 
-    #~ def get_absolute_url(self):
-        #~ return ('view_news_post', None, { 'slug': self.slug })
+    def save(self, *args, **kwargs):
+        """ Save the topic instance
+
+        Overriden to generate a url slug.
+        """
+        # Only create the slug if this is a new object.
+        # Changing existing slugs would create dead links.
+        if not self.id:
+            # Slugify and truncate to 50 characters
+            self.slug = slugify(self.title)[:50]
+
+        return super(NewsPost, self).save(*args, **kwargs)
 
 
 

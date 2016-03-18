@@ -6,24 +6,49 @@
 
 {% block content %}
 
-    {% include 'simple_forums/forum_navbar.html' %}
-
+   
+    <div class="row">
+        <div class="col-md-4">
+                                            
+            <ul class="breadcrumb">
+                
+                <li><a href="{% url 'topic-list' %}">Forums</a></li>
+                <li><a href="{% url 'thread-list' topic.pk topic.slug %}">{{ topic.title }}</a></li>
+            </ul>
+            
+        </div>
+        
+        <div class="col-md-4">
+            <ul class="box">
+                
+                <form id="search-form" action="{% url 'search' %}" method="get">
+                    <div class="input-group">
+                        
+                        <span class="input-group-addon"><i class="fa fa-search fa-fw"></i></span>
+                        
+                        <input type="text" class="form-control" name="q"{% if query %} value="{{ query }}"{% endif %} placeholder="Search forums" />
+                      
+                    </div>
+                </form>
+                
+            </ul>
+        </div>
+        
+        {% if user.is_authenticated %}
+        <div class="col-md-4">
+            <ul class="box">
+                <a href="{% url 'thread-create' %}" class="btn btn-info" >Create New Thread</a>
+            </ul>
+          
+        </div>
+        {% endif %}
+        
+        
+    </div>
+                    
 	{% if thread_list or sticky_thread_list %}
-
-		<div class="sorting">
-			<h3>Sort By:</h3>
-
-			<ul>
-
-				{% for option in sort_options %}
-
-					<li><a href="{{ request.url }}?sort={{ option }}{% if sort_current == option and not sort_reversed %}&rev=true{% endif %}">{% if sort_current == option %}<i class="fa {% if sort_reversed %}fa-caret-down{% else %}fa-caret-up{% endif %}"></i> {% endif %}{{ option|title }}</a></li>
-
-				{% endfor %}
-
-			</ul>
-		</div>
-
+    <div class="table-responsive">
+		
 		<table class="table table-striped">
 
 			<thead>
@@ -51,11 +76,12 @@
 			</tbody>
 
 		</table>
-
+    </div>
 	{% else %}
 
 		<p>No threads found.</p>
 		
+    
 	{% endif %}
 
 {% endblock %}

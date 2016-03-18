@@ -19,6 +19,9 @@ from graphos.sources.simple import SimpleDataSource
 from graphos.sources.model import ModelDataSource
 from graphos.renderers import gchart, flot
 
+from django.views import generic
+from simple_forums import models
+
 
 
 # the home page / landing page
@@ -444,32 +447,28 @@ def BenchmarkDeleteView(request, pk=None):
     return render(request, "benchmark_action.html", {'object':benchmark, 'action':action, 'form':form,'fpschart':chart, 'iqr':iqr})
 
 
-            
-# page to delete a benchmark
-#~ class BenchmarkDeleteView(DeleteView):
-    #~ 
-    #~ def dispatch(self, *args, **kwargs):
-        #~ 
-        #~ # verify that the object exists
-        #~ benchmark = get_object_or_404(Benchmark, pk=kwargs['pk'])
-        #~ 
-        #~ # check that the user tryng to delete the system is the owner of that system 
-        #~ # (this prevents also anonymous, non-logged-in users to delete)
-        #~ if benchmark.user == self.request.user:  
-            #~ self.game = benchmark.game
-            #~ return super(BenchmarkDeleteView, self).dispatch(*args, **kwargs)
-        #~ else:
-            #~ return HttpResponseForbidden("Forbidden")
-            #~ 
-    #~ 
-    #~ model = Benchmark
-    #~ template_name = 'benchmark_delete.html'
-#~ 
-    #~ def get_success_url(self):
-        #~ 
-        #~ return reverse('profile')
-        #~ 
-        #~ 
-#~ 
-#~ 
-    #~ 
+
+# Forum main page; it overrides the standard one to add the last post in each topic
+class TopicListView(generic.ListView):
+    """ View for listing topics """
+
+    model = models.Topic
+    
+    def get_context_data(self, **kwargs):
+        context = super(TopicListView, self).get_context_data(**kwargs)
+
+
+        latest_threads = []
+        thread_counts = []
+        for t in models.Topic.objects.all():
+            all_threads = t.thread_set.all().order_by("-time_last_activity")
+            if all_threads:
+                latest_threads += [(t,all_threads[0])]
+                
+            thread_counts += [(t, len(all_threads))]
+                
+
+        context['latest_threads'] = latest_threads
+        context['thread_counts'] = thread_counts
+        
+        return context

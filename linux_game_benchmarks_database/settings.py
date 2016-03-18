@@ -82,6 +82,9 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'linux_game_benchmarks_database.wsgi.application'
 
+SIMPLE_FORUMS = {
+    'markup_renderer': 'simple_forums.markup_renderers.MarkdownRenderer',
+}
 
 # Database
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
