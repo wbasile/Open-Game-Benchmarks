@@ -22,7 +22,7 @@ from graphos.renderers import gchart, flot
 from django.views import generic
 from simple_forums import models
 from simple_forums import forms as sf_forms
-
+from simple_forums.utils import thread_detail_url
 
 from django.core.files.storage import default_storage
 from django.shortcuts import render
@@ -560,7 +560,7 @@ class ThreadDetailView(generic.DetailView):
 
         self.object = self.get_object()
 
-        form = sf_forms.forms.ThreadReplyForm(request.POST)
+        form = sf_forms.ThreadReplyForm(request.POST)
 
         if form.is_valid():
             form.save(request.user, self.object)
