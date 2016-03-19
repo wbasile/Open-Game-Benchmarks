@@ -1,10 +1,7 @@
 BeautifulSoup==3.2.1
 Django==1.9.1
 Markdown==2.6.5
-<<<<<<< HEAD
 Pillow==3.1.1
-=======
->>>>>>> 6e7044637bf074703d92f82fddc3ed71ff400b67
 SQLAlchemy==1.0.11
 argparse==1.2.1
 bleach==1.4.2
