@@ -12,12 +12,12 @@
 
             {% if userobject == user %}
             <a href="#" class="thumbnail" data-toggle="collapse" data-target="#edit-avatar">
-                <img src="{{ userobject.useravatar.avatar.url }}" alt="Click to edit avatar">
+                <img src="{{ userobject.useravatar.avatar }}" alt="Click to edit avatar">
             </a>
             
             {% else %}
             
-                <img src="{{ userobject.useravatar.avatar.url }}" alt="">
+                <img src="{{ userobject.useravatar.avatar }}" alt="">
             
             
             {% endif %}

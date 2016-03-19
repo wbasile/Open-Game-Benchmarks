@@ -16,7 +16,7 @@ class UserAvatarAddEditForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user',None)
         super(UserAvatarAddEditForm, self).__init__(*args, **kwargs)
-        
+        self.fields['avatar'].label = "Image URL"
         
     def clean_avatar(self):
         avatar = self.cleaned_data['avatar']

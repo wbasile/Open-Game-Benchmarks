@@ -13,7 +13,7 @@ from datetime import datetime
 
 class UserAvatar(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='useravatar')
-    avatar = models.ImageField()
+    avatar = models.CharField(max_length=500,default="http://i.imgur.com/vCnDWUd.jpg")
     #~ avatar = models.ImageField(upload_to = 'avatar_folder/', default = 'avatar_folder/None/no-img.jpg')
 
 
