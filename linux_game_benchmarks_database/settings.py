@@ -26,7 +26,7 @@ else:
     SECRET_KEY = open("secret_key").read()
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 # Application definition
 
