@@ -1,8 +1,50 @@
 from django import forms
-from .models import System, Benchmark, Game
+from .models import System, Benchmark, Game, UserAvatar
 from django.utils.safestring import mark_safe
 import numpy as np
+    
+            
+            
+class UserAvatarAddEditForm(forms.ModelForm):
+    class Meta:
+        model = UserAvatar
+        fields = '__all__'
+        exclude = ['user']
+        
+        
+    # this constructor allows this form to receive a user object as a constructor parameter
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user',None)
+        super(UserAvatarAddEditForm, self).__init__(*args, **kwargs)
+        
+        
+    def clean_avatar(self):
+        avatar = self.cleaned_data['avatar']
 
+        try:
+        
+            #validate content type
+            main, sub = avatar.content_type.split('/')
+            if not (main == 'image' and sub in ['jpeg', 'pjpeg', 'gif', 'png']):
+                raise forms.ValidationError(u'Please use a JPEG, '
+                    'GIF or PNG image.')
+
+            #validate file size
+            if len(avatar) > (500 * 1024):
+                raise forms.ValidationError(
+                    u'Avatar file size may not exceed 20k.')
+
+        except AttributeError:
+            """
+            Handles case when we are updating the user profile
+            and do not supply a new avatar
+            """
+            pass
+
+        return avatar
+        
+    
+        
 
 def is_number(s):
     try:
@@ -131,6 +173,8 @@ def parse_frames_file(frames_file):
 
     # check the format of the file
     file_format = get_file_format(lines)
+    
+ 
     if not file_format:
         return None, []
         
@@ -232,7 +276,7 @@ class BenchmarkAddForm(forms.ModelForm):
             fps = fps[0:300]
 
         # raise an error or warning if the duration is below a certain threshold
-        duration_cutoff = 60
+        duration_cutoff = 59
         if len(fps) < duration_cutoff:
             raise forms.ValidationError("The duration of the benchmark should be at least " + str(duration_cutoff) + " seconds (your test is " + str(len(fps)) + "s)")
 

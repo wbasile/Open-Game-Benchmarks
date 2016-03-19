@@ -1,6 +1,6 @@
 
-from .forms import SystemAddEditForm, BenchmarkAddForm, BenchmarkEditForm
-from .models import System,Benchmark, Game, NewsPost
+from .forms import SystemAddEditForm, BenchmarkAddForm, BenchmarkEditForm, UserAvatarAddEditForm
+from .models import System,Benchmark, Game, NewsPost, UserAvatar
 from .filters import GameFilter, BenchmarkFilter
 from .tables import GameTable, BenchmarkTable, BenchmarkChartTable
 from django_tables2   import RequestConfig
@@ -18,6 +18,9 @@ from django.template import RequestContext
 from graphos.sources.simple import SimpleDataSource
 from graphos.sources.model import ModelDataSource
 from graphos.renderers import gchart, flot
+
+from django.views import generic
+from simple_forums import models
 
 
 
@@ -90,7 +93,20 @@ def user_profile(request,pk=None):
             pk = request.user.pk
         
     user = get_object_or_404(User, pk=pk)
+    
+    
+    try:
+        avatar = UserAvatar.objects.get(user=request.user)
+    except UserAvatar.DoesNotExist:
+        avatar = None
+   
+    if avatar:
+        action = "edit"
+    else:
+        action = "add"
         
+   
+                
     uss = user.system_set.all()    
     
     #~ system_table = SystemTable(uss)
@@ -100,11 +116,78 @@ def user_profile(request,pk=None):
     benchmark_table = BenchmarkTable(usb,user=request.user)
     RequestConfig(request).configure(benchmark_table)
     benchmark_table.exclude = ["user"]
+   
+   
+    if request.method == 'POST':
+        form = UserAvatarAddEditForm(request.POST,request.FILES,user=request.user, instance=avatar)
+        if form.is_valid():
+            
+            # get the data
+            instance = form.save(commit=False)            
+            if action == "add":
+                instance.user = request.user
+                instance.save()
+            else:
+                avatar.avatar = instance.avatar
+                avatar.save()
+                
+            return HttpResponseRedirect('/accounts/profile/'+str(request.user.pk))
+    else:
+        form = UserAvatarAddEditForm(user=request.user,initial={'user': request.user}, instance=avatar)    
+   
+   
     
-    context = { "uss":uss,"usb":usb, "benchmark_table":benchmark_table, "userobject":user}
+    context = { "uss":uss,"usb":usb, "benchmark_table":benchmark_table, "userobject":user, "form":form}
     
     return render(request, 'user_profile.html', context)
     
+    
+    #~ 
+#~ # page with form to add or edit a user avatar
+#~ @login_required    
+#~ def UserAvatarAddEditView(request):
+    #~ 
+    #~ 
+    #~ try:
+        #~ avatar = UserAvatar.objects.get(user=request.user)
+    #~ except UserAvatar.DoesNotExist:
+        #~ avatar = None
+   #~ 
+    #~ if avatar:
+        #~ action = "edit"
+    #~ else:
+        #~ action = "add"
+#~ 
+    #~ 
+    #~ if request.method == 'POST':
+        #~ form = UserAvatarAddEditForm(request.POST,request.FILES,user=request.user, instance=avatar)
+        #~ if form.is_valid():
+            #~ 
+            #~ # get the data
+            #~ instance = form.save(commit=False)
+            #~ 
+            #~ if action == "add":
+                #~ 
+                #~ # Do something with the data
+                #~ # ensure that the owner of this system is the current user
+                #~ instance.user = request.user
+#~ 
+                #~ # save the data
+                #~ # instance is an instance of System
+                #~ instance.save()
+            #~ else:
+                #~ avatar.avatar = instance.avatar
+                #~ avatar.save()
+                #~ 
+            #~ return HttpResponseRedirect('/accounts/profile/'+str(request.user.pk))
+    #~ else:
+        #~ form = UserAvatarAddEditForm(user=request.user,initial={'user': request.user}, instance=avatar)    
+        #~ 
+             #~ 
+    #~ context = {'object':avatar, "form":form , "action":action}
+    #~ 
+    #~ return render(request, "avatar_action.html",context)
+    #~ 
     
     
     
@@ -342,7 +425,7 @@ def BenchmarkDetailView(request, pk=None):
 
         
         
-        
+    
         
             
 # page with form to add or add a benchmark
@@ -350,8 +433,8 @@ def BenchmarkDetailView(request, pk=None):
 def BenchmarkAddView(request):
     
     if request.method == 'POST':
-        
         form = BenchmarkAddForm(request.POST, request.FILES,user=request.user)
+        
         
         if form.is_valid():
             
@@ -444,32 +527,28 @@ def BenchmarkDeleteView(request, pk=None):
     return render(request, "benchmark_action.html", {'object':benchmark, 'action':action, 'form':form,'fpschart':chart, 'iqr':iqr})
 
 
-            
-# page to delete a benchmark
-#~ class BenchmarkDeleteView(DeleteView):
-    #~ 
-    #~ def dispatch(self, *args, **kwargs):
-        #~ 
-        #~ # verify that the object exists
-        #~ benchmark = get_object_or_404(Benchmark, pk=kwargs['pk'])
-        #~ 
-        #~ # check that the user tryng to delete the system is the owner of that system 
-        #~ # (this prevents also anonymous, non-logged-in users to delete)
-        #~ if benchmark.user == self.request.user:  
-            #~ self.game = benchmark.game
-            #~ return super(BenchmarkDeleteView, self).dispatch(*args, **kwargs)
-        #~ else:
-            #~ return HttpResponseForbidden("Forbidden")
-            #~ 
-    #~ 
-    #~ model = Benchmark
-    #~ template_name = 'benchmark_delete.html'
-#~ 
-    #~ def get_success_url(self):
-        #~ 
-        #~ return reverse('profile')
-        #~ 
-        #~ 
-#~ 
-#~ 
-    #~ 
+
+# Forum main page; it overrides the standard one to add the last post in each topic
+class TopicListView(generic.ListView):
+    """ View for listing topics """
+
+    model = models.Topic
+    
+    def get_context_data(self, **kwargs):
+        context = super(TopicListView, self).get_context_data(**kwargs)
+
+
+        latest_threads = []
+        thread_counts = []
+        for t in models.Topic.objects.all():
+            all_threads = t.thread_set.all().order_by("-time_last_activity")
+            if all_threads:
+                latest_threads += [(t,all_threads[0])]
+                
+            thread_counts += [(t, len(all_threads))]
+                
+
+        context['latest_threads'] = latest_threads
+        context['thread_counts'] = thread_counts
+        
+        return context

@@ -24,13 +24,8 @@
     
     <form method="POST" action="" >
         {% csrf_token %}
-        
-        {% for field in form %}
-        <tr>
-            <td>{% bootstrap_field field  show_help=True layout="horizontal" %}</td>
-            <td>&nbsp;</td>
-        </tr>
-        {% endfor %}
+
+        {% bootstrap_form form show_help=True layout="horizontal" %}
         
         <input type="submit" value="Save" class="btn btn-primary"/>
         
@@ -71,7 +66,7 @@
         <tbody>
             {% for field in form %}
                 <tr>
-                    <td><b>{{field.label}}</b></td><td>{{field.value}}</td>
+                    <td><b>{{field.label}}</b></td><td>{{field.value |linebreaks }}</td>
                 </tr>
             {% endfor %}
         </tbody>

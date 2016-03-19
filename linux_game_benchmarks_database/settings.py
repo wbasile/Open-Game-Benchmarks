@@ -39,6 +39,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django.contrib.humanize',
     'registration',
+    'simple_forums',
     'django_tables2',
     'django_filters',
     'bootstrap3',
@@ -63,7 +64,7 @@ ROOT_URLCONF = 'linux_game_benchmarks_database.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': ['lgbdb/templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -81,6 +82,9 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'linux_game_benchmarks_database.wsgi.application'
 
+SIMPLE_FORUMS = {
+    'markup_renderer': 'simple_forums.markup_renderers.MarkdownRenderer',
+}
 
 # Database
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
@@ -120,6 +124,12 @@ ALLOWED_HOSTS = ['*']
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 STATIC_ROOT = 'staticfiles'
 STATIC_URL = '/static/'
+
+
+ENV_PATH = os.path.abspath(os.path.dirname(__file__))
+MEDIA_ROOT = os.path.join(ENV_PATH, 'media/')
+MEDIA_URL = '/media/'
+
 
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),

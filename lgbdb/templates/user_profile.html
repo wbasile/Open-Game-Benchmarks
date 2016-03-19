@@ -1,9 +1,56 @@
 {% extends 'base.html' %}
-
+{% load bootstrap3 %}
 
 {% block content %}
 <h1>User profile: {{userobject.username}}</h1>
 <br>
+
+<div class="row">
+    <div class="col-lg-2 col-md-3 col-xs-4">
+        
+        <div class="thumbnail">
+
+            {% if userobject == user %}
+            <a href="#" class="thumbnail" data-toggle="collapse" data-target="#edit-avatar">
+                <img src="{{ userobject.useravatar.avatar.url }}" alt="Click to edit avatar">
+            </a>
+            
+            {% else %}
+            
+                <img src="{{ userobject.useravatar.avatar.url }}" alt="">
+            
+            
+            {% endif %}
+    
+    
+            <div class="caption">
+                <h4 class="text-primary">{{userobject.username}}</h4>
+            </div>
+        
+        </div>
+            
+    </div>
+    
+    <div class="col-lg-6 col-md-6 col-xs-6">
+        
+    
+        <div id="edit-avatar" class="collapse">
+                <ul>
+                    
+                    <form  enctype="multipart/form-data" method="POST" action=""  >
+                        {% csrf_token %}
+
+                        {% bootstrap_form form show_help=False  %}
+                        
+                        
+                        <input type="submit" value="Save" class="btn btn-primary"/>
+                    </form>
+                </ul>
+            
+            </div>
+    </div>
+        
+</div>
 
 
         
@@ -19,6 +66,10 @@
                 
             </div>
         </div>
+        
+        
+    
+        
     </div>
     
             

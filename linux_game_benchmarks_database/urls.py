@@ -1,6 +1,9 @@
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
+from django.conf import settings
+from django.conf.urls.static import static
+
 admin.autodiscover()
 
 import lgbdb.views
@@ -17,8 +20,11 @@ urlpatterns = [
     
     url(r'^accounts/logout/$', auth_views.logout, {'next_page': '/'}),
 
+
     url(r'^accounts/', include('registration.backends.simple.urls')),
     url(r'^accounts/profile/$', lgbdb.views.user_profile, name='user-profile-default'),
+    #~ url(r'^accounts/profile/avatar/$', lgbdb.views.UserAvatarAddEditView, name='user-avatar-add-edit'),
+    
     url(r'^accounts/profile/(?P<pk>\d+)$', lgbdb.views.user_profile, name='user-profile'),
     
     url(r'^system_detail/(?P<pk>\d+)$', lgbdb.views.SystemDetailView, name='system-detail',),
@@ -39,4 +45,14 @@ urlpatterns = [
     
     url(r'^benchmark_rss/', lgbdb.feeds.LatestBenchmarks()),
     
+    url(r'^forums/$', lgbdb.views.TopicListView.as_view(), name='topic-list'),
+    url(r'^forums/', include('simple_forums.urls')),
+    
 ]
+
+
+
+if settings.DEBUG:
+    # static files (images, css, javascript, etc.)
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
