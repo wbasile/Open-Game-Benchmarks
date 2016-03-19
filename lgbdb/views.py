@@ -560,7 +560,7 @@ class ThreadDetailView(generic.DetailView):
 
         self.object = self.get_object()
 
-        form = forms.ThreadReplyForm(request.POST)
+        form = sf_forms.forms.ThreadReplyForm(request.POST)
 
         if form.is_valid():
             form.save(request.user, self.object)
@@ -569,6 +569,7 @@ class ThreadDetailView(generic.DetailView):
 
         context = self.get_context_data()
         context['reply_form'] = form
-
+        context['reply_form'].fields["body"].widget = MarkdownWidget()
+        
         return render(request, self.get_template_names(), context)
         
