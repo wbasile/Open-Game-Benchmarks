@@ -3,6 +3,7 @@ from .models import System, Benchmark, Game, UserAvatar
 from django.utils.safestring import mark_safe
 import numpy as np
     
+
             
             
 class UserAvatarAddEditForm(forms.ModelForm):
@@ -32,7 +33,7 @@ class UserAvatarAddEditForm(forms.ModelForm):
             #validate file size
             if len(avatar) > (500 * 1024):
                 raise forms.ValidationError(
-                    u'Avatar file size may not exceed 20k.')
+                    u'Avatar file size may not exceed 500k.')
 
         except AttributeError:
             """

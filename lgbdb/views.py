@@ -21,8 +21,13 @@ from graphos.renderers import gchart, flot
 
 from django.views import generic
 from simple_forums import models
+from simple_forums import forms as sf_forms
 
 
+from django.core.files.storage import default_storage
+from django.shortcuts import render
+
+from django_markdown.widgets import MarkdownWidget
 
 # the home page / landing page
 # it contains a list of the latest benchmarks, a news panel and a statistics panel
@@ -94,11 +99,12 @@ def user_profile(request,pk=None):
         
     user = get_object_or_404(User, pk=pk)
     
-    
-    try:
-        avatar = UserAvatar.objects.get(user=request.user)
-    except UserAvatar.DoesNotExist:
-        avatar = None
+    avatar = None
+    if request.user.is_authenticated():
+        try:
+            avatar = UserAvatar.objects.get(user=request.user)
+        except UserAvatar.DoesNotExist:
+            avatar = None
    
     if avatar:
         action = "edit"
@@ -140,54 +146,6 @@ def user_profile(request,pk=None):
     context = { "uss":uss,"usb":usb, "benchmark_table":benchmark_table, "userobject":user, "form":form}
     
     return render(request, 'user_profile.html', context)
-    
-    
-    #~ 
-#~ # page with form to add or edit a user avatar
-#~ @login_required    
-#~ def UserAvatarAddEditView(request):
-    #~ 
-    #~ 
-    #~ try:
-        #~ avatar = UserAvatar.objects.get(user=request.user)
-    #~ except UserAvatar.DoesNotExist:
-        #~ avatar = None
-   #~ 
-    #~ if avatar:
-        #~ action = "edit"
-    #~ else:
-        #~ action = "add"
-#~ 
-    #~ 
-    #~ if request.method == 'POST':
-        #~ form = UserAvatarAddEditForm(request.POST,request.FILES,user=request.user, instance=avatar)
-        #~ if form.is_valid():
-            #~ 
-            #~ # get the data
-            #~ instance = form.save(commit=False)
-            #~ 
-            #~ if action == "add":
-                #~ 
-                #~ # Do something with the data
-                #~ # ensure that the owner of this system is the current user
-                #~ instance.user = request.user
-#~ 
-                #~ # save the data
-                #~ # instance is an instance of System
-                #~ instance.save()
-            #~ else:
-                #~ avatar.avatar = instance.avatar
-                #~ avatar.save()
-                #~ 
-            #~ return HttpResponseRedirect('/accounts/profile/'+str(request.user.pk))
-    #~ else:
-        #~ form = UserAvatarAddEditForm(user=request.user,initial={'user': request.user}, instance=avatar)    
-        #~ 
-             #~ 
-    #~ context = {'object':avatar, "form":form , "action":action}
-    #~ 
-    #~ return render(request, "avatar_action.html",context)
-    #~ 
     
     
     
@@ -552,3 +510,65 @@ class TopicListView(generic.ListView):
         context['thread_counts'] = thread_counts
         
         return context
+
+
+
+from django_markdown import settings
+
+# wyswyg preview for the forum reply box
+# overrides the one in django_markdown because request.REQUEST is not supported anymore in django 1.9
+def preview(request):
+    print "HERE"
+    """ Render preview page.
+
+    :returns: A rendered preview
+
+    """
+    if settings.MARKDOWN_PROTECT_PREVIEW:
+        user = getattr(request, 'user', None)
+        if not user or not user.is_staff:
+            from django.contrib.auth.views import redirect_to_login
+            return redirect_to_login(request.get_full_path())
+
+    return render(
+        request, settings.MARKDOWN_PREVIEW_TEMPLATE, dict(
+            content=request.POST.get('data', 'No content posted'),
+            css=settings.MARKDOWN_STYLE
+        ))
+        
+        
+# overrides the one from djang_forums to implement a nice markdown editor widget
+class ThreadDetailView(generic.DetailView):
+    """ View for getting a thread's details """
+
+    model = models.Thread
+    pk_url_kwarg = 'thread_pk'
+
+    def get_context_data(self, **kwargs):
+        context = super(ThreadDetailView, self).get_context_data(**kwargs)
+
+        if self.request.user.is_authenticated():
+            context['reply_form'] = sf_forms.ThreadReplyForm()
+            context['reply_form'].fields["body"].widget = MarkdownWidget()
+            
+        return context
+
+    def post(self, request, *args, **kwargs):
+        """ Create a new reply to the current thread """
+        if not request.user.is_authenticated():
+            raise PermissionDenied()
+
+        self.object = self.get_object()
+
+        form = forms.ThreadReplyForm(request.POST)
+
+        if form.is_valid():
+            form.save(request.user, self.object)
+
+            return HttpResponseRedirect(thread_detail_url(thread=self.object))
+
+        context = self.get_context_data()
+        context['reply_form'] = form
+
+        return render(request, self.get_template_names(), context)
+        
