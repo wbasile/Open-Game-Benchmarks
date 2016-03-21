@@ -21,13 +21,11 @@ from graphos.renderers import gchart, flot
 
 from django.views import generic
 from simple_forums import models
-from simple_forums import forms as sf_forms
-from simple_forums.utils import thread_detail_url
 
 from django.core.files.storage import default_storage
 from django.shortcuts import render
 
-from django_markdown.widgets import MarkdownWidget
+
 
 # the home page / landing page
 # it contains a list of the latest benchmarks, a news panel and a statistics panel
@@ -486,30 +484,6 @@ def BenchmarkDeleteView(request, pk=None):
 
 
 
-# Forum main page; it overrides the standard one to add the last post in each topic
-class TopicListView(generic.ListView):
-    """ View for listing topics """
-
-    model = models.Topic
-    
-    def get_context_data(self, **kwargs):
-        context = super(TopicListView, self).get_context_data(**kwargs)
-
-
-        latest_threads = []
-        thread_counts = []
-        for t in models.Topic.objects.all():
-            all_threads = t.thread_set.all().order_by("-time_last_activity")
-            if all_threads:
-                latest_threads += [(t,all_threads[0])]
-                
-            thread_counts += [(t, len(all_threads))]
-                
-
-        context['latest_threads'] = latest_threads
-        context['thread_counts'] = thread_counts
-        
-        return context
 
 
 
@@ -518,7 +492,6 @@ from django_markdown import settings
 # wyswyg preview for the forum reply box
 # overrides the one in django_markdown because request.REQUEST is not supported anymore in django 1.9
 def preview(request):
-    print "HERE"
     """ Render preview page.
 
     :returns: A rendered preview
@@ -537,39 +510,12 @@ def preview(request):
         ))
         
         
-# overrides the one from djang_forums to implement a nice markdown editor widget
-class ThreadDetailView(generic.DetailView):
-    """ View for getting a thread's details """
-
-    model = models.Thread
-    pk_url_kwarg = 'thread_pk'
-
-    def get_context_data(self, **kwargs):
-        context = super(ThreadDetailView, self).get_context_data(**kwargs)
-
-        if self.request.user.is_authenticated():
-            context['reply_form'] = sf_forms.ThreadReplyForm()
-            context['reply_form'].fields["body"].widget = MarkdownWidget()
-            
-        return context
-
-    def post(self, request, *args, **kwargs):
-        """ Create a new reply to the current thread """
-        if not request.user.is_authenticated():
-            raise PermissionDenied()
-
-        self.object = self.get_object()
-
-        form = sf_forms.ThreadReplyForm(request.POST)
-
-        if form.is_valid():
-            form.save(request.user, self.object)
-
-            return HttpResponseRedirect(thread_detail_url(thread=self.object))
-
-        context = self.get_context_data()
-        context['reply_form'] = form
-        context['reply_form'].fields["body"].widget = MarkdownWidget()
         
-        return render(request, self.get_template_names(), context)
-        
+
+
+
+
+
+    
+    
+    

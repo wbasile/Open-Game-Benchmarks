@@ -3,8 +3,8 @@ from .models import System, Benchmark, Game, UserAvatar
 from django.utils.safestring import mark_safe
 import numpy as np
     
-
-            
+#from simple_forums import models as sf_models
+             
             
 class UserAvatarAddEditForm(forms.ModelForm):
     class Meta:

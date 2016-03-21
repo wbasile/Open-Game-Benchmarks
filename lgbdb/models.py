@@ -8,11 +8,13 @@ from django.utils.text import slugify
 from .multiple_choice_options import *
 
 from datetime import datetime
+from django.utils import timezone
+
 
 
 class UserAvatar(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='useravatar')
-    avatar = models.CharField(max_length=500,default="http://i.imgur.com/vCnDWUd.jpg")
+    avatar = models.CharField(max_length=1500,default="http://i.imgur.com/vCnDWUd.jpg")
 
 
 class NewsPost(models.Model):

@@ -23,7 +23,6 @@ urlpatterns = [
 
     url(r'^accounts/', include('registration.backends.simple.urls')),
     url(r'^accounts/profile/$', lgbdb.views.user_profile, name='user-profile-default'),
-    #~ url(r'^accounts/profile/avatar/$', lgbdb.views.UserAvatarAddEditView, name='user-avatar-add-edit'),
     
     url(r'^accounts/profile/(?P<pk>\d+)$', lgbdb.views.user_profile, name='user-profile'),
     
@@ -44,14 +43,6 @@ urlpatterns = [
     url(r'^game_table/$', lgbdb.views.GameTableView, name='game-table'),
     
     url(r'^benchmark_rss/', lgbdb.feeds.LatestBenchmarks()),
-    
-    url(r'^forums/$', lgbdb.views.TopicListView.as_view(), name='topic-list'),
-    
-    url((r'^forums/(?P<topic_pk>[0-9]+)/(?P<topic_slug>[\w-]+)/'
-        r'(?P<thread_pk>[0-9]+)/(?P<thread_slug>[\w-]+)/$'),
-        lgbdb.views.ThreadDetailView.as_view(),
-        name='thread-detail'),
-        
     
     url(r'^forums/', include('simple_forums.urls')),
     
