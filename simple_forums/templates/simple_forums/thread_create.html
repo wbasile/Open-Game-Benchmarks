@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Create New Thread{% endblock %}
+
+{% load bootstrap3 %}
+{% load django_markdown %}
+
+
+{% block content %}
+
+    {% include 'simple_forums/forum_navbar.html' %}
+    
+    {% block extrahead %}
+        {{ form.media }}
+    {% endblock %}
+        
+    <h1>New Thread</h1>
+
+    <form action="" method="post">
+
+        {% csrf_token %}
+
+        {% bootstrap_form form %}
+
+        <button type="submit" class="btn btn-primary">Submit</button>
+
+    </form>
+
+{% endblock %}

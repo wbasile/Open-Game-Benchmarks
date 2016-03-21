@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Search{% endblock %}
+
+{% block content %}
+
+    <div class="row">
+        <div class="col-md-4">
+                                            
+            <ul class="breadcrumb">
+                <li><a href="{% url 'topic-list' %}">Forums</a></li>
+            </ul>
+            
+        </div>
+        
+        <div class="col-md-4">
+            <ul class="box">
+                
+                <form id="search-form" action="{% url 'search' %}" method="get">
+                    <div class="input-group">
+                        
+                        <span class="input-group-addon"><i class="fa fa-search fa-fw"></i></span>
+                        
+                        <input type="text" class="form-control" name="q"{% if query %} value="{{ query }}"{% endif %} placeholder="Search forums" />
+                      
+                    </div>
+                </form>
+                
+            </ul>
+        </div>
+        
+        {% if user.is_authenticated %}
+        <div class="col-md-4">
+            <ul class="box">
+                <a href="{% url 'thread-create' %}" class="btn btn-info" >Create New Thread</a>
+            </ul>
+          
+        </div>
+        {% endif %}
+        
+        
+    </div>
+       
+    
+    {% if query %}
+
+        <h3>Search Results For: {{ query }}</h3>
+
+        {% for result in results %}
+
+            <div class="search-result">
+                <a href="{{ result.get_absolute_url }}">{{ result.title }}</a>
+            </div>
+
+        {% empty %}
+
+            <p>There were no results.</p>
+
+        {% endfor %}
+
+    {% endif %}
+
+{% endblock %}

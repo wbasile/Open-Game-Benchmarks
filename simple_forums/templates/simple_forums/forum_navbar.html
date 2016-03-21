@@ -1,0 +1,60 @@
+
+{% load simple_forum_tags %}
+
+
+<div class="row">
+        <div class="col-md-4">
+                                            
+            <ul class="breadcrumb">
+                
+                <li><a href="{% url 'topic-list' %}">Forums</a></li>
+                
+                
+                {% if thread %}
+                <li><a href="{% url 'thread-list' thread.topic.pk thread.topic.slug %}">{{ thread.topic.title }}</a></li>
+                <li class="active">{{ thread.title }}</li>
+                
+                {% elif topic %}
+                <li><a href="{% url 'thread-list' topic.pk topic.slug %}">{{ topic.title }}</a></li>
+                
+                {% elif message %}
+                
+                <li><a href="{% url 'thread-list' message.thread.topic.pk message.thread.topic.slug %}">{{ message.thread.topic.title }}</a></li>
+                <li><a href="{% url 'thread-detail'  message.thread.pk message.thread.topic.slug message.thread.pk message.thread.slug %}">{{ message.thread.title }}</a></li>
+                {% endif %}
+                
+            </ul>
+            
+        </div>
+        
+        <div class="col-md-4">
+            <ul class="box">
+                
+                <form id="search-form" action="{% url 'search' %}" method="get">
+                    <div class="input-group">
+                        
+                        <span class="input-group-addon"><i class="fa fa-search fa-fw"></i></span>
+                        
+                        <input type="text" class="form-control" name="q"{% if query %} value="{{ query }}"{% endif %} placeholder="Search forums" />
+                      
+                    </div>
+                </form>
+                
+            </ul>
+        </div>
+        
+        {% if user.is_authenticated %}
+        <div class="col-md-4">
+            <ul class="box">
+                <a href="{% url 'thread-create' %}" class="btn btn-info" >Create New Thread</a>
+            </ul>
+          
+        </div>
+        {% endif %}
+        
+        
+    </div>
+
+
+
+

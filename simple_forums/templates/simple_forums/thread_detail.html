@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+
+
+{% block morehead %}
+<style type = "text/css">
+
+
+.post-col{
+  padding-top: 15px;
+  padding-bottom: 15px;
+  margin-bottom: 5px;
+  border: 1px solid #fff;
+  
+}
+
+.post-col:hover{
+  #background: blue;
+  #border: 1px solid #ddd;
+  }
+  
+
+</style>
+
+{% endblock %}
+
+{% load simple_forum_tags %}
+{% load bootstrap3 %}
+{% load django_markdown %}
+
+
+
+
+{% block page_title %}{{ thread.title }}{% endblock %}
+
+
+{% block content %}
+
+{% block extrahead %}
+    {{ reply_form.media }}
+{% endblock %}
+
+    
+    {% include 'simple_forums/forum_navbar.html' %}
+   
+
+	<h3>{{ thread.title }}</h3>
+	<h5>Created {{ thread.time_created }}</h5>
+
+	<hr />
+
+	{% with thread.message_set.all as messages %}
+		{% if messages %}
+			{% for message in messages %}
+
+      <div class="row">
+        <div class="col-lg-2 col-md-3 col-xs-4 post-col">
+            <div class="thumbnail" >
+              <img src="{{ message.user.useravatar.avatar }}" alt=""  height="120" width="120">
+              <div class="caption" style="text-align:center;">
+                {{ message.user }}
+              </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-9 col-md-8 col-xs-7 post-col">
+            
+            <div class="post-content">
+                {{ message.body | markdown }}
+                <p><i>{{ message.time_created }}</i></p>
+            </div>
+            
+        </div>
+        
+        {% if user == message.user %}
+        <div class="col-lg-1 col-md-1 col-xs-1 post-col">
+            
+            <a href="{% url 'message-edit' message.pk %}" alt="edit post" ><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> </a>
+            <br>
+            <a href="#" alt="delete post"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span> </a>
+            
+        </div>
+        {% endif %}
+        
+        
+      </div>
+
+			{% endfor %}
+		{% else %}
+
+			<p>There are no replies to this thread.</p>
+
+		{% endif %}
+	{% endwith %}
+
+
+	{% if reply_form %}
+
+		<form action="" method="post">
+
+			{% csrf_token %}
+
+            {% bootstrap_form reply_form %}
+			
+			<button type="submit" class="btn btn-primary">Post Reply</button>
+
+		</form>
+
+	{% else %}
+
+		<p>You must be <a href="{% login_url %}">logged in</a> to reply.</p>
+
+	{% endif %}
+
+{% endblock %}

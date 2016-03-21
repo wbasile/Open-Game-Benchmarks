@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block page_title %}{{ topic.title }}{% endblock %}
+
+{% load simple_forum_tags %}
+
+{% block content %}
+
+    {% include 'simple_forums/forum_navbar.html' %}
+   
+    
+    
+    {% for thread in thread_list %}
+    
+        {{ thread.time_created }}
+    
+    {% endfor %}
+    
+    
+   
+        
+	{% if thread_list or sticky_thread_list %}
+    <div class="table-responsive">
+		
+		<table class="table table-striped">
+
+			<thead>
+				<tr>
+					<th colspan="8">Title</th>
+					<th colspan="2">Replies</th>
+					<th colspan="2">Last Activity</th>
+				</tr>
+			</thead>
+
+			<tbody>
+
+				{% for thread in sticky_thread_list %}
+
+					{% include 'simple_forums/snippets/render_thread_listing.html' %}
+
+				{% endfor %}
+
+				{% for thread in thread_list %}
+
+					{% include 'simple_forums/snippets/render_thread_listing.html' %}
+
+				{% endfor %}
+
+			</tbody>
+
+		</table>
+    </div>
+	{% else %}
+
+		<p>No threads found.</p>
+		
+    
+	{% endif %}
+
+{% endblock %}
