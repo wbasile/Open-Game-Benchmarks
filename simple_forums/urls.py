@@ -31,6 +31,8 @@ urlpatterns = [
 
     url(r'^search/$', views.SearchView.as_view(), name='search'),
     
+    url(r'^message_delete/(?P<pk>\d+)$', views.ForumMessageDeleteView, name='message-delete'),
+    
     url(r'^message_edit/(?P<pk>\d+)$', views.ForumMessageEditView, name='message-edit'),
     
     

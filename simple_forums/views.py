@@ -9,7 +9,6 @@ from simple_forums.utils import thread_detail_url
 
 from django.contrib.auth.decorators import login_required
 
-#~ from django_markdown.widgets import MarkdownWidget
 
 from django.utils import timezone
 from django.core.urlresolvers import reverse
@@ -79,7 +78,6 @@ class ThreadDetailView(generic.DetailView):
 
         if self.request.user.is_authenticated():
             context['reply_form'] = forms.ThreadReplyForm()
-            #~ context['reply_form'].fields["body"].widget = MarkdownWidget()
             
         return context
 
@@ -99,7 +97,6 @@ class ThreadDetailView(generic.DetailView):
 
         context = self.get_context_data()
         context['reply_form'] = form
-        #~ context['reply_form'].fields["body"].widget = MarkdownWidget()
         
         return render(request, self.get_template_names(), context)
 
@@ -224,10 +221,39 @@ def ForumMessageEditView(request, pk=None):
                 
     
     context = {'message':message, "form":form }
-    #~ context['form'].fields["body"].widget = MarkdownWidget()
     
     template = "simple_forums/forum_message_edit.html"
         
     return render(request, template ,context)     
     
     
+# page to delete a forum message
+def ForumMessageDeleteView(request, pk=None):
+    
+    message = get_object_or_404(models.Message, pk=pk)
+    
+    if message.user != request.user:  
+        return HttpResponseForbidden("Forbidden")
+        
+    if request.method == "POST":
+        
+        thread = message.thread
+        message.delete()
+        
+        if thread.message_set.count() > 0:
+        
+            return HttpResponseRedirect(reverse('thread-detail', args=[thread.topic.pk,thread.topic.slug,thread.pk,thread.slug]))
+        
+        # if we deleted the last message of the thread, delete the thread itself
+        else:
+            topic = thread.topic
+            thread.delete()
+            return HttpResponseRedirect(reverse('thread-list', args=[topic.pk,topic.slug]))
+            
+            
+    
+    #~ form = forms.ForumMessageEditForm(instance=message)    
+    
+    return render(request, "simple_forums/forum_message_delete.html", {'message':message})
+
+

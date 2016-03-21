@@ -101,14 +101,14 @@
                         <td>{{ system.operating_system }}</td>
                         
                         <td>
-                            <a href="/system_detail/{{ system.id }}" class="btn btn-xs btn-warning">Detail</a>
+                            <a href="/system_detail/{{ system.id }}" class="nounderline label label-xs label-warning">Detail</a>
                         </td>
                         {% if userobject == user %}
                         <td>
-                            <a href="/system_edit/{{ system.id }}" class="btn btn-xs btn-info">Edit</a>
+                            <a href="/system_edit/{{ system.id }}" class="nounderline label label-xs label-info">Edit</a>
                         </td>
                         <td>
-                            <a href="/system_delete/{{ system.id }}" class="btn btn-xs btn-danger">Delete</a>
+                            <a href="/system_delete/{{ system.id }}" class="nounderline label label-xs label-danger">Delete</a>
                         </td>
                         {% endif %}
                         
