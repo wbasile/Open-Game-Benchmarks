@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+
+<h2>Delete message </h2>
+<br>
+
+<p>Are you sure you want to delete this message?</p>
+
+<p>{{ message.body }}</p>
+
+<table>
+            <tr>
+                <td>
+                    <form action="" method="POST">
+                    {% csrf_token %}
+                
+                        <input type="submit" value="Yes, delete." class="btn btn-danger" />
+                    
+                    </form>
+                
+                </td>
+                
+                <td>&nbsp;<td>
+                
+                <td>
+                    <form action="{% url 'thread-detail'  message.thread.pk message.thread.topic.slug message.thread.pk message.thread.slug %}">
+                        <input type="submit" value="No, cancel" class="btn btn-info">
+                    </form>
+                </td>
+            </tr>
+        </table>
+
+{% endblock %}
+
