@@ -44,7 +44,8 @@ urlpatterns = [
     
     url(r'^benchmark_rss/', lgbdb.feeds.LatestBenchmarks()),
     
-    url(r'^forums/', include('simple_forums.urls')),
+    #~ url(r'^forums/', include('simple_forums.urls')),
+    #~ url(r'^forums/', lgbdb.views.ForumView, name='forum'),
     
     url('^markdown/', lgbdb.views.preview, name='django_markdown_preview'),
     
