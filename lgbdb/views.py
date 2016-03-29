@@ -17,7 +17,7 @@ from django.template import RequestContext
 
 from graphos.sources.simple import SimpleDataSource
 from graphos.sources.model import ModelDataSource
-from graphos.renderers import gchart, flot
+from graphos.renderers import gchart, flot, highcharts
 
 from django.views import generic
 from simple_forums import models
@@ -272,7 +272,10 @@ def fps_line_chart(benchmark):
         
     data_source = SimpleDataSource(data=data)
         
-    chart = flot.LineChart(data_source, options={'title': "Frames per second"})
+        
+    #~ chart = flot.LineChart(data_source, options={'title': "Frames per second"})
+    #~ chart = gchart.LineChart(data_source, options={'title': "Frames per second"})
+    chart = highcharts.LineChart(data_source, options={'title': "Frames per second"})
         
     return chart    
     
