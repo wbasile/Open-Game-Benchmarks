@@ -71,6 +71,23 @@ Share and analyse performance data of Steam games in Windows and Linux
                     (average FPS = <b>{{ best_benchmark.fps_avg }} </b>)</a></p>
                 {% endif %}
                 
+                {% if most_popular_cpu %}
+                    <p>Most popular CPU: <b>{{ most_popular_cpu }} </b></p>
+                {% endif %}
+                
+                {% if most_popular_gpu %}
+                    <p>Most popular GPU: <b>{{ most_popular_gpu }} </b></p>
+                {% endif %}
+                
+                {% if latest_games %}
+                    <p>Latest games added: 
+                    
+                    {% for game in latest_games %}
+                        <li><a href="benchmark_table/?game={{ game.title }}"><b>{{ game }} </b></a></li>
+                    {% endfor %}
+                    </p>
+                {% endif %}
+                
                 
             </div>
         </div>

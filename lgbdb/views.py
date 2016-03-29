@@ -37,6 +37,18 @@ def home(request):
     num_games = Game.objects.count()
     num_benchmarks = Benchmark.objects.count()
     
+    
+    most_popular_cpu = None
+    most_popular_gpu = None
+    if System.objects.count() > 0:
+        cpus = [e[0] for e in System.objects.values_list('cpu_model')]
+        most_popular_cpu = max(set(cpus), key=cpus.count)
+
+        gpus = [e[0] for e in System.objects.values_list('gpu_model')]
+        most_popular_gpu = max(set(gpus), key=gpus.count)
+
+
+        
     # compute the highest-fps benchmark
     if Benchmark.objects.count() > 0:
         best_fps_benchmark = Benchmark.objects.order_by("-fps_avg")[0]
@@ -70,15 +82,22 @@ def home(request):
         benchmark_table = None
         
     latest_post = NewsPost.objects.order_by('-posted')[0]
+    
+    latest_games = Game.objects.all().order_by('-upload_date')[0:5]
+    
+    
         
     context = {
         'num_users' : num_users,
         'num_games' : num_games,
         'num_benchmarks' : num_benchmarks,
-        'best_benchmark' : best_fps_benchmark,
+        #~ 'best_benchmark' : best_fps_benchmark,
+        'most_popular_cpu' : most_popular_cpu,
+        'most_popular_gpu' : most_popular_gpu,
         'most_popular_game' : most_popular_game,
         'benchmark_table' : benchmark_table,
         'latest_post':latest_post,
+        'latest_games':latest_games,
     }
     
     return render(request, "home.html", context)
