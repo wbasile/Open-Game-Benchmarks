@@ -6,7 +6,6 @@ from django.utils.html import escape
 
 
 
-
 # a django-tables2 table, used in the Game List Page
 class GameTable(tables.Table):
     

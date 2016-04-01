@@ -20,10 +20,12 @@ from graphos.sources.model import ModelDataSource
 from graphos.renderers import gchart, flot, highcharts
 
 from django.views import generic
-from simple_forums import models
+#~ from simple_forums import models
 
 from django.core.files.storage import default_storage
 from django.shortcuts import render
+
+from djqscsv import render_to_csv_response
 
 
 
@@ -229,6 +231,17 @@ def BenchmarkTableView(request):
         return HttpResponseRedirect('/benchmark_chart/?'+add_get)
         
     filter = BenchmarkFilter(request.GET)
+
+        
+    if "btn-download" in request.GET:
+
+        # check for format query key in url (my/url/?format=tsv)
+
+        download_qs = filter.qs.values('game__title','cpu_model','gpu_model','resolution','game_quality_preset','driver','operating_system','user__username','fps_data')
+
+        return render_to_csv_response(download_qs, delimiter='\t')
+
+
         
     for f in filter.form.fields:
         filter.form.fields[f].help_text = ""
@@ -261,6 +274,15 @@ def BenchmarkChartView(request):
         return HttpResponseRedirect('/benchmark_table/?'+add_get)
         
     filter = BenchmarkFilter(request.GET)
+    
+    if "btn-download" in request.GET:
+
+        # check for format query key in url (my/url/?format=tsv)
+
+        download_qs = filter.qs.values('game__title','cpu_model','gpu_model','resolution','game_quality_preset','driver','operating_system','user__username','fps_data')
+
+        return render_to_csv_response(download_qs, delimiter='\t')
+
         
     for f in filter.form.fields:
         filter.form.fields[f].help_text = ""
@@ -508,28 +530,28 @@ def BenchmarkDeleteView(request, pk=None):
 
 
 
-
-from django_markdown import settings
-
-# wyswyg preview for the forum reply box
-# overrides the one in django_markdown because request.REQUEST is not supported anymore in django 1.9
-def preview(request):
-    """ Render preview page.
-
-    :returns: A rendered preview
-
-    """
-    if settings.MARKDOWN_PROTECT_PREVIEW:
-        user = getattr(request, 'user', None)
-        if not user or not user.is_staff:
-            from django.contrib.auth.views import redirect_to_login
-            return redirect_to_login(request.get_full_path())
-
-    return render(
-        request, settings.MARKDOWN_PREVIEW_TEMPLATE, dict(
-            content=request.POST.get('data', 'No content posted'),
-            css=settings.MARKDOWN_STYLE
-        ))
+#~ 
+#~ from django_markdown import settings
+#~ 
+#~ # wyswyg preview for the forum reply box
+#~ # overrides the one in django_markdown because request.REQUEST is not supported anymore in django 1.9
+#~ def preview(request):
+    #~ """ Render preview page.
+#~ 
+    #~ :returns: A rendered preview
+#~ 
+    #~ """
+    #~ if settings.MARKDOWN_PROTECT_PREVIEW:
+        #~ user = getattr(request, 'user', None)
+        #~ if not user or not user.is_staff:
+            #~ from django.contrib.auth.views import redirect_to_login
+            #~ return redirect_to_login(request.get_full_path())
+#~ 
+    #~ return render(
+        #~ request, settings.MARKDOWN_PREVIEW_TEMPLATE, dict(
+            #~ content=request.POST.get('data', 'No content posted'),
+            #~ css=settings.MARKDOWN_STYLE
+        #~ ))
         
         
         

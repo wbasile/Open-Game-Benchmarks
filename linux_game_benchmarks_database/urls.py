@@ -42,12 +42,12 @@ urlpatterns = [
     
     url(r'^game_table/$', lgbdb.views.GameTableView, name='game-table'),
     
-    url(r'^benchmark_rss/', lgbdb.feeds.LatestBenchmarks()),
+    url(r'^benchmark_rss/', lgbdb.feeds.LatestBenchmarks(), name='benchmark-rss'),
     
     #~ url(r'^forums/', include('simple_forums.urls')),
     #~ url(r'^forums/', lgbdb.views.ForumView, name='forum'),
     
-    url('^markdown/', lgbdb.views.preview, name='django_markdown_preview'),
+    #~ url('^markdown/', lgbdb.views.preview, name='django_markdown_preview'),
     
 ]
 
