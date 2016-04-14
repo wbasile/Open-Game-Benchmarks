@@ -237,7 +237,7 @@ def BenchmarkTableView(request):
 
         # check for format query key in url (my/url/?format=tsv)
 
-        download_qs = filter.qs.values('game__title','cpu_model','gpu_model','resolution','game_quality_preset','driver','operating_system','user__username','fps_data')
+        download_qs = filter.qs.values('game__title','cpu_model','gpu_model','resolution','game_quality_preset','driver','operating_system','user__username','additional_notes','fps_data')
 
         return render_to_csv_response(download_qs, delimiter='\t')
 
@@ -279,9 +279,9 @@ def BenchmarkChartView(request):
 
         # check for format query key in url (my/url/?format=tsv)
 
-        download_qs = filter.qs.values('game__title','cpu_model','gpu_model','resolution','game_quality_preset','driver','operating_system','user__username','fps_data')
+        download_qs = filter.qs.values('game__title','cpu_model','gpu_model','resolution','game_quality_preset','driver','operating_system','user__username','additional_notes','fps_data')
 
-        return render_to_csv_response(download_qs, delimiter='\t')
+        return render_to_csv_response(download_qs, delimiter='\t',filename="")
 
         
     for f in filter.form.fields:
