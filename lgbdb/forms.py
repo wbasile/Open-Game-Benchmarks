@@ -87,16 +87,16 @@ def check_fraps_format(lines):
 def check_glxosd_format(lines):
     if len(lines) <= 1: return False
     
-    for line in lines:
-        
-        l = line.split(",")
-        
-        if len(l) != 2:
+    # chech that the first line contains "GLXOSD"
+    if lines[0].find("GLXOSD") == -1: return False
+    
+    # check that every line is a float
+    for l in lines[1:]:
+        try: 
+            f = float(l.replace(",","."))
+        except:
             return False
             
-        if is_number(l[0]) == False: return False
-        if is_number(l[1]) == False: return False
-    
     return True
 
 
@@ -144,6 +144,7 @@ def parse_fraps_to_fps(lines):
     
 # given a glxosd file, returns the timings
 def parse_glxosd_to_fps(lines):
+    '''
     timings = []
     for l in lines:
         timings += [int(l.split(",")[1])]
@@ -165,7 +166,28 @@ def parse_glxosd_to_fps(lines):
             framecount = 0
             
     return fps
-
+    '''
+    
+    # read the actual frame timings
+    frames = [float(x.replace(",",".")) for x in lines[1:]]
+    
+    # calculate fps from the timings
+    timecounter = 0
+    framecount = 0
+    fps = []
+    for f in frames:
+        timecounter += f
+        framecount += 1
+        if timecounter >= 1000:
+            fps += [framecount]
+            timecounter = 0
+            framecount = 0
+            
+    return fps
+    
+    
+    
+    
 
 def parse_frames_file(frames_file):
     
