@@ -959,6 +959,8 @@ GPU_CHOICES = (
 	('NVidia GeForce GTX 970M','NVidia GeForce GTX 970M'), 
 	('NVidia GeForce GTX 980M','NVidia GeForce GTX 980M'), 
 	('NVidia GeForce GTX 980','NVidia GeForce GTX 980'), 
+    ('NVidia GeForce GTX 1070','NVidia GeForce GTX 1070'),
+    ('NVidia GeForce GTX 1080','NVidia GeForce GTX 1080'),
 	('NVidia Quadro','NVidia Quadro'), 
 	('NVidia Quadro2 MXR','NVidia Quadro2 MXR'), 
 	('NVidia Quadro2 EX','NVidia Quadro2 EX'), 
