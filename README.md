@@ -1,7 +1,7 @@
 
 <h1>Open Game Benchmarks</h1>
 
-An open-source project with the aim of collecting and analysing game performance data in both Linux and Windows
+A Django/Python open-source project with the aim of collecting and analysing game performance data in both Linux and Windows
 <br>
 <a href="http://www.opengamebenchmarks.org" target="new">www.opengamebenchmarks.org</a>
 
